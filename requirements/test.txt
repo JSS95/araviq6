@@ -1,4 +1,6 @@
 black
 flake8
 mypy
+opencv-python-headless
 pytest
+pytest-qt

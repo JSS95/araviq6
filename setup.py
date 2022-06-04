@@ -1,3 +1,4 @@
+from itertools import chain
 from setuptools import setup, find_packages  # type: ignore[import]
 
 
@@ -29,6 +30,7 @@ def get_extras_require():
     ret["test-ci"] = read_requirements("requirements/test.txt") + read_requirements(
         "requirements/test-ci.txt"
     )
+    ret["full"] = list(set(chain(*ret.values())))
     return ret
 
 
@@ -71,6 +73,7 @@ setup(
     url="https://github.com/JSS95/arabesque6",
     license="LGPL",
     packages=find_packages(),
+    package_data={"arabesque6": ["py.typed", "data/*"]},
     install_requires=read_requirements("requirements/install.txt"),
     extras_require=get_extras_require(),
 )

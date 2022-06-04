@@ -1,5 +1,6 @@
 try:
     import PyQt6  # type: ignore[import]
+
     IGNORE = False
 except ModuleNotFoundError:
     IGNORE = True

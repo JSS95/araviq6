@@ -129,6 +129,23 @@ class NDArrayLabel(ScalableQLabel):
     Scalable label which can receive and display :class:`numpy.ndarray` image.
     Image array can be set by :meth:`setArray`.
 
+    Examples
+    ========
+
+    >>> import cv2
+    >>> from PySide6.QtWidgets import QApplication
+    >>> import sys
+    >>> from arabesque6 import NDArrayLabel, get_data_path
+    >>> img = cv2.imread(get_data_path('hello.jpg'))
+    >>> def runGUI():
+    ...     app = QApplication(sys.argv)
+    ...     label = NDArrayLabel()
+    ...     label.setArray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    ...     label.show()
+    ...     app.exec()
+    ...     app.quit()
+    >>> runGUI()  # doctest: +SKIP
+
     """
 
     @QtCore.Slot(np.ndarray)

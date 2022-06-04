@@ -26,6 +26,9 @@ def get_extras_require():
     ret = {}
 
     ret["test"] = read_requirements("requirements/test.txt")
+    ret["test-ci"] = read_requirements("requirements/test.txt") + read_requirements(
+        "requirements/test-ci.txt"
+    )
     return ret
 
 

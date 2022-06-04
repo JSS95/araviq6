@@ -73,7 +73,7 @@ setup(
     url="https://github.com/JSS95/arabesque6",
     license="LGPL",
     packages=find_packages(),
-    package_data={"arabesque6": ["py.typed"]},
+    package_data={"arabesque6": ["py.typed", "data/*"]},
     install_requires=read_requirements("requirements/install.txt"),
     extras_require=get_extras_require(),
 )

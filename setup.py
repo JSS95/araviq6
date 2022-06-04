@@ -24,6 +24,8 @@ def read_requirements(path):
 
 def get_extras_require():
     ret = {}
+
+    ret["test"] = read_requirements("requirements/test.txt")
     return ret
 
 

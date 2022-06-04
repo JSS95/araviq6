@@ -1,0 +1,110 @@
+name: arabesque6 test
+
+on: [push, pull_request]
+
+jobs:
+
+  lint:
+
+    runs-on: ubuntu-latest
+
+    steps: 
+
+      - name: get repo
+        uses: actions/checkout@v2
+
+      - name: set up Python
+        uses: actions/setup-python@v2
+
+      - name: install dependencies
+        run: |
+          pip install -r requirements/test.txt
+
+      - name: lint with flake8
+        run: |
+          flake8
+
+      - name: lint with black
+        run: |
+          black --check .
+
+  type-check:
+
+    needs: lint
+
+    runs-on: ubuntu-latest
+
+    steps: 
+
+      - name: get repo
+        uses: actions/checkout@v2
+
+      - name: set up Python
+        uses: actions/setup-python@v2
+
+      - name: install package
+        run: |
+          pip install .[test]
+
+      - name: run mypy check
+        run: mypy arabesque6
+
+
+  test-pyside6:
+
+    needs: type-check
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os : [ubuntu-latest]
+        python: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+        pyside6: ["6.2", "6.3"]
+        # cannot run some versions ci (https://bugreports.qt.io/browse/PYSIDE-1797)
+        exclude:
+          - python: "3.6"
+            pyside6: "6.3"
+          - python: "3.7"
+            pyside6: "6.3"
+
+    env:
+      DISPLAY: ':99.0'
+
+    steps:
+
+      - name: get repo
+        uses: actions/checkout@v2
+
+      - name: set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: update apt-get
+        run: sudo apt-get update
+
+      - name: install xvfb in ${{ matrix.os }}
+        run: >
+          sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0
+          libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0
+          libxcb-xfixes0
+
+      - name: install libopengl in ${{ matrix.os }}
+        run: sudo apt install freeglut3 freeglut3-dev
+
+      - name: install gstreamer in ${{ matrix.os }}
+        run: >
+          sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+          gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+          gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav
+
+      - name: install different versions of PySide6
+        run: |
+          pip install PySide6==${{ matrix.pyside6 }}
+
+      - name: install package
+        run: |
+          pip install .[test-ci]
+
+      - run: pytest

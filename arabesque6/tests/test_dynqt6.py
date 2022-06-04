@@ -1,12 +1,12 @@
 try:
-    import PyQt6  # type: ignore[import]
-    IGNORE = False
+    import PyQt6 as Qt6  # type: ignore[import]
 except ModuleNotFoundError:
-    IGNORE = True
+    import PySide6 as Qt6  # type: ignore[import, no-redef]
+from arabesque6.dynqt6 import QtCore
 
 
-def test_PyQt6_QtCore_alias():
+def test_QtCore_alias():
     """Test that pyqtSignal and pyqtSlot are accessible by Signal and Slot."""
-    if not IGNORE:
-        PyQt6.QtCore.Signal
-        PyQt6.QtCore.Slot
+    assert Qt6.QtCore == QtCore
+    QtCore.Signal
+    QtCore.Slot

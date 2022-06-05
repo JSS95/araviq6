@@ -14,6 +14,12 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+# import Qt modules to avoid QtDriver error
+try:
+    import PyQt6  # type: ignore  # noqa
+except ModuleNotFoundError:
+    import PySide6  # type: ignore  # noqa
+
 
 # -- Project information -----------------------------------------------------
 

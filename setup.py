@@ -30,6 +30,7 @@ def get_extras_require():
     ret["test-ci"] = read_requirements("requirements/test.txt") + read_requirements(
         "requirements/test-ci.txt"
     )
+    ret["doc"] = read_requirements("requirements/doc.txt")
     ret["full"] = list(set(chain(*ret.values())))
     return ret
 

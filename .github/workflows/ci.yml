@@ -108,3 +108,31 @@ jobs:
           pip install .[test-ci]
 
       - run: pytest
+
+
+  doc:
+
+    needs: test-pyside6
+
+    runs-on: ubuntu-latest
+
+    steps: 
+
+      - name: get repo
+        uses: actions/checkout@v2
+
+      - name: set up Python
+        uses: actions/setup-python@v2
+
+      - name: install PySide6
+        run: |
+          pip install PySide6
+
+      - name: install package
+        run: |
+          pip install .[doc]
+
+      - name: build document
+        run: |
+          cd doc
+          make html SPHINXOPTS="-W --keep-going"

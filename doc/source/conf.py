@@ -16,9 +16,11 @@
 
 # import Qt modules to avoid QtDriver error
 try:
-    import PyQt6  # type: ignore  # noqa
-except ModuleNotFoundError:
     import PySide6  # type: ignore  # noqa
+except ModuleNotFoundError:
+    import PyQt6  # type: ignore  # noqa
+
+autodoc_mock_imports = ["PySide6", "PyQt6"]
 
 
 # -- Project information -----------------------------------------------------

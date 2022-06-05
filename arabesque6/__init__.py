@@ -18,6 +18,8 @@ from .videostream import (
 from .videowidgets import (
     ClickableSlider,
     MediaController,
+    NDArrayVideoPlayerWidget,
+    NDArrayCameraWidget,
 )
 from .util import get_data_path
 
@@ -30,5 +32,7 @@ __all__ = [
     "NDArrayMediaCaptureSession",
     "ClickableSlider",
     "MediaController",
+    "NDArrayVideoPlayerWidget",
+    "NDArrayCameraWidget",
     "get_data_path",
 ]

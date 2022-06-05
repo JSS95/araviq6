@@ -21,3 +21,4 @@ Qt6 = Qt6Driver()
 QtCore = Qt6.QtCore
 QtGui = Qt6.QtGui
 QtWidgets = Qt6.QtWidgets
+QtMultimedia = Qt6.QtMultimedia

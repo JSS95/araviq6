@@ -10,11 +10,19 @@ Qt6 Python bindings - :mod:`PyQt6` and :mod:`PySide6`.
 from .version import __version__  # noqa
 
 from .labels import ScalableQLabel, NDArrayLabel
+from .videostream import (
+    FrameToArrayConverter,
+    NDArrayVideoPlayer,
+    NDArrayMediaCaptureSession,
+)
 from .util import get_data_path
 
 
 __all__ = [
     "ScalableQLabel",
     "NDArrayLabel",
+    "FrameToArrayConverter",
+    "NDArrayVideoPlayer",
+    "NDArrayMediaCaptureSession",
     "get_data_path",
 ]

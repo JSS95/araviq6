@@ -1,8 +1,9 @@
+from arabesque6.dynqt6 import QtCore
+
 try:
     import PyQt6 as Qt6  # type: ignore[import]
 except ModuleNotFoundError:
     import PySide6 as Qt6  # type: ignore[import, no-redef]
-from arabesque6.dynqt6 import QtCore
 
 
 def test_QtCore_alias():

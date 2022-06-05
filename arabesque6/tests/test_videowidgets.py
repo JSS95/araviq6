@@ -1,8 +1,9 @@
+from arabesque6 import get_data_path, ClickableSlider
+
 try:
     from PySide6.QtCore import Qt, QPoint  # type: ignore[import]
 except ModuleNotFoundError:
     from PyQt6.QtCore import Qt, QPoint  # type: ignore[import, no-redef]
-from arabesque6 import get_data_path, ClickableSlider
 
 
 VID_PATH = get_data_path("hello.mp4")

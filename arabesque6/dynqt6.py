@@ -3,7 +3,7 @@ Dynamically import PySide6 or PyQt6
 """
 
 try:
-    from PySide6 import QtCore, QtGui, QtWidgets, QtMultimedia
+    from PySide6 import QtCore, QtGui, QtWidgets, QtMultimedia  # type: ignore
 except ModuleNotFoundError:
     from PyQt6 import QtCore, QtGui, QtWidgets, QtMultimedia  # type: ignore
 

@@ -139,7 +139,7 @@ class CannyVideoPlayerWidget(QWidget):
 
 
 if __name__ == "__main__":
-    from cv2PySide6 import get_data_path
+    from arabesque6 import get_data_path
     from PySide6.QtWidgets import QApplication
     import sys
 

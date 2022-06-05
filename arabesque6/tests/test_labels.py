@@ -1,13 +1,14 @@
+from arabesque6 import ScalableQLabel, NDArrayLabel, get_data_path
+import cv2  # type: ignore[import]
+import numpy as np
+from qimage2ndarray import array2qimage  # type: ignore[import]
+
 try:
     from PySide6.QtCore import QSize  # type: ignore[import]
     from PySide6.QtGui import QPixmap  # type: ignore[import]
 except ModuleNotFoundError:
     from PyQt6.QtCore import QSize  # type: ignore[import, no-redef]
     from PyQt6.QtGui import QPixmap  # type: ignore[import, no-redef]
-import cv2  # type: ignore[import]
-from arabesque6 import ScalableQLabel, NDArrayLabel, get_data_path
-import numpy as np
-from qimage2ndarray import array2qimage  # type: ignore[import]
 
 
 IMG_PATH = get_data_path("hello.jpg")

@@ -29,6 +29,8 @@ User can build a video pipeline to combine array manipulation and video displayi
 :class:`.FrameToArrayConverter` converts the video frame to numpy array.
 After any desired processing is done, the resulting array can be passed to :class:`.NDArrayLabel` to be displayed.
 
+:class:`.NDArrayVideoPlayer` and :class:`.NDArrayMediaCaptureSession` provide some boilerplates for the pipeline.
+
 :class:`.NDArrayVideoPlayerWidget` and :class:`.NDArrayCameraWidget` are convenience classes with pre-built pipelines.
 Use these widgets if you need quick implementation of single-threaded video processing.
 

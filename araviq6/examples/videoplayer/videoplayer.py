@@ -1,17 +1,19 @@
-"""Video player example with multithreaded canny edge detection process."""
+"""
+Video player example with multithreaded canny edge detection process, using
+pre-built video pipeline with :class:`NDArrayVideoPlayer`.
+"""
 
 import cv2  # type: ignore[import]
 import numpy as np
 from PySide6.QtCore import QObject, Signal, Slot, QThread, Qt, QUrl
-from PySide6.QtMultimedia import QMediaPlayer, QVideoSink, QVideoFrame
 from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout
-from araviq6 import FrameToArrayConverter, MediaController, NDArrayLabel
+from araviq6 import NDArrayVideoPlayer, MediaController, NDArrayLabel
 
 
-class FrameSender(QObject):
+class ArraySender(QObject):
     """Object to sent the array to processor thread."""
 
-    frameChanged = Signal(QVideoFrame)
+    arrayChanged = Signal(np.ndarray)
 
 
 class CannyEdgeDetector(QObject):
@@ -62,29 +64,19 @@ class CannyEdgeDetector(QObject):
 class CannyVideoPlayerWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._videoPlayer = QMediaPlayer(self)
-        self._frameSender = FrameSender()
+        self._videoPlayer = NDArrayVideoPlayer(self)
+        self._arraySender = ArraySender()
         self._processorThread = QThread()
-        self._frame2Arr = FrameToArrayConverter()
         self._arrayProcessor = CannyEdgeDetector()
         self._arrayLabel = NDArrayLabel()
         self._mediaController = MediaController()
         self._cannyButton = QPushButton()
 
-        self.frameToArrayConverter().moveToThread(self.processorThread())
         self.arrayProcessor().moveToThread(self.processorThread())
         self.processorThread().start()
 
-        self.videoPlayer().setVideoSink(QVideoSink(self))
-        self.videoPlayer().videoSink().videoFrameChanged.connect(
-            self.onFramePassedFromCamera
-        )
-        self._frameSender.frameChanged.connect(
-            self.frameToArrayConverter().setVideoFrame
-        )
-        self.frameToArrayConverter().arrayChanged.connect(
-            self.arrayProcessor().setArray
-        )
+        self.videoPlayer().arrayChanged.connect(self.onArrayPassedFromPlayer)
+        self._arraySender.arrayChanged.connect(self.arrayProcessor().setArray)
         self.arrayProcessor().arrayChanged.connect(self.arrayLabel().setArray)
 
         self.arrayLabel().setAlignment(Qt.AlignCenter)
@@ -100,14 +92,11 @@ class CannyVideoPlayerWidget(QWidget):
         layout.addWidget(self.cannyButton())
         self.setLayout(layout)
 
-    def videoPlayer(self) -> QMediaPlayer:
+    def videoPlayer(self) -> NDArrayVideoPlayer:
         return self._videoPlayer
 
     def processorThread(self) -> QThread:
         return self._processorThread
-
-    def frameToArrayConverter(self) -> FrameToArrayConverter:
-        return self._frame2Arr
 
     def arrayProcessor(self) -> CannyEdgeDetector:
         return self._arrayProcessor
@@ -121,10 +110,10 @@ class CannyVideoPlayerWidget(QWidget):
     def cannyButton(self) -> QPushButton:
         return self._cannyButton
 
-    @Slot(QVideoFrame)
-    def onFramePassedFromCamera(self, frame: QVideoFrame):
+    @Slot(np.ndarray)
+    def onArrayPassedFromPlayer(self, array: np.ndarray):
         if self.arrayProcessor().ready():
-            self._frameSender.frameChanged.emit(frame)
+            self._arraySender.arrayChanged.emit(array)
 
     @Slot(bool)
     def onCannyButtonToggle(self, state: bool):

@@ -1,4 +1,7 @@
-"""Camera example with multithreaded Gaussian blurring process."""
+"""
+Camera example with multithreaded Gaussian blurring process, building every
+video pipeline component.
+"""
 
 import cv2  # type: ignore
 import numpy as np
@@ -9,7 +12,7 @@ from araviq6 import FrameToArrayConverter, NDArrayLabel
 
 
 class FrameSender(QObject):
-    """Object to sent the array to processor thread."""
+    """Object to sent the video frame to processor thread."""
 
     frameChanged = Signal(QVideoFrame)
 

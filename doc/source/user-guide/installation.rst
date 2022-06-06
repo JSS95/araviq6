@@ -65,6 +65,12 @@ Available specifications for AraViQ6 are:
 * ``doc``: installs modules to build documentations
 * ``full``: installs every additional dependency
 
+Also, you may specify the Qt binding package dependency.
+These are not included in ``full`` because you cannot install both.
+
+* ``pyside6``: installs PySide6
+* ``pyqt6``: installs PyQt6
+
 With commas without trailing whitespaces, i.e. ``[A,B]``, you can pass multiple specifications.
 
 Installing from repository

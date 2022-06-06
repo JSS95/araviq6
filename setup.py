@@ -26,14 +26,16 @@ def read_requirements(path):
 def get_extras_require():
     ret = {}
 
-    ret["pyside6"] = read_requirements("requirements/pyside6.txt")
-    ret["pyqt6"] = read_requirements("requirements/pyqt6.txt")
     ret["test"] = read_requirements("requirements/test.txt")
     ret["test-ci"] = read_requirements("requirements/test.txt") + read_requirements(
         "requirements/test-ci.txt"
     )
     ret["doc"] = read_requirements("requirements/doc.txt")
     ret["full"] = list(set(chain(*ret.values())))
+
+    # do not include them in "full"
+    ret["pyside6"] = read_requirements("requirements/pyside6.txt")
+    ret["pyqt6"] = read_requirements("requirements/pyqt6.txt")
     return ret
 
 

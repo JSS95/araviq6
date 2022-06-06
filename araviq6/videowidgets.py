@@ -17,6 +17,8 @@ from .videostream import NDArrayVideoPlayer, NDArrayMediaCaptureSession
 __all__ = [
     "ClickableSlider",
     "MediaController",
+    "NDArrayVideoPlayerWidget",
+    "NDArrayCameraWidget",
 ]
 
 

@@ -47,6 +47,7 @@ setup(
     long_description=read_readme(),
     long_description_content_type="text/markdown",
     classifiers=[
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         (

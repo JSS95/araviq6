@@ -6,9 +6,6 @@
 Welcome to AraViQ6's documentation!
 ===================================
 
-AraViQ6 is a Python package for converting Qt6 `QVideoFrame <https://doc.qt.io/qt-6/qvideoframe.html>`_ to Numpy array.
-It supports `PySide6 <https://pypi.org/project/PySide6/>`_ and `PyQt6 <https://pypi.org/project/PyQt6/>`_.
-
 This is the central page for all documents.
 
 .. toctree::

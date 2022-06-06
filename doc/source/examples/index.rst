@@ -4,7 +4,7 @@
 Examples
 ========
 
-This page gives advanced examples to perform image analysis with Arabesque6.
+This page gives advanced examples to perform image analysis with AraViQ6.
 
 .. toctree::
    :maxdepth: 2

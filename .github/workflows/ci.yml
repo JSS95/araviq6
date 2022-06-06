@@ -1,4 +1,4 @@
-name: arabesque6 test
+name: araviq6 test
 
 on: [push, pull_request]
 
@@ -47,7 +47,7 @@ jobs:
           pip install .[test]
 
       - name: run mypy check
-        run: mypy arabesque6
+        run: mypy araviq6
 
 
   test-pyside6:

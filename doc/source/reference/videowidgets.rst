@@ -1,2 +1,2 @@
-.. automodule:: arabesque6.videowidgets
+.. automodule:: araviq6.videowidgets
    :members:

@@ -1,4 +1,4 @@
-from arabesque6 import FrameToArrayConverter, get_data_path
+from araviq6 import FrameToArrayConverter, get_data_path
 import cv2  # type: ignore[import]
 import numpy as np
 import pytest

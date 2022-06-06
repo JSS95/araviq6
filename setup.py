@@ -2,7 +2,7 @@ from itertools import chain
 from setuptools import setup, find_packages  # type: ignore[import]
 
 
-VERSION_FILE = "arabesque6/version.py"
+VERSION_FILE = "araviq6/version.py"
 
 
 def get_version():
@@ -38,7 +38,7 @@ def get_extras_require():
 
 
 setup(
-    name="arabesque6",
+    name="araviq6",
     version=get_version(),
     python_requires=">=3.6",
     description="Package for converting QVideoFrame to NDArray with Qt6",
@@ -73,10 +73,10 @@ setup(
     author_email="jeesoo9595@snu.ac.kr",
     maintainer="Jisoo Song",
     maintainer_email="jeesoo9595@snu.ac.kr",
-    url="https://github.com/JSS95/arabesque6",
+    url="https://github.com/JSS95/araviq6",
     license="LGPL",
     packages=find_packages(),
-    package_data={"arabesque6": ["py.typed", "data/*"]},
+    package_data={"araviq6": ["py.typed", "data/*"]},
     install_requires=read_requirements("requirements/install.txt"),
     extras_require=get_extras_require(),
 )

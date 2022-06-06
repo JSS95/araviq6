@@ -2,14 +2,14 @@
 Introduction
 ============
 
-.. currentmodule:: arabesque6
+.. currentmodule:: araviq6
 
 .. figure:: ../_images/pipeline.png
    :align: center
 
-   Video display pipeline with Arabesque6
+   Video display pipeline with AraViQ6
 
-Arabesque6 is a Python package which converts :class:`PySide6.QVideoFrame` to :class:`numpy.ndarray` and displays it on GUI.
+AraViQ6 is a Python package which converts :class:`PySide6.QVideoFrame` to :class:`numpy.ndarray` and displays it on GUI.
 This task is very common in scientific visualizing, especially in the field of image analysis.
 
 :class:`.FrameToArrayConverter` converts the video frame to numpy array.

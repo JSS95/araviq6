@@ -1,2 +1,2 @@
-.. automodule:: arabesque6.videostream
+.. automodule:: araviq6.videostream
    :members:

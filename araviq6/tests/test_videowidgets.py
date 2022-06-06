@@ -1,4 +1,4 @@
-from arabesque6 import get_data_path, ClickableSlider
+from araviq6 import get_data_path, ClickableSlider
 
 try:
     from PySide6.QtCore import Qt, QPoint  # type: ignore[import]

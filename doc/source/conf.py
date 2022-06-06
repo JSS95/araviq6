@@ -25,7 +25,7 @@ autodoc_mock_imports = ["PySide6", "PyQt6"]
 
 # -- Project information -----------------------------------------------------
 
-project = "Arabesque6"
+project = "AraViQ6"
 copyright = "2022, Jisoo Song"
 author = "Jisoo Song"
 

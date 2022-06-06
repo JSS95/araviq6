@@ -1,2 +1,2 @@
-.. automodule:: arabesque6.util
+.. automodule:: araviq6.util
    :members:

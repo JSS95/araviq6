@@ -2,7 +2,7 @@
 Video widgets
 =============
 
-:mod:`arabesque6.videowidgets` provides convenience widgets with pre-built video
+:mod:`araviq6.videowidgets` provides convenience widgets with pre-built video
 pipelines.
 
 """
@@ -218,7 +218,7 @@ class NDArrayVideoPlayerWidget(QtWidgets.QWidget):
     >>> from PySide6.QtCore import QUrl
     >>> from PySide6.QtWidgets import QApplication
     >>> import sys
-    >>> from arabesque6 import get_data_path, NDArrayVideoPlayerWidget
+    >>> from araviq6 import get_data_path, NDArrayVideoPlayerWidget
     >>> vidpath = get_data_path('hello.mp4')
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
@@ -289,7 +289,7 @@ class NDArrayCameraWidget(QtWidgets.QWidget):
     >>> from PySide6.QtWidgets import QApplication
     >>> from PySide6.QtMultimedia import QCamera
     >>> import sys
-    >>> from arabesque6 import NDArrayCameraWidget
+    >>> from araviq6 import NDArrayCameraWidget
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
     ...     widget = NDArrayCameraWidget()

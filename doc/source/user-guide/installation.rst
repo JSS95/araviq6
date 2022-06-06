@@ -2,7 +2,7 @@
 Installation
 ============
 
-This document explains how to install Arabesque6 package.
+This document explains how to install AraViQ6 package.
 
 Making virtual environment
 ==========================
@@ -21,11 +21,11 @@ Ready to go!
 Downloading the source (Optional)
 =================================
 
-You can download full source code of Arabesque6 project without installing it by git.
+You can download full source code of AraViQ6 project without installing it by git.
 
 .. code-block:: bash
 
-   $ git clone git@github.com:JSS95/arabesque6.git
+   $ git clone git@github.com:JSS95/araviq6.git
 
 Note that you can download the source with ``pip`` command, but it will install the package at the same time.
 It will be explaned in the next section.
@@ -43,7 +43,7 @@ For example, the following code downloads the latest release from PyPI.
 
 .. code-block:: bash
 
-   $ pip install arabesque6
+   $ pip install araviq6
 
 .. rubric:: install options
 
@@ -58,7 +58,7 @@ Change to the source directly reflects to your environment.
 Dependency specification installs additional modules which are required to access extra features of the package.
 You may add them in brackets right after the package argument.
 
-Available specifications for Arabesque6 are:
+Available specifications for AraViQ6 are:
 
 * ``test``: installs modules to run tests
 * ``test-ci``: installs modules to run tests in headless environment.
@@ -74,14 +74,14 @@ By passing the vcs url, ``pip`` command automatically clones the source code and
 
 .. code-block:: bash
 
-   $ pip install git+ssh://git@github.com/JSS95/arabesque6.git
+   $ pip install git+ssh://git@github.com/JSS95/araviq6.git
 
 If you want to pass install options, you need to specify the package name by ``#egg=``.
 For example, the following code installs the package with every additional dependency.
 
 .. code-block:: bash
 
-   $ pip install git+ssh://git@github.com/JSS95/arabesque6.git#egg=arabesque6[full]
+   $ pip install git+ssh://git@github.com/JSS95/araviq6.git#egg=araviq6[full]
 
 .. note::
 

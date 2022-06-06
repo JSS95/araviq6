@@ -4,7 +4,7 @@ General utilities
 
 """
 
-import arabesque6
+import araviq6
 import os
 
 
@@ -21,7 +21,7 @@ def get_data_path(*paths: str) -> str:
     ==========
 
     paths
-        Subpaths under ``arabesque6/data/`` directory.
+        Subpaths under ``araviq6/data/`` directory.
 
     Returns
     =======
@@ -30,7 +30,7 @@ def get_data_path(*paths: str) -> str:
         Absolute path to the sample depending on the user's system.
 
     """
-    module_path = os.path.abspath(arabesque6.__file__)
+    module_path = os.path.abspath(araviq6.__file__)
     module_path = os.path.split(module_path)[0]
     sample_dir = os.path.join(module_path, "data")
     sample_dir = os.path.normpath(sample_dir)

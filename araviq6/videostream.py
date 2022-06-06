@@ -2,7 +2,7 @@
 Video frame pipeline
 ====================
 
-:mod:`arabesque6.videostream` provides pipeline objects to get video stream in
+:mod:`araviq6.videostream` provides pipeline objects to get video stream in
 numpy array.
 
 """

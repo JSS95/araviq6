@@ -1,4 +1,4 @@
-from arabesque6.dynqt6 import QtCore
+from araviq6.dynqt6 import QtCore
 
 try:
     import PyQt6 as Qt6  # type: ignore[import]

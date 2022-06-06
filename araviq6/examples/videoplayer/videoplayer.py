@@ -5,7 +5,7 @@ import numpy as np
 from PySide6.QtCore import QObject, Signal, Slot, QThread, Qt, QUrl
 from PySide6.QtMultimedia import QMediaPlayer, QVideoSink, QVideoFrame
 from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout
-from arabesque6 import FrameToArrayConverter, MediaController, NDArrayLabel
+from araviq6 import FrameToArrayConverter, MediaController, NDArrayLabel
 
 
 class FrameSender(QObject):
@@ -139,7 +139,7 @@ class CannyVideoPlayerWidget(QWidget):
 
 
 if __name__ == "__main__":
-    from arabesque6 import get_data_path
+    from araviq6 import get_data_path
     from PySide6.QtWidgets import QApplication
     import sys
 

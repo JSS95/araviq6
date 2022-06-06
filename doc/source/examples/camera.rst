@@ -3,7 +3,7 @@ Camera
 
 This example shows how to run the camera with multithreaded processing.
 
-.. image:: ../../../arabesque6/examples/camera/camera.png
+.. image:: ../../../araviq6/examples/camera/camera.png
 
-.. include:: ../../../arabesque6/examples/camera/camera.py
+.. include:: ../../../araviq6/examples/camera/camera.py
    :code: python

@@ -5,7 +5,7 @@ import numpy as np
 from PySide6.QtCore import QObject, Signal, Slot, Qt, QThread
 from PySide6.QtMultimedia import QMediaCaptureSession, QVideoSink, QVideoFrame
 from PySide6.QtWidgets import QMainWindow
-from arabesque6 import FrameToArrayConverter, NDArrayLabel
+from araviq6 import FrameToArrayConverter, NDArrayLabel
 
 
 class FrameSender(QObject):

@@ -1,4 +1,4 @@
-from arabesque6 import ScalableQLabel, NDArrayLabel, get_data_path
+from araviq6 import ScalableQLabel, NDArrayLabel, get_data_path
 import cv2  # type: ignore[import]
 import numpy as np
 from qimage2ndarray import array2qimage  # type: ignore[import]

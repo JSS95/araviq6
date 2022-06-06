@@ -2,7 +2,7 @@
 Array label
 ===========
 
-:mod:`arabesque6.labels` provides subclasses of ``QLabel`` with utilities.
+:mod:`araviq6.labels` provides subclasses of ``QLabel`` with utilities.
 
 """
 
@@ -135,7 +135,7 @@ class NDArrayLabel(ScalableQLabel):
     >>> import cv2
     >>> from PySide6.QtWidgets import QApplication
     >>> import sys
-    >>> from arabesque6 import NDArrayLabel, get_data_path
+    >>> from araviq6 import NDArrayLabel, get_data_path
     >>> img = cv2.imread(get_data_path('hello.jpg'))
     >>> def runGUI():
     ...     app = QApplication(sys.argv)

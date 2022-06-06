@@ -31,6 +31,9 @@ User can construct a pipeline which converts `QVideoFrame` to `ndarray`, perform
 
 To convert it, pass the video frame `araviq6.FrameToArrayConverter` and listen to `FrameToArrayConverter.arrayChanged` signal.
 
+For convenience, `araviq6` provides `NDArrayVideoPlayer` and `NDArrayMediaCaptureSession` with pre-built pipelines.
+They inherit their Qt6 counterparts and emit `arrayChanged` signal.
+
 > (Note) If you want to convert a single `QImage` to `ndarray`, [qimage2ndarray](https://pypi.org/project/qimage2ndarray/) package provides handy functions.
 
 ## Displaying `ndarray`
@@ -38,13 +41,11 @@ To convert it, pass the video frame `araviq6.FrameToArrayConverter` and listen t
 `araviq6.NDArrayLabel` is a widget to directly display `ndarray`.
 It can also scale the image with respect to the widget size, and user can select the scaling mode.
 
-## Convenience classes
+## Convenience widgets
 
-For convenience, `araviq6` provides `NDArrayVideoPlayer` and `NDArrayMediaCaptureSession` which inherits their Qt6 counterparts and emits `arrayChanged` signal.
-`NDArrayVideoPlayerWidget` and `NDArrayCameraWidget` are the minimal implementation to display the video stream with them.
-
+`NDArrayVideoPlayerWidget` and `NDArrayCameraWidget` are the minimal implementation to perform array-wise operation on video stream and display.
 However, time-consuming image processing will block the GUI with these classes because they use a single thread.
-To build multithread pipeline, refer to the examples and build the pipeline yourself.
+To build multithread pipeline, refer to the examples.
 
 # Examples
 

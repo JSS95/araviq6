@@ -14,13 +14,7 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-# import Qt modules to avoid QtDriver error
-try:
-    import PySide6  # type: ignore  # noqa
-except ModuleNotFoundError:
-    import PyQt6  # type: ignore  # noqa
-
-autodoc_mock_imports = ["PySide6", "PyQt6"]
+autodoc_mock_imports = ["PyQt5", "PySide6"]
 
 
 # -- Project information -----------------------------------------------------

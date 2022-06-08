@@ -124,10 +124,6 @@ jobs:
       - name: set up Python
         uses: actions/setup-python@v2
 
-      - name: install PySide6
-        run: |
-          pip install PySide6
-
       - name: install package
         run: |
           pip install .[doc]

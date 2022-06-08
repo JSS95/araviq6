@@ -1,4 +1,5 @@
 from itertools import chain
+import os
 from setuptools import setup, find_packages  # type: ignore[import]
 
 
@@ -15,6 +16,24 @@ def read_readme():
     with open("README.md", encoding="utf-8") as f:
         content = f.read()
     return content
+
+
+def get_package_data():
+    pkgname = "araviq6"
+    pkg_datapaths = ["py.typed", "data", "examples"]
+
+    ret = []
+    for path in pkg_datapaths:
+        fullpath = os.path.join(pkgname, path)
+        if os.path.isfile(fullpath):
+            ret.append(path)
+        else:
+            for root, dirs, files in os.walk(fullpath):
+                for filename in files:
+                    filepath = os.path.join(root, filename)
+                    ret.append(os.path.join(*filepath.split(os.sep)[1:]))
+
+    return {pkgname: ret}
 
 
 def read_requirements(path):
@@ -79,7 +98,7 @@ setup(
     url="https://github.com/JSS95/araviq6",
     license="LGPL",
     packages=find_packages(),
-    package_data={"araviq6": ["py.typed", "data/*"]},
+    package_data=get_package_data(),
     install_requires=read_requirements("requirements/install.txt"),
     extras_require=get_extras_require(),
 )

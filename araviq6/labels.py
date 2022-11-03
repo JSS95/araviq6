@@ -9,7 +9,7 @@ Array label
 import enum
 import numpy as np
 from qimage2ndarray import array2qimage  # type: ignore[import]
-from .dynqt6 import QtCore, QtGui, QtWidgets
+from .qt_compat import QtCore, QtGui, QtWidgets
 
 __all__ = [
     "ScalableQLabel",

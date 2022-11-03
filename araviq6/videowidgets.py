@@ -9,7 +9,7 @@ pipelines.
 
 import numpy as np
 from typing import Optional
-from .dynqt6 import QtCore, QtGui, QtMultimedia, QtWidgets
+from .qt_compat import QtCore, QtGui, QtMultimedia, QtWidgets
 from .labels import NDArrayLabel
 from .videostream import NDArrayVideoPlayer, NDArrayMediaCaptureSession
 

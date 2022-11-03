@@ -20,7 +20,7 @@ def read_readme():
 
 def get_package_data():
     pkgname = "araviq6"
-    pkg_datapaths = ["py.typed", "data", "examples"]
+    pkg_datapaths = ["py.typed", "data"]
 
     ret = []
     for path in pkg_datapaths:

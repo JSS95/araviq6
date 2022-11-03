@@ -101,4 +101,4 @@ Installing Qt binding
 =====================
 
 AraViQ6 needs Qt binding package installed in the environment, but it does not specify it as requirement.
-Install any one of the supported Qt binding listed in :ref:`introduction` before using AraViQ6.
+Install any one of the supported Qt binding listed in :ref:`intro` before using AraViQ6.

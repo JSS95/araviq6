@@ -1,4 +1,5 @@
-from araviq6.qt_compat import QtCore
+from araviq6.qt_compat import QtCore, QtWidgets
+
 
 def test_import_QtCore():
     assert hasattr(QtCore, "Qt")

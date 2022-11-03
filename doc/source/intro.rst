@@ -6,7 +6,7 @@ Introduction
 
 .. currentmodule:: araviq6
 
-.. figure:: ../_images/pipeline.png
+.. figure:: ./_images/pipeline.png
    :align: center
 
    Video display pipeline with AraViQ6

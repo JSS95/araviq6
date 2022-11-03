@@ -10,7 +10,7 @@ numpy array.
 import numpy as np
 from qimage2ndarray import rgb_view  # type: ignore[import]
 from typing import Callable
-from .dynqt6 import QtCore, QtGui, QtMultimedia
+from .qt_compat import QtCore, QtGui, QtMultimedia
 
 
 __all__ = [

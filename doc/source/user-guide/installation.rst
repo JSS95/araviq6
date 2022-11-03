@@ -2,12 +2,12 @@
 Installation
 ============
 
-This document explains how to install AraViQ6 package.
+This document explains how to install AraViQ6.
 
 Making virtual environment
 ==========================
 
-It is recommended to make a dedicated virtual environment to avoid any possible collision with external libraries with different Qt dependencies.
+It is recommended to make a dedicated virtual environment to avoid any possible collision with external libraries using different Qt dependencies.
 The easiest way is to use `Anaconda <https://www.anaconda.com/>`_:
 
 .. code-block:: bash
@@ -39,7 +39,7 @@ The package can be installed by
 
    $ pip install [-e] <PyPI name/url/path>[dependency options]
 
-For example, the following code downloads the latest release from PyPI.
+For example, the following code installs the latest release from PyPI.
 
 .. code-block:: bash
 
@@ -53,7 +53,7 @@ There are two types of install options for developers.
 * Install with dependency specification (``[...]``)
 
 Editable option installs the package as link to the original location.
-Change to the source directly reflects to your environment.
+Change to the source directly applies as you import the package.
 
 Dependency specification installs additional modules which are required to access extra features of the package.
 You may add them in brackets right after the package argument.
@@ -64,12 +64,6 @@ Available specifications for AraViQ6 are:
 * ``test-ci``: installs modules to run tests in headless environment.
 * ``doc``: installs modules to build documentations
 * ``full``: installs every additional dependency
-
-Also, you may specify the Qt binding package dependency.
-These are not included in ``full`` because you cannot install both.
-
-* ``pyside6``: installs PySide6
-* ``pyqt6``: installs PyQt6
 
 With commas without trailing whitespaces, i.e. ``[A,B]``, you can pass multiple specifications.
 
@@ -102,3 +96,9 @@ For example, in the path where ``setup.py`` is located the following command ins
 .. code-block:: bash
 
    $ pip install -e .[full]
+
+Installing Qt binding
+=====================
+
+AraViQ6 needs Qt binding package installed in the environment, but it does not specify it as requirement.
+Install any one of the supported Qt binding listed in :ref:`introduction` before using AraViQ6.

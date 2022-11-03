@@ -37,7 +37,6 @@ Supported Qt bindings
 AraViQ6 is compatible with the following Qt binding packages:
 
 * `PySide6 <https://pypi.org/project/PySide6/>`_
-* `PyQt6 <https://pypi.org/project/PyQt6/>`_
 
 When AraViQ6 is imported, available package is searched and selected in the order mentioned above.
 To force a particular API, set environment variable ``AraViQ_QT_API`` with package name. Letter case does not matter.

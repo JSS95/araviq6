@@ -20,13 +20,6 @@ However, PyQt6 is not available until the dependent package, `qimage2ndarray <ht
 How to use
 ==========
 
-AraViQ must be imported **after** the Qt package is imported.
-
-.. code:: python
-
-   import PySide6
-   import araviq6 as avq
-
 User can build a video pipeline to combine array manipulation and video displaying.
 :class:`.FrameToArrayConverter` converts the video frame to numpy array.
 After any desired processing is done, the resulting array can be passed to :class:`.NDArrayLabel` to be displayed.

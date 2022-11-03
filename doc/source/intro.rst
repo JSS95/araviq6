@@ -20,13 +20,6 @@ However, PyQt6 is not available until the dependent package, `qimage2ndarray <ht
 How to use
 ==========
 
-AraViQ must be imported **after** the Qt package is imported.
-
-.. code:: python
-
-   import PySide6
-   import araviq6 as avq
-
 User can build a video pipeline to combine array manipulation and video displaying.
 :class:`.FrameToArrayConverter` converts the video frame to numpy array.
 After any desired processing is done, the resulting array can be passed to :class:`.NDArrayLabel` to be displayed.
@@ -44,7 +37,6 @@ Supported Qt bindings
 AraViQ6 is compatible with the following Qt binding packages:
 
 * `PySide6 <https://pypi.org/project/PySide6/>`_
-* `PyQt6 <https://pypi.org/project/PyQt6/>`_
 
 When AraViQ6 is imported, available package is searched and selected in the order mentioned above.
 To force a particular API, set environment variable ``AraViQ_QT_API`` with package name. Letter case does not matter.

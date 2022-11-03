@@ -8,13 +8,20 @@ Array label
 
 import enum
 import numpy as np
-from qimage2ndarray import array2qimage  # type: ignore[import]
 from .qt_compat import QtCore, QtGui, QtWidgets
+import qimage2ndarray  # type: ignore[import]
 
 __all__ = [
     "ScalableQLabel",
     "NDArrayLabel",
 ]
+
+
+# Monkeypatch qimage2ndarray until new version (> 1.9.0)
+# https://github.com/hmeine/qimage2ndarray/issues/29
+for name, qimage_format in qimage2ndarray.qimageview_python.FORMATS.items():
+    if name in dir(QtGui.QImage.Format):
+        qimage_format.code = getattr(QtGui.QImage, name)
 
 
 class ScalableQLabel(QtWidgets.QLabel):
@@ -155,7 +162,7 @@ class NDArrayLabel(ScalableQLabel):
         and display.
         """
         if array.size > 0:
-            pixmap = QtGui.QPixmap.fromImage(array2qimage(array))
+            pixmap = QtGui.QPixmap.fromImage(qimage2ndarray.array2qimage(array))
         else:
             pixmap = QtGui.QPixmap()
         self.setPixmap(pixmap)

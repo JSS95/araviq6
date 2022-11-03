@@ -9,7 +9,7 @@ Introduction
 
    Video display pipeline with AraViQ6
 
-AraViQ6 (pronounced "Ara-vik") is a Python package for converting Qt6 `QVideoFrame <https://doc.qt.io/qt-6/qvideoframe.html>`_ to :class:`numpy.ndarray` and display it on GUI.
+AraViQ6 is a Python package for converting Qt6 `QVideoFrame <https://doc.qt.io/qt-6/qvideoframe.html>`_ to :class:`numpy.ndarray` and display it on GUI.
 This task is very common in scientific visualizing, especially in the field of image analysis.
 
 AraViQ is designed to be used with either `PySide6 <https://pypi.org/project/PySide6/>`_ or `PyQt6 <https://pypi.org/project/PyQt6/>`_.

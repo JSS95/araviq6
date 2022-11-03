@@ -76,7 +76,7 @@ class FrameToArrayConverter(QtCore.QObject):
     def converter(self) -> Callable[[QtGui.QImage], np.ndarray]:
         """
         Callable object to convert ``QImage`` instance to numpy array. Default is
-        ``qimage2ndarray.qimage2ndarray.rgb_view``.
+        ``qimage2ndarray.rgb_view``.
         """
         return self._converter
 

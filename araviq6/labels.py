@@ -158,7 +158,7 @@ class NDArrayLabel(ScalableQLabel):
     @QtCore.Slot(np.ndarray)
     def setArray(self, array: np.ndarray):
         """
-        Convert the array to pixmap using :func:`qimage2ndarray.qimage2ndarray.array2qimage`,
+        Convert the array to pixmap using :func:`qimage2ndarray.array2qimage`,
         and display.
         """
         if array.size > 0:

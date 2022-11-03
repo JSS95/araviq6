@@ -8,9 +8,9 @@ numpy array.
 """
 
 import numpy as np
-from qimage2ndarray import rgb_view  # type: ignore[import]
-from typing import Callable
 from .qt_compat import QtCore, QtGui, QtMultimedia
+import qimage2ndarray  # type: ignore[import]
+from typing import Callable
 
 
 __all__ = [
@@ -18,6 +18,13 @@ __all__ = [
     "NDArrayVideoPlayer",
     "NDArrayMediaCaptureSession",
 ]
+
+
+# Monkeypatch qimage2ndarray until new version (> 1.9.0)
+# https://github.com/hmeine/qimage2ndarray/issues/29
+for name, qimage_format in qimage2ndarray.qimageview_python.FORMATS.items():
+    if name in dir(QtGui.QImage.Format):
+        qimage_format.code = getattr(QtGui.QImage, name)
 
 
 class FrameToArrayConverter(QtCore.QObject):
@@ -39,7 +46,7 @@ class FrameToArrayConverter(QtCore.QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._ignoreNullFrame = True
-        self._converter = rgb_view
+        self._converter = qimage2ndarray.rgb_view
 
     def ignoreNullFrame(self) -> bool:
         """
@@ -69,7 +76,7 @@ class FrameToArrayConverter(QtCore.QObject):
     def converter(self) -> Callable[[QtGui.QImage], np.ndarray]:
         """
         Callable object to convert ``QImage`` instance to numpy array. Default is
-        ``qimage2ndarray.rgb_view``.
+        ``qimage2ndarray.qimage2ndarray.rgb_view``.
         """
         return self._converter
 

@@ -35,3 +35,14 @@ After any desired processing is done, the resulting array can be passed to :clas
 Use these widgets if you need quick implementation of single-threaded video processing.
 
 For more information, see :ref:`Reference <reference>` and :ref:`Examples <examples>` pages.
+
+Supported Qt bindings
+=====================
+
+AraViQ6 is compatible with the following Qt binding packages:
+
+* `PySide6 <https://pypi.org/project/PySide6/>`_
+* `PyQt6 <https://pypi.org/project/PyQt6/>`_
+
+When AraViQ6 is imported, available package is searched and selected in the order mentioned above.
+To force a particular API, set environment variable ``AraViQ_QT_API`` with package name. Letter case does not matter.

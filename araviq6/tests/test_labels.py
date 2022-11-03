@@ -1,14 +1,8 @@
 from araviq6 import ScalableQLabel, NDArrayLabel, get_data_path
+from araviq6.qt_compat import QtCore, QtGui
 import cv2  # type: ignore[import]
 import numpy as np
 from qimage2ndarray import array2qimage  # type: ignore[import]
-
-try:
-    from PySide6.QtCore import QSize  # type: ignore[import]
-    from PySide6.QtGui import QPixmap  # type: ignore[import]
-except ModuleNotFoundError:
-    from PyQt6.QtCore import QSize  # type: ignore[import, no-redef]
-    from PyQt6.QtGui import QPixmap  # type: ignore[import, no-redef]
 
 
 IMG_PATH = get_data_path("hello.jpg")
@@ -18,26 +12,26 @@ def test_ScalableQLabel(qtbot):
     label = ScalableQLabel()
 
     img = cv2.cvtColor(cv2.imread(IMG_PATH), cv2.COLOR_BGR2RGBA)
-    pixmap = QPixmap.fromImage(array2qimage(img))
+    pixmap = QtGui.QPixmap.fromImage(array2qimage(img))
     pixmap_image = pixmap.toImage()
     img_h, img_w = pixmap_image.height(), pixmap_image.width()
 
     label.setPixmapScaleMode(label.PM_NoScale)
     # pixmap size is fixed
     label.setPixmap(pixmap)
-    assert label.pixmap().size() == QSize(img_w, img_h)
+    assert label.pixmap().size() == QtCore.QSize(img_w, img_h)
     assert label.pixmap().toImage() == pixmap_image
     # test downscaling : size fixed to original size
     new_w, new_h = (int(img_w / 2), int(img_h / 2))
     label.resize(new_w, new_h)
     label.setPixmap(pixmap)
-    assert label.pixmap().size() == QSize(img_w, img_h)
+    assert label.pixmap().size() == QtCore.QSize(img_w, img_h)
     assert label.pixmap().toImage() == pixmap_image
     # test upscaling : size fixed to original size
     new_w, new_h = (2 * img_w, 2 * img_h)
     label.resize(new_w, new_h)
     label.setPixmap(pixmap)
-    assert label.pixmap().size() == QSize(img_w, img_h)
+    assert label.pixmap().size() == QtCore.QSize(img_w, img_h)
     assert label.pixmap().toImage() == pixmap_image
 
     label.setPixmapScaleMode(label.PM_DownScaleOnly)
@@ -50,7 +44,7 @@ def test_ScalableQLabel(qtbot):
     new_w, new_h = (2 * img_w, 2 * img_h)
     label.resize(new_w, new_h)
     label.setPixmap(pixmap)
-    assert label.pixmap().size() == QSize(img_w, img_h)
+    assert label.pixmap().size() == QtCore.QSize(img_w, img_h)
     assert label.pixmap().toImage() == pixmap_image
 
     label.setPixmapScaleMode(label.PM_UpScaleOnly)
@@ -58,7 +52,7 @@ def test_ScalableQLabel(qtbot):
     new_w, new_h = (int(img_w / 2), int(img_h / 2))
     label.resize(new_w, new_h)
     label.setPixmap(pixmap)
-    assert label.pixmap().size() == QSize(img_w, img_h)
+    assert label.pixmap().size() == QtCore.QSize(img_w, img_h)
     assert label.pixmap().toImage() == pixmap_image
     # test upscaling
     new_w, new_h = (2 * img_w, 2 * img_h)
@@ -88,17 +82,17 @@ def test_NDArrayLabel(qtbot):
     label.setPixmapScaleMode(label.PM_NoScale)
     # pixmap size is fixed
     label.setArray(img)
-    assert label.pixmap().size() == QSize(w, h)
+    assert label.pixmap().size() == QtCore.QSize(w, h)
     # test downscaling : size fixed to original size
     new_w, new_h = (int(w / 2), int(h / 2))
     label.resize(new_w, new_h)
     label.setArray(img)
-    assert label.pixmap().size() == QSize(w, h)
+    assert label.pixmap().size() == QtCore.QSize(w, h)
     # test upscaling : size fixed to original size
     new_w, new_h = (2 * w, 2 * h)
     label.resize(new_w, new_h)
     label.setArray(img)
-    assert label.pixmap().size() == QSize(w, h)
+    assert label.pixmap().size() == QtCore.QSize(w, h)
 
     label.setPixmapScaleMode(label.PM_DownScaleOnly)
     # test downscaling
@@ -110,14 +104,14 @@ def test_NDArrayLabel(qtbot):
     new_w, new_h = (2 * w, 2 * h)
     label.resize(new_w, new_h)
     label.setArray(img)
-    assert label.pixmap().size() == QSize(w, h)
+    assert label.pixmap().size() == QtCore.QSize(w, h)
 
     label.setPixmapScaleMode(label.PM_UpScaleOnly)
     # test downscaling : minimum size == original size
     new_w, new_h = (int(w / 2), int(h / 2))
     label.resize(new_w, new_h)
     label.setArray(img)
-    assert label.pixmap().size() == QSize(w, h)
+    assert label.pixmap().size() == QtCore.QSize(w, h)
     # test upscaling : maximum size == original size
     new_w, new_h = (2 * w, 2 * h)
     label.resize(new_w, new_h)

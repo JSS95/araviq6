@@ -119,7 +119,7 @@ class MediaController(QtWidgets.QWidget):
         """Play or pause :meth:`player`."""
         player = self.player()
         if player is not None:
-            if player.playbackState() == player.PlayingState:
+            if player.playbackState() == player.PlaybackState.PlayingState:
                 player.pause()
             else:
                 player.play()
@@ -136,7 +136,7 @@ class MediaController(QtWidgets.QWidget):
         """If the media was playing, pause and move to the pressed position."""
         player = self.player()
         if player is not None:
-            if player.playbackState() == player.PlayingState:
+            if player.playbackState() == player.PlaybackState.PlayingState:
                 self._pausedBySliderPress = True
                 player.pause()
             player.setPosition(self.slider().value())
@@ -202,7 +202,7 @@ class MediaController(QtWidgets.QWidget):
     @QtCore.Slot(QtMultimedia.QMediaPlayer.PlaybackState)
     def onPlaybackStateChange(self, state: QtMultimedia.QMediaPlayer.PlaybackState):
         """Switch the play icon and pause icon by *state*."""
-        if state == QtMultimedia.QMediaPlayer.PlayingState:
+        if state == QtMultimedia.QMediaPlayer.PlaybackState.PlayingState:
             pause_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaPause)
             self.playButton().setIcon(pause_icon)
         else:

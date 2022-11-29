@@ -73,41 +73,29 @@ class MediaController(QtWidgets.QWidget):
         self._player = None
         self._pausedBySliderPress = False
 
-        self.playButton().clicked.connect(self.onPlayButtonClicked)
-        self.stopButton().clicked.connect(self.onStopButtonClicked)
-        self.slider().sliderPressed.connect(self.onSliderPress)
-        self.slider().sliderMoved.connect(self.onSliderMove)
-        self.slider().sliderReleased.connect(self.onSliderRelease)
+        self._playButton.clicked.connect(self._onPlayButtonClick)
+        self._stopButton.clicked.connect(self._onStopButtonClick)
+        self._slider.sliderPressed.connect(self._onSliderPress)
+        self._slider.sliderMoved.connect(self._onSliderMove)
+        self._slider.sliderReleased.connect(self._onSliderRelease)
 
         layout = QtWidgets.QHBoxLayout()
         play_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay)
-        self.playButton().setIcon(play_icon)
-        layout.addWidget(self.playButton())
+        self._playButton.setIcon(play_icon)
+        layout.addWidget(self._playButton)
         stop_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaStop)
-        self.stopButton().setIcon(stop_icon)
-        layout.addWidget(self.stopButton())
-        self.slider().setOrientation(QtCore.Qt.Horizontal)
-        layout.addWidget(self.slider())
+        self._stopButton.setIcon(stop_icon)
+        layout.addWidget(self._stopButton)
+        self._slider.setOrientation(QtCore.Qt.Horizontal)
+        layout.addWidget(self._slider)
         self.setLayout(layout)
-
-    def slider(self) -> ClickableSlider:
-        """Slider to change the media position."""
-        return self._slider
-
-    def playButton(self) -> QtWidgets.QPushButton:
-        """Button to play and pause the media."""
-        return self._playButton
-
-    def stopButton(self) -> QtWidgets.QPushButton:
-        """Button to stop the media."""
-        return self._stopButton
 
     def player(self) -> Optional[QtMultimedia.QMediaPlayer]:
         """Media player which is controlled by *self*."""
         return self._player
 
     @QtCore.Slot()
-    def onPlayButtonClicked(self):
+    def _onPlayButtonClick(self):
         """Play or pause :meth:`player`."""
         player = self.player()
         if player is not None:
@@ -117,31 +105,31 @@ class MediaController(QtWidgets.QWidget):
                 player.play()
 
     @QtCore.Slot()
-    def onStopButtonClicked(self):
+    def _onStopButtonClick(self):
         """Stop :meth:`player`."""
         player = self.player()
         if player is not None:
             player.stop()
 
     @QtCore.Slot()
-    def onSliderPress(self):
+    def _onSliderPress(self):
         """If the media was playing, pause and move to the pressed position."""
         player = self.player()
         if player is not None:
             if player.playbackState() == player.PlaybackState.PlayingState:
                 self._pausedBySliderPress = True
                 player.pause()
-            player.setPosition(self.slider().value())
+            player.setPosition(self._slider.value())
 
     @QtCore.Slot(int)
-    def onSliderMove(self, position: int):
+    def _onSliderMove(self, position: int):
         """Move the media to current slider position."""
         player = self.player()
         if player is not None:
             player.setPosition(position)
 
     @QtCore.Slot()
-    def onSliderRelease(self):
+    def _onSliderRelease(self):
         """If the media was paused by slider press, play the media."""
         player = self.player()
         if player is not None and self._pausedBySliderPress:
@@ -152,51 +140,43 @@ class MediaController(QtWidgets.QWidget):
         """Set :meth:`player` and connect the signals."""
         old_player = self.player()
         if old_player is not None:
-            self.disconnectPlayer(old_player)
+            old_player.durationChanged.disconnect(  # type: ignore[attr-defined]
+                self._onMediaDurationChange
+            )
+            old_player.positionChanged.disconnect(  # type: ignore[attr-defined]
+                self._onMediaPositionChange
+            )
+            old_player.playbackStateChanged.disconnect(  # type: ignore[attr-defined]
+                self._onPlaybackStateChange
+            )
         self._player = player
         if player is not None:
-            self.connectPlayer(player)
-
-    def connectPlayer(self, player: QtMultimedia.QMediaPlayer):
-        """Connect signals and slots with *player*."""
-        player.durationChanged.connect(  # type: ignore[attr-defined]
-            self.onMediaDurationChange
-        )
-        player.positionChanged.connect(  # type: ignore[attr-defined]
-            self.onMediaPositionChange
-        )
-        player.playbackStateChanged.connect(  # type: ignore[attr-defined]
-            self.onPlaybackStateChange
-        )
-
-    def disconnectPlayer(self, player: QtMultimedia.QMediaPlayer):
-        """Disconnect signals and slots with *player*."""
-        player.durationChanged.disconnect(  # type: ignore[attr-defined]
-            self.onMediaDurationChange
-        )
-        player.positionChanged.disconnect(  # type: ignore[attr-defined]
-            self.onMediaPositionChange
-        )
-        player.playbackStateChanged.disconnect(  # type: ignore[attr-defined]
-            self.onPlaybackStateChange
-        )
+            player.durationChanged.connect(  # type: ignore[attr-defined]
+                self._onMediaDurationChange
+            )
+            player.positionChanged.connect(  # type: ignore[attr-defined]
+                self._onMediaPositionChange
+            )
+            player.playbackStateChanged.connect(  # type: ignore[attr-defined]
+                self._onPlaybackStateChange
+            )
 
     @QtCore.Slot(int)
-    def onMediaDurationChange(self, duration: int):
+    def _onMediaDurationChange(self, duration: int):
         """Set the slider range to media duration."""
-        self.slider().setRange(0, duration)
+        self._slider.setRange(0, duration)
 
     @QtCore.Slot(int)
-    def onMediaPositionChange(self, position: int):
+    def _onMediaPositionChange(self, position: int):
         """Update the slider position to video position."""
-        self.slider().setValue(position)
+        self._slider.setValue(position)
 
     @QtCore.Slot(QtMultimedia.QMediaPlayer.PlaybackState)
-    def onPlaybackStateChange(self, state: QtMultimedia.QMediaPlayer.PlaybackState):
+    def _onPlaybackStateChange(self, state: QtMultimedia.QMediaPlayer.PlaybackState):
         """Switch the play icon and pause icon by *state*."""
         if state == QtMultimedia.QMediaPlayer.PlaybackState.PlayingState:
             pause_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaPause)
-            self.playButton().setIcon(pause_icon)
+            self._playButton.setIcon(pause_icon)
         else:
             play_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay)
-            self.playButton().setIcon(play_icon)
+            self._playButton.setIcon(play_icon)

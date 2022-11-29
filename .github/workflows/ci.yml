@@ -26,7 +26,7 @@ jobs:
 
       - name: lint with black
         run: |
-          black --check .
+          black --check -v .
 
   type-check:
 
@@ -56,10 +56,6 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    env:
-      DISPLAY: ":99.0"
-      PYTEST_QT_API: ${{ matrix.qt }}
-
     strategy:
       fail-fast: false
 
@@ -67,6 +63,10 @@ jobs:
         os : [ubuntu-latest, windows-latest, macos-latest]
         python: ["3.9", "3.10"]
         qt: [PySide6]
+
+    env:
+      DISPLAY: ":99.0"
+      PYTEST_QT_API: ${{ matrix.qt }}
 
     steps:
 

@@ -1,14 +1,60 @@
-# AraViQ6
+# AraViQ6 - NDArray from QVideoFrame with Qt6
 
-Python package for converting `QVideoFrame` to `NDArray` with Qt6.
+[![PyPI version](https://badge.fury.io/py/AraViQ6.svg)](https://badge.fury.io/py/AraViQ6)
+[![Python Version](https://img.shields.io/pypi/pyversions/araviq6)](https://pypi.org/project/araviq6/)
+[![Build Status](https://github.com/JSS95/araviq6/actions/workflows/ci.yml/badge.svg)](https://github.com/JSS95/araviq6/actions/workflows/ci.yml)
+[![Documentation Status](https://readthedocs.org/projects/araviq6/badge/?version=latest)](https://araviq6.readthedocs.io/en/latest/?badge=latest)
+[![License](https://img.shields.io/github/license/JSS95/araviq6)](https://github.com/JSS95/araviq6/blob/master/LICENSE)
 
-AraViQ is designed to be used with either [PySide6](https://pypi.org/project/PySide6/) or [PyQt6](https://pypi.org/project/PyQt6/).
-However, PyQt6 is not available until the dependent package, [qimage2ndarray](https://pypi.org/project/qimage2ndarray/), supports it.
+AraViQ6 is a Python package which provides NDArray-based video pipeline with Qt6.
+
+It provides:
+- Converter to get NDArray from QVideoFrame
+- QLabel to display image from NDArray
+- Convenience classes and widgets with pre-built video pipelines
+
+The following Qt bindings are supported:
+- [PySide6](https://pypi.org/project/PySide6/)
+
+# How to use
+
+There are two ways to use AraViQ6; build the video pipeline yourself, or use the convenience classes with pre-built pipelines.
+
+## Building the pipeline
+
+Qt's `QVideoSink` class emits `QVideoFrame` from the video file or the camera.
+Connect the signals to build a pipeline which consists of:
+1. `FrameToArrayConverter`, which converts `QVideoFrame` to `ndarray`.
+2. Any array processing, if required.
+3. `NDArrayLabel` which displays `ndarray` on the screen.
+
+<div align="center">
+  <img src="https://github.com/JSS95/araviq6/raw/master/doc/source/_images/pipeline.png"/><br>
+    Video display pipeline with AraViQ6
+</div>
+
+Note that you may want to run the processing in separate thread to avoid blocking the GUI thread.
+See Examples to learn how to construct a multithreaded pipeline.
+
+## Convenicence classes
+
+The following classes have internal video sink and converter to emit `ndarray` from the video.
+- `NDArrayVideoPlayer`
+- `NDArrayMediaCaptureSession`
+
+The following widgets implements full video streaming from source to display, albeit the array cannot be processed.
+- `NDArrayVideoPlayerWidget`
+- `NDArrayCameraWidget`
+
+# Examples
+
+Use cases are provided in [examples](https://github.com/JSS95/araviq6/tree/master/araviq6/examples) directory.
+They can be found in documentation as well.
 
 # Installation
 
 Before you install, be careful for other Qt-dependent packages installed in your environment.
-For example, non-headless `OpenCV-Python` modifies the Qt dependency thus can make other Qt bindings unavailable.
+For example, non-headless OpenCV-Python modifies the Qt dependency thus can make other Qt bindings unavailable.
 
 `araviq6` can be installed using `pip`.
 
@@ -16,50 +62,15 @@ For example, non-headless `OpenCV-Python` modifies the Qt dependency thus can ma
 $ pip install araviq6
 ```
 
-# How to use
-
-User can construct a pipeline which converts `QVideoFrame` to `ndarray`, performs any desired processing and displays to the widget.
-
-<div align="center">
-  <img src="https://github.com/JSS95/araviq6/raw/master/doc/source/_images/pipeline.png"/><br>
-    Video display pipeline
-</div>
-
-## `QVideoFrame` to `ndarray`
-
-`QVideoFrame` is acquired from media file (`QMediaPlayer`) or camera capture session (`QMediaCaptureSession`) by setting `QVideoSink` to them and listening to `QVideoSink.videoFrameChanged` signal.
-
-To convert it, pass the video frame `araviq6.FrameToArrayConverter` and listen to `FrameToArrayConverter.arrayChanged` signal.
-
-For convenience, `araviq6` provides `NDArrayVideoPlayer` and `NDArrayMediaCaptureSession` with pre-built pipelines.
-They inherit their Qt6 counterparts and emit `arrayChanged` signal.
-
-> (Note) If you want to convert a single `QImage` to `ndarray`, [qimage2ndarray](https://pypi.org/project/qimage2ndarray/) package provides handy functions.
-
-## Displaying `ndarray`
-
-`araviq6.NDArrayLabel` is a widget to directly display `ndarray`.
-It can also scale the image with respect to the widget size, and user can select the scaling mode.
-
-## Convenience widgets
-
-`NDArrayVideoPlayerWidget` and `NDArrayCameraWidget` are the minimal implementation to perform array-wise operation on video stream and display.
-However, time-consuming image processing will block the GUI with these classes because they use a single thread.
-To build multithread pipeline, refer to the examples.
-
-# Examples
-
-Use cases with multithreading are provided in [examples](https://github.com/JSS95/araviq6/tree/master/araviq6/examples) directory.
-They can be found in documentation as well.
-
 # Documentation
 
+AraViQ6 is documented with [Sphinx](https://pypi.org/project/Sphinx/).
 Documentation can be found on Read the Docs:
 
 > https://araviq6.readthedocs.io/
 
 If you want to build the document yourself, clone the source code and install with `[doc]` option.
-Go to `doc` directory and build.
+Go to `doc` directory and build the document.
 
 ```
 $ pip install araviq6[doc]
@@ -67,3 +78,4 @@ $ cd doc
 $ make html
 ```
 
+Document will be generated in `build/html` directory. Open `index.html` to see the central page.

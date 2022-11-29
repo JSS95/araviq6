@@ -1,6 +1,8 @@
 """
-General utilities
-=================
+Testing helpers
+===============
+
+:mod:`araviq6.util.testing` provides functions to help writing unit tests.
 
 """
 
@@ -9,11 +11,11 @@ import os
 
 
 __all__ = [
-    "get_data_path",
+    "get_samples_path",
 ]
 
 
-def get_data_path(*paths: str) -> str:
+def get_samples_path(*paths: str) -> str:
     """
     Get the absolute path to the directory where the sample data are stored.
 
@@ -21,7 +23,7 @@ def get_data_path(*paths: str) -> str:
     ==========
 
     paths
-        Subpaths under ``araviq6/data/`` directory.
+        Subpaths under ``araviq6/samples/`` directory.
 
     Returns
     =======
@@ -32,7 +34,7 @@ def get_data_path(*paths: str) -> str:
     """
     module_path = os.path.abspath(araviq6.__file__)
     module_path = os.path.split(module_path)[0]
-    sample_dir = os.path.join(module_path, "data")
+    sample_dir = os.path.join(module_path, "samples")
     sample_dir = os.path.normpath(sample_dir)
     sample_dir = os.path.normcase(sample_dir)
 

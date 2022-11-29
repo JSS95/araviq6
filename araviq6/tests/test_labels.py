@@ -1,11 +1,11 @@
-from araviq6 import ScalableQLabel, NDArrayLabel, get_data_path
+from araviq6 import ScalableQLabel, NDArrayLabel, get_samples_path
 from araviq6.qt_compat import QtCore, QtGui
 import cv2  # type: ignore[import]
 import numpy as np
 from qimage2ndarray import array2qimage  # type: ignore[import]
 
 
-IMG_PATH = get_data_path("hello.jpg")
+IMG_PATH = get_samples_path("hello.jpg")
 
 
 def test_ScalableQLabel(qtbot):

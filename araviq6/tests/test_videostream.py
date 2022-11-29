@@ -1,4 +1,4 @@
-from araviq6 import FrameToArrayConverter, get_data_path
+from araviq6 import FrameToArrayConverter, get_samples_path
 import cv2  # type: ignore[import]
 import numpy as np
 import pytest
@@ -6,7 +6,7 @@ from qimage2ndarray import byte_view, gray2qimage, array2qimage  # type: ignore[
 
 
 def test_FrameToArrayConverter(qtbot):
-    bgr_array = cv2.imread(get_data_path("hello.jpg"))
+    bgr_array = cv2.imread(get_samples_path("hello.jpg"))
     gray_array = cv2.cvtColor(bgr_array, cv2.COLOR_BGR2GRAY)
     rgb_array = cv2.cvtColor(bgr_array, cv2.COLOR_BGR2RGB)
     gray_img = gray2qimage(gray_array)

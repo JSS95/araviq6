@@ -2,12 +2,11 @@
 AraViQ6: NDArray from QVideoFrame with Qt6
 ==========================================
 
-AraViQ6 is a package to get :class:`numpy.ndarray` from ``QVideoFrame`` with
-Qt6 Python bindings - :mod:`PyQt6` or :mod:`PySide6`.
+AraViQ6 is a package to build video pipeline with :class:`numpy.ndarray` from
+Qt6's ``QVideoFrame``.
 
 """
 
-from .qt_compat import qt_api  # noqa
 from .version import __version__  # noqa
 
 from .labels import ScalableQLabel, NDArrayLabel
@@ -17,12 +16,14 @@ from .videostream import (
     NDArrayMediaCaptureSession,
 )
 from .videowidgets import (
-    ClickableSlider,
-    MediaController,
     NDArrayVideoPlayerWidget,
     NDArrayCameraWidget,
 )
-from .util import get_data_path
+from .util import (
+    ClickableSlider,
+    MediaController,
+    get_samples_path,
+)
 
 
 __all__ = [
@@ -31,9 +32,9 @@ __all__ = [
     "FrameToArrayConverter",
     "NDArrayVideoPlayer",
     "NDArrayMediaCaptureSession",
-    "ClickableSlider",
-    "MediaController",
     "NDArrayVideoPlayerWidget",
     "NDArrayCameraWidget",
-    "get_data_path",
+    "ClickableSlider",
+    "MediaController",
+    "get_samples_path",
 ]

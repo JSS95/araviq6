@@ -1,19 +1,14 @@
 """
 Video player example with multithreaded canny edge detection process, using
-pre-built video pipeline with :class:`NDArrayVideoPlayer`.
+pre-built video pipeline in :class:`NDArrayVideoPlayer`.
 """
 
 import cv2  # type: ignore[import]
 import numpy as np
 from PySide6.QtCore import QObject, Signal, Slot, QThread, Qt, QUrl
 from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout
+from PySide6.QtMultimedia import QMediaPlayer
 from araviq6 import NDArrayVideoPlayer, MediaController, NDArrayLabel
-
-
-class ArraySender(QObject):
-    """Object to sent the array to processor thread."""
-
-    arrayChanged = Signal(np.ndarray)
 
 
 class CannyEdgeDetector(QObject):
@@ -25,13 +20,8 @@ class CannyEdgeDetector(QObject):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._currentArray = np.empty((0, 0, 0))
         self._canny_mode = False
         self._ready = True
-
-    def currentArray(self) -> np.ndarray:
-        """Last array passed to :meth:`setArray`."""
-        return self._currentArray
 
     def cannyMode(self) -> bool:
         """If False, Canny edge detection is not performed."""
@@ -46,96 +36,85 @@ class CannyEdgeDetector(QObject):
 
     def setArray(self, array: np.ndarray):
         self._ready = False
-        self._currentArray = array
         if array.size > 0 and self.cannyMode():
             gray = cv2.cvtColor(array, cv2.COLOR_RGB2GRAY)
             canny = cv2.Canny(gray, 50, 200)
             ret = cv2.cvtColor(canny, cv2.COLOR_GRAY2RGB)
         else:
-            ret = array
+            ret = cv2.cvtColor(array, cv2.COLOR_BGR2RGB)
         self.arrayChanged.emit(ret)
         self._ready = True
 
-    def refreshCurrentArray(self):
-        """Re-process and emit :meth:`currentArray`."""
-        self.setArray(self.currentArray())
-
 
 class CannyVideoPlayerWidget(QWidget):
+
+    _processRequested = Signal(np.ndarray)
+
     def __init__(self, parent=None):
         super().__init__(parent)
+        self._lastVideoFrame = np.empty((0, 0, 0), dtype=np.uint8)
+
         self._videoPlayer = NDArrayVideoPlayer(self)
-        self._arraySender = ArraySender()
         self._processorThread = QThread()
         self._arrayProcessor = CannyEdgeDetector()
         self._arrayLabel = NDArrayLabel()
         self._mediaController = MediaController()
         self._cannyButton = QPushButton()
 
-        self.arrayProcessor().moveToThread(self.processorThread())
-        self.processorThread().start()
+        self._arrayProcessor.moveToThread(self._processorThread)
+        self._processorThread.start()
 
-        self.videoPlayer().arrayChanged.connect(self.onArrayPassedFromPlayer)
-        self._arraySender.arrayChanged.connect(self.arrayProcessor().setArray)
-        self.arrayProcessor().arrayChanged.connect(self.arrayLabel().setArray)
+        self._videoPlayer.arrayChanged.connect(self._displayImageFromPlayer)
+        self._processRequested.connect(self._arrayProcessor.setArray)
+        self._arrayProcessor.arrayChanged.connect(self._arrayLabel.setArray)
 
-        self.arrayLabel().setAlignment(Qt.AlignCenter)
-        self.mediaController().setPlayer(self.videoPlayer())
-        self.cannyButton().setCheckable(True)
-        self.cannyButton().toggled.connect(self.onCannyButtonToggle)
+        self._arrayLabel.setAlignment(Qt.AlignCenter)
+        self._mediaController.setPlayer(self._videoPlayer)
+        self._cannyButton.setCheckable(True)
+        self._cannyButton.toggled.connect(self._onCannyButtonToggle)
 
-        self.cannyButton().setText("Toggle edge detection")
+        self._cannyButton.setText("Toggle edge detection")
 
         layout = QVBoxLayout()
-        layout.addWidget(self.arrayLabel())
-        layout.addWidget(self.mediaController())
-        layout.addWidget(self.cannyButton())
+        layout.addWidget(self._arrayLabel)
+        layout.addWidget(self._mediaController)
+        layout.addWidget(self._cannyButton)
         self.setLayout(layout)
 
-    def videoPlayer(self) -> NDArrayVideoPlayer:
-        return self._videoPlayer
-
-    def processorThread(self) -> QThread:
-        return self._processorThread
-
-    def arrayProcessor(self) -> CannyEdgeDetector:
-        return self._arrayProcessor
-
-    def arrayLabel(self) -> NDArrayLabel:
-        return self._arrayLabel
-
-    def mediaController(self) -> MediaController:
-        return self._mediaController
-
-    def cannyButton(self) -> QPushButton:
-        return self._cannyButton
+    def setSource(self, url: QUrl):
+        self._videoPlayer.setSource(url)
 
     @Slot(np.ndarray)
-    def onArrayPassedFromPlayer(self, array: np.ndarray):
-        if self.arrayProcessor().ready():
-            self._arraySender.arrayChanged.emit(array)
+    def _displayImageFromPlayer(self, array: np.ndarray):
+        self._lastVideoFrame = array.copy()
+
+        processor = self._arrayProcessor
+        if processor.ready():
+            self._processRequested.emit(array)
 
     @Slot(bool)
-    def onCannyButtonToggle(self, state: bool):
-        self.arrayProcessor().setCannyMode(state)
-        if self.videoPlayer().playbackState() != self.videoPlayer().PlayingState:
-            self.arrayProcessor().refreshCurrentArray()
+    def _onCannyButtonToggle(self, state: bool):
+        processor = self._arrayProcessor
+        processor.setCannyMode(state)
+        state = self._videoPlayer.playbackState()
+        if state != QMediaPlayer.PlaybackState.PlayingState:
+            processor.setArray(self._lastVideoFrame)
 
     def closeEvent(self, event):
-        self.processorThread().quit()
-        self.processorThread().wait()
+        self._processorThread.quit()
+        self._processorThread.wait()
         super().closeEvent(event)
 
 
 if __name__ == "__main__":
-    from araviq6 import get_data_path
+    from araviq6 import get_samples_path
     from PySide6.QtWidgets import QApplication
     import sys
 
     app = QApplication(sys.argv)
     widget = CannyVideoPlayerWidget()
-    url = QUrl.fromLocalFile(get_data_path("hello.mp4"))
-    widget.videoPlayer().setSource(url)
+    url = QUrl.fromLocalFile(get_samples_path("hello.mp4"))
+    widget.setSource(url)
     widget.show()
     app.exec()
     app.quit()

@@ -2,13 +2,31 @@
 Video frame pipeline
 ====================
 
-:mod:`araviq6.videostream` provides pipeline objects to get video stream in
-numpy array.
+:mod:`araviq6.videostream` provides pipeline component to convert video stream
+into numpy array, and convenience classes with internal video pipelines.
+
+Converter
+---------
+
+.. autoclass:: FrameToArrayConverter
+   :members:
+   :exclude-members: arrayChanged
+
+Convenience classes
+-------------------
+
+.. autoclass:: NDArrayVideoPlayer
+   :members:
+   :exclude-members: arrayChanged
+
+.. autoclass:: NDArrayMediaCaptureSession
+   :members:
+   :exclude-members: arrayChanged
 
 """
 
 import numpy as np
-from .qt_compat import QtCore, QtGui, QtMultimedia
+from araviq6.qt_compat import QtCore, QtGui, QtMultimedia
 import qimage2ndarray  # type: ignore[import]
 from typing import Callable
 
@@ -87,8 +105,9 @@ class FrameToArrayConverter(QtCore.QObject):
         """
         Convert *qimg* to numpy array. Null image is converted to empty array.
         """
+        converter = self.converter()
         if not qimg.isNull():
-            array = self.converter()(qimg).copy()  # copy to detach reference
+            array = converter(qimg).copy()  # copy to detach reference
         else:
             array = np.empty((0, 0, 0))
         return array
@@ -99,23 +118,19 @@ class NDArrayVideoPlayer(QtMultimedia.QMediaPlayer):
     Minimal implementation of video player which emits frames as numpy arrays to
     :attr:`arrayChanged` signal.
 
-    User may use this class for convenience, or define their own pipeline.
+    User may use this class for convenience, or define own pipeline.
     """
 
     arrayChanged = QtCore.Signal(np.ndarray)
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self._videoSink = QtMultimedia.QVideoSink()
         self._frame2Arr = FrameToArrayConverter(self)
 
-        self.setVideoSink(QtMultimedia.QVideoSink(self))
-        self.videoSink().videoFrameChanged.connect(
-            self.frameToArrayConverter().setVideoFrame
-        )
-        self.frameToArrayConverter().arrayChanged.connect(self.arrayChanged)
-
-    def frameToArrayConverter(self) -> FrameToArrayConverter:
-        return self._frame2Arr
+        self.setVideoSink(self._videoSink)
+        self._videoSink.videoFrameChanged.connect(self._frame2Arr.setVideoFrame)
+        self._frame2Arr.arrayChanged.connect(self.arrayChanged)
 
 
 class NDArrayMediaCaptureSession(QtMultimedia.QMediaCaptureSession):
@@ -123,20 +138,16 @@ class NDArrayMediaCaptureSession(QtMultimedia.QMediaCaptureSession):
     Minimal implementation of media capture session which emits frames as
     numpy arrays to :attr:`arrayChanged` signal.
 
-    User may use this class for convenience, or define their own pipeline.
+    User may use this class for convenience, or define own pipeline.
     """
 
     arrayChanged = QtCore.Signal(np.ndarray)
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self._videoSink = QtMultimedia.QVideoSink()
         self._frame2Arr = FrameToArrayConverter(self)
 
-        self.setVideoSink(QtMultimedia.QVideoSink(self))
-        self.videoSink().videoFrameChanged.connect(
-            self.frameToArrayConverter().setVideoFrame
-        )
-        self.frameToArrayConverter().arrayChanged.connect(self.arrayChanged)
-
-    def frameToArrayConverter(self) -> FrameToArrayConverter:
-        return self._frame2Arr
+        self.setVideoSink(self._videoSink)
+        self._videoSink.videoFrameChanged.connect(self._frame2Arr.setVideoFrame)
+        self._frame2Arr.arrayChanged.connect(self.arrayChanged)

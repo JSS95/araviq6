@@ -7,7 +7,6 @@ Qt6 Python bindings - :mod:`PyQt6` or :mod:`PySide6`.
 
 """
 
-from .qt_compat import qt_api  # noqa
 from .version import __version__  # noqa
 
 from .labels import ScalableQLabel, NDArrayLabel

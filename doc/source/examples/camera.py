@@ -5,16 +5,11 @@ video pipeline component.
 
 import cv2  # type: ignore
 import numpy as np
+import numpy.typing as npt
 from PySide6.QtCore import QObject, Signal, Slot, Qt, QThread
-from PySide6.QtMultimedia import QMediaCaptureSession, QVideoSink, QVideoFrame
+from PySide6.QtMultimedia import QMediaCaptureSession, QVideoSink
 from PySide6.QtWidgets import QMainWindow
 from araviq6 import FrameToArrayConverter, NDArrayLabel
-
-
-class FrameSender(QObject):
-    """Object to sent the video frame to processor thread."""
-
-    frameChanged = Signal(QVideoFrame)
 
 
 class BlurringProcessor(QObject):
@@ -32,66 +27,51 @@ class BlurringProcessor(QObject):
     @Slot(np.ndarray)
     def setArray(self, array: np.ndarray):
         self._ready = False
+        array = cv2.cvtColor(array, cv2.COLOR_BGR2RGB)
         self.arrayChanged.emit(cv2.GaussianBlur(array, (0, 0), 25))
         self._ready = True
 
 
 class Window(QMainWindow):
+
+    _processRequested = Signal(np.ndarray)
+
     def __init__(self, parent=None):
         super().__init__(parent)
+        self._camera = QCamera()
         self._captureSession = QMediaCaptureSession()
-        self._frameSender = FrameSender()
-        self._processorThread = QThread()
-        self._frame2Arr = FrameToArrayConverter()
+        self._cameraSink = QVideoSink()
+        self._arrayConverter = FrameToArrayConverter()
         self._arrayProcessor = BlurringProcessor()
         self._arrayLabel = NDArrayLabel()
 
-        self.frameToArrayConverter().moveToThread(self.processorThread())
-        self.arrayProcessor().moveToThread(self.processorThread())
-        self.processorThread().start()
+        # set up the pipeline
+        self._captureSession.setCamera(self._camera)
+        self._captureSession.setVideoSink(self._cameraSink)
+        self._cameraSink.videoFrameChanged.connect(self._arrayConverter.setVideoFrame)
+        self._arrayConverter.arrayChanged.connect(self._displayImageFromCamera)
+        self._processRequested.connect(self._arrayProcessor.setArray)
+        self._arrayProcessor.arrayChanged.connect(self._arrayLabel.setArray)
 
-        self.captureSession().setVideoSink(QVideoSink(self))
-        self.captureSession().videoSink().videoFrameChanged.connect(
-            self.onFramePassedFromCamera
-        )
-        self._frameSender.frameChanged.connect(
-            self.frameToArrayConverter().setVideoFrame
-        )
-        self.frameToArrayConverter().arrayChanged.connect(
-            self.arrayProcessor().setArray
-        )
-        self.arrayProcessor().arrayChanged.connect(self.arrayLabel().setArray)
+        self._arrayLabel.setAlignment(Qt.AlignCenter)  # type: ignore[arg-type]
+        self.setCentralWidget(self._arrayLabel)
 
-        self.arrayLabel().setAlignment(Qt.AlignCenter)  # type: ignore[arg-type]
-        self.setCentralWidget(self.arrayLabel())
+        self._processorThread = QThread()
+        self._arrayProcessor.moveToThread(self._processorThread)
+        self._processorThread.start()
 
-        camera = QCamera(self)
-        self.captureSession().setCamera(camera)
-        camera.start()
+        self._camera.start()
 
-    def captureSession(self) -> QMediaCaptureSession:
-        return self._captureSession
-
-    def processorThread(self) -> QThread:
-        return self._processorThread
-
-    def frameToArrayConverter(self) -> FrameToArrayConverter:
-        return self._frame2Arr
-
-    def arrayProcessor(self) -> BlurringProcessor:
-        return self._arrayProcessor
-
-    def arrayLabel(self) -> NDArrayLabel:
-        return self._arrayLabel
-
-    @Slot(QVideoFrame)
-    def onFramePassedFromCamera(self, frame: QVideoFrame):
-        if self.arrayProcessor().ready():
-            self._frameSender.frameChanged.emit(frame)
+    @Slot(np.ndarray)
+    def _displayImageFromCamera(self, array: npt.NDArray[np.uint8]):
+        processor = self._arrayProcessor
+        if not processor.ready():
+            return
+        self._processRequested.emit(array)
 
     def closeEvent(self, event):
-        self.processorThread().quit()
-        self.processorThread().wait()
+        self._processorThread.quit()
+        self._processorThread.wait()
         super().closeEvent(event)
 
 

@@ -64,7 +64,7 @@ class CannyVideoPlayerWidget(QWidget):
         self._arrayProcessor.moveToThread(self._processorThread)
         self._processorThread.start()
 
-        self._videoPlayer.arrayChanged.connect(self.visualizeImageFromPlayer)
+        self._videoPlayer.arrayChanged.connect(self._displayImageFromPlayer)
         self._processRequested.connect(self._arrayProcessor.setArray)
         self._arrayProcessor.arrayChanged.connect(self._arrayLabel.setArray)
 
@@ -85,7 +85,7 @@ class CannyVideoPlayerWidget(QWidget):
         self._videoPlayer.setSource(url)
 
     @Slot(np.ndarray)
-    def visualizeImageFromPlayer(self, array: np.ndarray):
+    def _displayImageFromPlayer(self, array: np.ndarray):
         self._lastVideoFrame = array.copy()
 
         processor = self._arrayProcessor

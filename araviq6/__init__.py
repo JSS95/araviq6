@@ -16,12 +16,14 @@ from .videostream import (
     NDArrayMediaCaptureSession,
 )
 from .videowidgets import (
-    ClickableSlider,
-    MediaController,
     NDArrayVideoPlayerWidget,
     NDArrayCameraWidget,
 )
-from .util import get_samples_path
+from .util import (
+    ClickableSlider,
+    MediaController,
+    get_samples_path,
+)
 
 
 __all__ = [
@@ -30,9 +32,9 @@ __all__ = [
     "FrameToArrayConverter",
     "NDArrayVideoPlayer",
     "NDArrayMediaCaptureSession",
-    "ClickableSlider",
-    "MediaController",
     "NDArrayVideoPlayerWidget",
     "NDArrayCameraWidget",
+    "ClickableSlider",
+    "MediaController",
     "get_samples_path",
 ]

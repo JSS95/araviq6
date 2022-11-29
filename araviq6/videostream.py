@@ -11,7 +11,7 @@ stream using internal pipeline.
 """
 
 import numpy as np
-from .qt_compat import QtCore, QtGui, QtMultimedia
+from araviq6.qt_compat import QtCore, QtGui, QtMultimedia
 import qimage2ndarray  # type: ignore[import]
 from typing import Callable
 

@@ -1,6 +1,6 @@
 """
-General utilities
-=================
+Testing helpers
+===============
 
 """
 

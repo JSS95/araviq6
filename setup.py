@@ -56,7 +56,7 @@ def get_extras_require():
 setup(
     name="araviq6",
     version=get_version(),
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     description="Package for converting QVideoFrame to NDArray with Qt6",
     long_description=read_readme(),
     long_description_content_type="text/markdown",
@@ -75,7 +75,6 @@ setup(
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",

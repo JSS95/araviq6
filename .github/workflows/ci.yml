@@ -1,4 +1,4 @@
-name: araviq6 test
+name: build
 
 on: [push, pull_request]
 
@@ -61,7 +61,7 @@ jobs:
 
       matrix:
         os : [ubuntu-latest, windows-latest, macos-latest]
-        python: ["3.9", "3.10"]
+        python: ["3.7", "3.8", "3.9", "3.10"]
         qt: [PySide6]
 
     env:

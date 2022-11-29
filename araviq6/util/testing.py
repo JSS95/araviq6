@@ -2,6 +2,8 @@
 Testing helpers
 ===============
 
+:mod:`araviq6.util.testing` provides functions to help writing unit tests.
+
 """
 
 import araviq6

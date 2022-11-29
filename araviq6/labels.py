@@ -2,7 +2,13 @@
 Array label
 ===========
 
-:mod:`araviq6.labels` provides subclasses of ``QLabel`` with utilities.
+:mod:`araviq6.labels` provides ``QLabel`` subclasses to display numpy array.
+
+.. autoclass:: ScalableQLabel
+   :members:
+
+.. autoclass:: NDArrayLabel
+   :members:
 
 """
 

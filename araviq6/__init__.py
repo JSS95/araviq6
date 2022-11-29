@@ -2,8 +2,8 @@
 AraViQ6: NDArray from QVideoFrame with Qt6
 ==========================================
 
-AraViQ6 is a package to get :class:`numpy.ndarray` from ``QVideoFrame`` with
-Qt6 Python bindings - :mod:`PyQt6` or :mod:`PySide6`.
+AraViQ6 is a package to build video pipeline with :class:`numpy.ndarray` from
+Qt6's ``QVideoFrame``.
 
 """
 

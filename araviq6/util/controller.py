@@ -2,6 +2,8 @@
 Media controller
 ================
 
+:mod:`araviq6.util.controller` provides widget to control media player.
+
 """
 
 from araviq6.qt_compat import QtCore, QtGui, QtMultimedia, QtWidgets

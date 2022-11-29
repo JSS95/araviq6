@@ -3,10 +3,25 @@ Video frame pipeline
 ====================
 
 :mod:`araviq6.videostream` provides pipeline component to convert video stream
-into numpy array.
+into numpy array, and convenience classes with internal video pipelines.
 
-This moudle also supports convenience classes which emit numpy arrays from video
-stream using internal pipeline.
+Converter
+---------
+
+.. autoclass:: FrameToArrayConverter
+   :members:
+   :exclude-members: arrayChanged
+
+Convenience classes
+-------------------
+
+.. autoclass:: NDArrayVideoPlayer
+   :members:
+   :exclude-members: arrayChanged
+
+.. autoclass:: NDArrayMediaCaptureSession
+   :members:
+   :exclude-members: arrayChanged
 
 """
 

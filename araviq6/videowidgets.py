@@ -5,6 +5,12 @@ Video widgets
 :mod:`araviq6.videowidgets` provides convenience widgets with pre-built video
 pipelines.
 
+.. autoclass:: NDArrayVideoPlayerWidget
+   :members:
+
+.. autoclass:: NDArrayCameraWidget
+   :members:
+
 """
 
 import numpy as np

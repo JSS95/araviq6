@@ -9,7 +9,7 @@ AraViQ6 Reference
 This manual describes the modules and objects in :mod:`araviq6`.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    labels
    videostream

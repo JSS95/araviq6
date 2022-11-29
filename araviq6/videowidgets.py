@@ -8,7 +8,7 @@ pipelines.
 """
 
 import numpy as np
-from araviq6.qt_compat import QtCore, QtWidgets
+from araviq6.qt_compat import QtCore, QtWidgets, QtMultimedia
 from .labels import NDArrayLabel
 from .videostream import NDArrayVideoPlayer, NDArrayMediaCaptureSession
 from .util import MediaController
@@ -35,7 +35,7 @@ class NDArrayVideoPlayerWidget(QtWidgets.QWidget):
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
     ...     w = NDArrayVideoPlayerWidget()
-    ...     w.videoPlayer().setSource(QUrl.fromLocalFile(vidpath))
+    ...     w.setSource(QUrl.fromLocalFile(vidpath))
     ...     w.show()
     ...     app.exec()
     ...     app.quit()
@@ -57,26 +57,18 @@ class NDArrayVideoPlayerWidget(QtWidgets.QWidget):
         self._videoLabel = NDArrayLabel()
         self._mediaController = MediaController()
 
-        self.videoPlayer().arrayChanged.connect(self.setArray)
-        self.videoLabel().setAlignment(QtCore.Qt.AlignCenter)
-        self.mediaController().setPlayer(self.videoPlayer())
+        self._videoPlayer.arrayChanged.connect(self.setArray)
+        self._videoLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self._mediaController.setPlayer(self._videoPlayer)
 
         layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(self.videoLabel())
-        layout.addWidget(self.mediaController())
+        layout.addWidget(self._videoLabel)
+        layout.addWidget(self._mediaController)
         self.setLayout(layout)
 
-    def videoPlayer(self) -> NDArrayVideoPlayer:
-        """Object to emit video frames as numpy arrays."""
-        return self._videoPlayer
-
-    def videoLabel(self) -> NDArrayLabel:
-        """Label to display video image."""
-        return self._videoLabel
-
-    def mediaController(self) -> MediaController:
-        """Widget to control :meth:`videoPlayer`."""
-        return self._mediaController
+    @QtCore.Slot(QtCore.QUrl)
+    def setSource(self, source: QtCore.QUrl):
+        self._videoPlayer.setSource(source)
 
     @QtCore.Slot(np.ndarray)
     def setArray(self, array: np.ndarray):
@@ -84,7 +76,7 @@ class NDArrayVideoPlayerWidget(QtWidgets.QWidget):
         Process the array with :meth:`processArray` and set to :meth:`videoLabel`.
         """
         ret = self.processArray(array)
-        self.videoLabel().setArray(ret)
+        self._videoLabel.setArray(ret)
 
     def processArray(self, array: np.ndarray) -> np.ndarray:
         """Perform array processing. Redefine this method if needed."""
@@ -106,7 +98,7 @@ class NDArrayCameraWidget(QtWidgets.QWidget):
     ...     app = QApplication(sys.argv)
     ...     widget = NDArrayCameraWidget()
     ...     camera = QCamera()
-    ...     widget.mediaCaptureSession().setCamera(camera)
+    ...     widget.setCamera(camera)
     ...     camera.start()
     ...     widget.show()
     ...     app.exec()
@@ -128,19 +120,16 @@ class NDArrayCameraWidget(QtWidgets.QWidget):
         self._mediaCaptureSession = NDArrayMediaCaptureSession()
         self._videoLabel = NDArrayLabel()
 
-        self.mediaCaptureSession().arrayChanged.connect(self.setArray)
-        self.videoLabel().setAlignment(QtCore.Qt.AlignCenter)
+        self._mediaCaptureSession.arrayChanged.connect(self.setArray)
+        self._videoLabel.setAlignment(QtCore.Qt.AlignCenter)
 
         layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(self.videoLabel())
+        layout.addWidget(self._videoLabel)
         self.setLayout(layout)
 
-    def mediaCaptureSession(self) -> NDArrayMediaCaptureSession:
-        return self._mediaCaptureSession
-
-    def videoLabel(self) -> NDArrayLabel:
-        """Label to display video image."""
-        return self._videoLabel
+    @QtCore.Slot(QtMultimedia.QCamera)
+    def setCamera(self, camera: QtMultimedia.QCamera):
+        self._mediaCaptureSession.setCamera(camera)
 
     @QtCore.Slot(np.ndarray)
     def setArray(self, array: np.ndarray):
@@ -148,7 +137,7 @@ class NDArrayCameraWidget(QtWidgets.QWidget):
         Process the array with :meth:`processArray` and set to :meth:`videoLabel`.
         """
         ret = self.processArray(array)
-        self.videoLabel().setArray(ret)
+        self._videoLabel.setArray(ret)
 
     def processArray(self, array: np.ndarray) -> np.ndarray:
         """Perform array processing. Redefine this method if needed."""

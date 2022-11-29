@@ -21,7 +21,7 @@ from .videowidgets import (
     NDArrayVideoPlayerWidget,
     NDArrayCameraWidget,
 )
-from .util import get_data_path
+from .util import get_samples_path
 
 
 __all__ = [
@@ -34,5 +34,5 @@ __all__ = [
     "MediaController",
     "NDArrayVideoPlayerWidget",
     "NDArrayCameraWidget",
-    "get_data_path",
+    "get_samples_path",
 ]

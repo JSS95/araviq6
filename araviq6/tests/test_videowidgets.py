@@ -1,8 +1,8 @@
-from araviq6 import get_data_path, ClickableSlider
+from araviq6 import get_samples_path, ClickableSlider
 from araviq6.qt_compat import QtCore
 
 
-VID_PATH = get_data_path("hello.mp4")
+VID_PATH = get_samples_path("hello.mp4")
 
 
 def test_ClickableSlider(qtbot):

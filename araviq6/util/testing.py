@@ -9,11 +9,11 @@ import os
 
 
 __all__ = [
-    "get_data_path",
+    "get_samples_path",
 ]
 
 
-def get_data_path(*paths: str) -> str:
+def get_samples_path(*paths: str) -> str:
     """
     Get the absolute path to the directory where the sample data are stored.
 

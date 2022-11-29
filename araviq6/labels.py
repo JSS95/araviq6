@@ -142,8 +142,8 @@ class NDArrayLabel(ScalableQLabel):
     >>> import cv2
     >>> from PySide6.QtWidgets import QApplication
     >>> import sys
-    >>> from araviq6 import NDArrayLabel, get_data_path
-    >>> img = cv2.imread(get_data_path('hello.jpg'))
+    >>> from araviq6 import NDArrayLabel, get_samples_path
+    >>> img = cv2.imread(get_samples_path('hello.jpg'))
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
     ...     label = NDArrayLabel()

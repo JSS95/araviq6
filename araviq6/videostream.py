@@ -115,8 +115,9 @@ class VideoFrameProcessor(QtCore.QObject):
     def setVideoFrame(self, frame: QtMultimedia.QVideoFrame):
         worker = self.worker()
         if worker is None or not worker.ready():
-            return
-        self._processRequested.emit(frame)
+            self.videoFrameChanged.emit(frame)
+        else:
+            self._processRequested.emit(frame)
 
     def stop(self):
         self._processorThread.quit()

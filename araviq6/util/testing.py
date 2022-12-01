@@ -6,12 +6,18 @@ Testing helpers
 
 """
 
-import araviq6
 import os
+import numpy as np
+import qimage2ndarray  # type: ignore[import]
+import araviq6
+from araviq6.qt_compat import QtCore, QtGui, QtMultimedia
+from araviq6.videostream import VideoProcessWorker
+from typing import Optional
 
 
 __all__ = [
     "get_samples_path",
+    "VideoProcessWorkerTester",
 ]
 
 
@@ -40,3 +46,68 @@ def get_samples_path(*paths: str) -> str:
 
     path = os.path.join(sample_dir, *paths)
     return path
+
+
+class VideoProcessWorkerTester(QtCore.QObject):
+
+    maximumReached = QtCore.Signal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._worker = None
+        self._ready = True
+
+        self._inputArray = np.empty((0,))
+
+        self._count = 0
+        self._maxCount = 5
+
+    def worker(self) -> Optional[VideoProcessWorker]:
+        return self._worker
+
+    def maxCount(self) -> int:
+        return self._maxCount
+
+    def setWorker(self, worker: Optional[VideoProcessWorker]):
+        oldWorker = self.worker()
+        if oldWorker is not None:
+            oldWorker.videoFrameChanged.disconnect(self._onVideoFramePassedByWorker)
+        self._worker = worker
+        if worker is not None:
+            worker.videoFrameChanged.connect(self._onVideoFramePassedByWorker)
+
+    def setVideoFrame(self, frame: QtMultimedia.QVideoFrame):
+        if not self._ready:
+            return
+        self._ready = False
+
+        inputImg = frame.toImage()
+        if not inputImg.isNull():
+            self._inputArray = self.imageToArray(inputImg).copy()
+
+        worker = self.worker()
+        if worker is not None:
+            worker.setVideoFrame(frame)
+
+    def _onVideoFramePassedByWorker(self, frame: QtMultimedia.QVideoFrame):
+        worker = self.worker()
+        outputImg = frame.toImage()
+        if not outputImg.isNull() and worker is not None:
+            outputArray = self.imageToArray(outputImg)
+            assert np.all(worker.processArray(self._inputArray) == outputArray)
+
+        self._count += 1
+        if self._count >= self._maxCount:
+            self._ready = False
+            self.maximumReached.emit()
+        else:
+            self._ready = True
+
+    def imageToArray(self, image: QtGui.QImage) -> np.ndarray:
+        return qimage2ndarray.rgb_view(image, byteorder=None)
+
+    def reset(self):
+        self._ready = False
+        self._inputArray = np.empty((0,))
+        self._count = 0
+        self._ready = True

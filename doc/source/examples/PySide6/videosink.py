@@ -63,7 +63,18 @@ class ProcessWorker(QObject):
     @Slot(QVideoFrame)
     def setVideoFrame(self, frame: QVideoFrame):
         self._ready = False
-        processedFrame = self.processVideoFrame(frame)
+
+        qimg = frame.toImage()  # must assign to avoid crash
+        array = self.imageToArray(qimg)
+        newarray = self.processArray(array)
+        newimg = qimage2ndarray.array2qimage(newarray)
+        pixelFormat = QVideoFrameFormat.pixelFormatFromImageFormat(newimg.format())
+        frameFormat = QVideoFrameFormat(newimg.size(), pixelFormat)
+        processedFrame = QVideoFrame(frameFormat)
+        processedFrame.map(QVideoFrame.MapMode.WriteOnly)
+        processedFrame.bits(0)[:] = newimg.bits()  # type: ignore[index]
+        processedFrame.unmap()
+
         self.videoFrameChanged.emit(processedFrame)
         self._ready = True
 
@@ -72,22 +83,6 @@ class ProcessWorker(QObject):
 
     def processArray(self, array: np.ndarray) -> np.ndarray:
         return cv2.GaussianBlur(array, (0, 0), 25)
-
-    def processVideoFrame(self, frame: QVideoFrame) -> QVideoFrame:
-        qimg = frame.toImage()  # must assign to avoid crash
-        array = self.imageToArray(qimg)
-
-        newarray = self.processArray(array)
-
-        newimg = qimage2ndarray.array2qimage(newarray)
-        pixelFormat = QVideoFrameFormat.pixelFormatFromImageFormat(newimg.format())
-        frameFormat = QVideoFrameFormat(newimg.size(), pixelFormat)
-        videoFrame = QVideoFrame(frameFormat)
-        videoFrame.map(QVideoFrame.MapMode.WriteOnly)
-        videoFrame.bits(0)[:] = newimg.bits()  # type: ignore[index]
-        videoFrame.unmap()
-
-        return videoFrame
 
 
 class Window(QMainWindow):

@@ -16,5 +16,5 @@ def test_VideoProcessWorkerTester(qtbot):
     player.setSource(QtCore.QUrl.fromLocalFile(get_samples_path("hello.mp4")))
     player.play()
 
-    tester.setVideoFrame(sink.videoFrame())
+    tester.testVideoFrame(sink.videoFrame())
     player.stop()

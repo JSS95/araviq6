@@ -49,18 +49,12 @@ def get_samples_path(*paths: str) -> str:
 
 
 class VideoProcessWorkerTester(QtCore.QObject):
-
-    maximumReached = QtCore.Signal()
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self._worker = None
         self._ready = True
 
         self._inputArray = np.empty((0,))
-
-        self._count = 0
-        self._maxCount = 1
 
     def worker(self) -> Optional[VideoProcessWorker]:
         return self._worker
@@ -73,16 +67,7 @@ class VideoProcessWorkerTester(QtCore.QObject):
         if worker is not None:
             worker.videoFrameChanged.connect(self._onVideoFramePassedByWorker)
 
-    def count(self) -> int:
-        return self._count
-
-    def maxCount(self) -> int:
-        return self._maxCount
-
-    def setMaxCount(self, maxCount: int):
-        self._maxCount = maxCount
-
-    def setVideoFrame(self, frame: QtMultimedia.QVideoFrame):
+    def testVideoFrame(self, frame: QtMultimedia.QVideoFrame):
         if not self._ready:
             return
         self._ready = False
@@ -101,19 +86,8 @@ class VideoProcessWorkerTester(QtCore.QObject):
         if not outputImg.isNull() and worker is not None:
             outputArray = self.imageToArray(outputImg)
             assert np.all(worker.processArray(self._inputArray) == outputArray)
-            self._count += 1
 
-        if self._count >= self._maxCount:
-            self._ready = False
-            self.maximumReached.emit()
-        else:
-            self._ready = True
+        self._ready = True
 
     def imageToArray(self, image: QtGui.QImage) -> np.ndarray:
         return qimage2ndarray.rgb_view(image, byteorder=None)
-
-    def reset(self):
-        self._ready = False
-        self._inputArray = np.empty((0,))
-        self._count = 0
-        self._ready = True

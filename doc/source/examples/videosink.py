@@ -75,7 +75,7 @@ class ProcessWorker(QObject):
         frameFormat = QVideoFrameFormat(newimg.size(), pixelFormat)
         videoFrame = QVideoFrame(frameFormat)
         videoFrame.map(QVideoFrame.MapMode.WriteOnly)
-        videoFrame.bits(0)[:] = newimg.bits()
+        videoFrame.bits(0)[:] = newimg.bits()  # type: ignore[index]
         videoFrame.unmap()
 
         return videoFrame

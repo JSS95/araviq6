@@ -63,17 +63,20 @@ class VideoProcessWorker(QtCore.QObject):
         self._ready = False
 
         qimg = frame.toImage()  # must assign to avoid crash
-        array = self.imageToArray(qimg)
-        newarray = self.processArray(array)
-        newimg = qimage2ndarray.array2qimage(newarray)
-        pixelFormat = QtMultimedia.QVideoFrameFormat.pixelFormatFromImageFormat(
-            newimg.format()
-        )
-        frameFormat = QtMultimedia.QVideoFrameFormat(newimg.size(), pixelFormat)
-        processedFrame = QtMultimedia.QVideoFrame(frameFormat)
-        processedFrame.map(QtMultimedia.QVideoFrame.MapMode.WriteOnly)
-        processedFrame.bits(0)[:] = newimg.bits()  # type: ignore[index]
-        processedFrame.unmap()
+        if not qimg.isNull():
+            array = self.imageToArray(qimg)
+            newarray = self.processArray(array)
+            newimg = qimage2ndarray.array2qimage(newarray)
+            pixelFormat = QtMultimedia.QVideoFrameFormat.pixelFormatFromImageFormat(
+                newimg.format()
+            )
+            frameFormat = QtMultimedia.QVideoFrameFormat(newimg.size(), pixelFormat)
+            processedFrame = QtMultimedia.QVideoFrame(frameFormat)
+            processedFrame.map(QtMultimedia.QVideoFrame.MapMode.WriteOnly)
+            processedFrame.bits(0)[:] = newimg.bits()  # type: ignore[index]
+            processedFrame.unmap()
+        else:
+            processedFrame = frame
 
         self.videoFrameChanged.emit(processedFrame)
         self._ready = True

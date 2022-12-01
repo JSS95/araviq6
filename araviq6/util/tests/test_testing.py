@@ -1,6 +1,6 @@
 from araviq6.qt_compat import QtCore, QtMultimedia
-from araviq6 import VideoProcessWorker, get_samples_path
-from araviq6.util import VideoProcessWorkerTester
+from araviq6 import VideoProcessWorker
+from araviq6.util import VideoProcessWorkerTester, get_samples_path
 
 
 def test_VideoProcessWorkerTester(qtbot):

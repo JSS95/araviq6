@@ -10,6 +10,7 @@ IMG_PATH = get_samples_path("hello.jpg")
 
 def test_ScalableQLabel(qtbot):
     label = ScalableQLabel()
+    qtbot.addWidget(label)
 
     img = cv2.cvtColor(cv2.imread(IMG_PATH), cv2.COLOR_BGR2RGBA)
     pixmap = QtGui.QPixmap.fromImage(array2qimage(img))
@@ -72,9 +73,12 @@ def test_ScalableQLabel(qtbot):
     label.setPixmap(pixmap)
     assert label.pixmap().width() > img_w and label.pixmap().height() > img_h
 
+    label.close()
+
 
 def test_NDArrayLabel(qtbot):
     label = NDArrayLabel()
+    qtbot.addWidget(label)
 
     img = cv2.imread(IMG_PATH)
     h, w = img.shape[:2]
@@ -130,11 +134,16 @@ def test_NDArrayLabel(qtbot):
     label.setArray(img)
     assert label.pixmap().width() > w and label.pixmap().height() > h
 
+    label.close()
+
 
 def test_NDArrayLabel_emptyimage(qtbot):
     label = NDArrayLabel()
+    qtbot.addWidget(label)
     assert label.pixmap().isNull()
 
     empty_array = np.empty((0, 0, 0), dtype=np.uint8)
     label.setArray(empty_array)
     assert label.pixmap().isNull()
+
+    label.close()

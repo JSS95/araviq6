@@ -13,3 +13,5 @@ def test_ClickableSlider(qtbot):
     pos = QtCore.QPoint(10, 10)
     qtbot.mouseClick(slider, QtCore.Qt.LeftButton, pos=pos)
     assert slider.value() == slider.pixelPosToRangeValue(pos)
+
+    slider.close()

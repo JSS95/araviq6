@@ -12,6 +12,7 @@ from PySide6.QtMultimedia import (
 )
 from PySide6.QtMultimediaWidgets import QVideoWidget
 import qimage2ndarray  # type: ignore[import]
+from typing import Optional
 
 
 # Monkeypatch qimage2ndarray until new version (> 1.9.0)
@@ -19,34 +20,6 @@ import qimage2ndarray  # type: ignore[import]
 for name, qimage_format in qimage2ndarray.qimageview_python.FORMATS.items():
     if name in dir(QImage.Format):
         qimage_format.code = getattr(QImage, name)
-
-
-class VideoFrameProcessor(QObject):
-
-    _processRequested = Signal(QVideoFrame)
-    videoFrameChanged = Signal(QVideoFrame)
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self._worker = ProcessWorker()
-
-        self._processRequested.connect(self._worker.setVideoFrame)
-        self._worker.videoFrameChanged.connect(self.videoFrameChanged)
-
-        self._processorThread = QThread()
-        self._worker.moveToThread(self._processorThread)
-        self._processorThread.start()
-
-    @Slot(QVideoFrame)
-    def setVideoFrame(self, frame: QVideoFrame):
-        worker = self._worker
-        if not worker.ready():
-            return
-        self._processRequested.emit(frame)
-
-    def stop(self):
-        self._processorThread.quit()
-        self._processorThread.wait()
 
 
 class ProcessWorker(QObject):
@@ -85,6 +58,44 @@ class ProcessWorker(QObject):
         return cv2.GaussianBlur(array, (0, 0), 25)
 
 
+class VideoFrameProcessor(QObject):
+
+    _processRequested = Signal(QVideoFrame)
+    videoFrameChanged = Signal(QVideoFrame)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._worker = None
+
+        self._processorThread = QThread()
+        self._processorThread.start()
+
+    def worker(self) -> Optional[ProcessWorker]:
+        return self._worker
+
+    def setWorker(self, worker: Optional[ProcessWorker]):
+        oldWorker = self.worker()
+        if oldWorker is not None:
+            self._processRequested.disconnect(oldWorker.setVideoFrame)
+            oldWorker.videoFrameChanged.disconnect(self.videoFrameChanged)
+        self._worker = worker
+        if worker is not None:
+            self._processRequested.connect(worker.setVideoFrame)
+            worker.videoFrameChanged.connect(self.videoFrameChanged)
+            worker.moveToThread(self._processorThread)
+
+    @Slot(QVideoFrame)
+    def setVideoFrame(self, frame: QVideoFrame):
+        worker = self._worker
+        if not worker.ready():
+            return
+        self._processRequested.emit(frame)
+
+    def stop(self):
+        self._processorThread.quit()
+        self._processorThread.wait()
+
+
 class Window(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -102,6 +113,7 @@ class Window(QMainWindow):
         )
         self._frameProcessor.videoFrameChanged.connect(self.displayVideoFrame)
 
+        self._frameProcessor.setWorker(ProcessWorker())
         self.setCentralWidget(self._videoWidget)
 
         self._camera.start()

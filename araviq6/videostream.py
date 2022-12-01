@@ -26,8 +26,8 @@ Convenience classes
 """
 
 import numpy as np
-from araviq6.qt_compat import QtCore, QtGui, QtMultimedia
 import qimage2ndarray  # type: ignore[import]
+from araviq6.qt_compat import QtCore, QtGui, QtMultimedia
 from typing import Optional, Callable
 
 
@@ -50,6 +50,7 @@ for name, qimage_format in qimage2ndarray.qimageview_python.FORMATS.items():
 class VideoProcessWorker(QtCore.QObject):
 
     videoFrameChanged = QtCore.Signal(QtMultimedia.QVideoFrame)
+    # TODO: rename to videoFrameProcessed
 
     def __init__(self, parent=None):
         super().__init__(parent)

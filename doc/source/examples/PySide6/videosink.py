@@ -67,12 +67,15 @@ class ProcessWorker(QObject):
         self.videoFrameChanged.emit(processedFrame)
         self._ready = True
 
+    def imageToArray(self, image: QImage) -> np.ndarray:
+        return qimage2ndarray.rgb_view(image, byteorder=None)
+
     def processArray(self, array: np.ndarray) -> np.ndarray:
         return cv2.GaussianBlur(array, (0, 0), 25)
 
     def processVideoFrame(self, frame: QVideoFrame) -> QVideoFrame:
-        qimg = frame.toImage()
-        array = qimage2ndarray.rgb_view(qimg, byteorder=None)
+        qimg = frame.toImage()  # must assign to avoid crash
+        array = self.imageToArray(qimg)
 
         newarray = self.processArray(array)
 

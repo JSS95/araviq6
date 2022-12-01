@@ -56,8 +56,13 @@ jobs:
         run: |
           pip install .[test]
 
-      - name: run mypy check
-        run: mypy araviq6 doc/source
+      - name: run mypy check on source
+        run: mypy araviq6
+
+      - name: run mypy check on doc
+        run: |
+          mypy doc/source --exclude doc/source/examples
+          mypy doc/source/examples/${{ matrix.qt }}
 
 
   unit-test:

@@ -1,4 +1,5 @@
 import cv2  # type: ignore[import]
+import numpy as np
 from PySide6.QtCore import QObject, Signal, Slot, QThread
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QMainWindow
@@ -66,11 +67,14 @@ class ProcessWorker(QObject):
         self.videoFrameChanged.emit(processedFrame)
         self._ready = True
 
-    def processVideoFrame(self, frame: QVideoFrame):
+    def processArray(self, array: np.ndarray) -> np.ndarray:
+        return cv2.GaussianBlur(array, (0, 0), 25)
+
+    def processVideoFrame(self, frame: QVideoFrame) -> QVideoFrame:
         qimg = frame.toImage()
         array = qimage2ndarray.rgb_view(qimg, byteorder=None)
 
-        newarray = cv2.GaussianBlur(array, (0, 0), 25)
+        newarray = self.processArray(array)
 
         newimg = qimage2ndarray.array2qimage(newarray)
         pixelFormat = QVideoFrameFormat.pixelFormatFromImageFormat(newimg.format())

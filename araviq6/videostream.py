@@ -28,10 +28,12 @@ Convenience classes
 import numpy as np
 from araviq6.qt_compat import QtCore, QtGui, QtMultimedia
 import qimage2ndarray  # type: ignore[import]
-from typing import Callable
+from typing import Optional, Callable
 
 
 __all__ = [
+    "VideoProcessWorker",
+    "VideoFrameProcessor",
     "FrameToArrayConverter",
     "NDArrayVideoPlayer",
     "NDArrayMediaCaptureSession",
@@ -43,6 +45,82 @@ __all__ = [
 for name, qimage_format in qimage2ndarray.qimageview_python.FORMATS.items():
     if name in dir(QtGui.QImage.Format):
         qimage_format.code = getattr(QtGui.QImage, name)
+
+
+class VideoProcessWorker(QtCore.QObject):
+
+    videoFrameChanged = QtCore.Signal(QtMultimedia.QVideoFrame)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._ready = True
+
+    def ready(self) -> bool:
+        return self._ready
+
+    @QtCore.Slot(QtMultimedia.QVideoFrame)
+    def setVideoFrame(self, frame: QtMultimedia.QVideoFrame):
+        self._ready = False
+
+        qimg = frame.toImage()  # must assign to avoid crash
+        array = self.imageToArray(qimg)
+        newarray = self.processArray(array)
+        newimg = qimage2ndarray.array2qimage(newarray)
+        pixelFormat = QtMultimedia.QVideoFrameFormat.pixelFormatFromImageFormat(
+            newimg.format()
+        )
+        frameFormat = QtMultimedia.QVideoFrameFormat(newimg.size(), pixelFormat)
+        processedFrame = QtMultimedia.QVideoFrame(frameFormat)
+        processedFrame.map(QtMultimedia.QVideoFrame.MapMode.WriteOnly)
+        processedFrame.bits(0)[:] = newimg.bits()  # type: ignore[index]
+        processedFrame.unmap()
+
+        self.videoFrameChanged.emit(processedFrame)
+        self._ready = True
+
+    def imageToArray(self, image: QtGui.QImage) -> np.ndarray:
+        return qimage2ndarray.rgb_view(image, byteorder=None)
+
+    def processArray(self, array: np.ndarray) -> np.ndarray:
+        return array
+
+
+class VideoFrameProcessor(QtCore.QObject):
+
+    _processRequested = QtCore.Signal(QtMultimedia.QVideoFrame)
+    videoFrameChanged = QtCore.Signal(QtMultimedia.QVideoFrame)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._worker = None
+
+        self._processorThread = QtCore.QThread()
+        self._processorThread.start()
+
+    def worker(self) -> Optional[VideoProcessWorker]:
+        return self._worker
+
+    def setWorker(self, worker: Optional[VideoProcessWorker]):
+        oldWorker = self.worker()
+        if oldWorker is not None:
+            self._processRequested.disconnect(oldWorker.setVideoFrame)
+            oldWorker.videoFrameChanged.disconnect(self.videoFrameChanged)
+        self._worker = worker
+        if worker is not None:
+            self._processRequested.connect(worker.setVideoFrame)
+            worker.videoFrameChanged.connect(self.videoFrameChanged)
+            worker.moveToThread(self._processorThread)
+
+    @QtCore.Slot(QtMultimedia.QVideoFrame)
+    def setVideoFrame(self, frame: QtMultimedia.QVideoFrame):
+        worker = self._worker
+        if not worker.ready():
+            return
+        self._processRequested.emit(frame)
+
+    def stop(self):
+        self._processorThread.quit()
+        self._processorThread.wait()
 
 
 class FrameToArrayConverter(QtCore.QObject):

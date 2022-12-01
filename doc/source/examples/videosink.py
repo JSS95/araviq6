@@ -36,6 +36,7 @@ class VideoFrameProcessor(QObject):
         self._worker.moveToThread(self._processorThread)
         self._processorThread.start()
 
+    @Slot(QVideoFrame)
     def setVideoFrame(self, frame: QVideoFrame):
         worker = self._worker
         if not worker.ready():
@@ -58,7 +59,8 @@ class ProcessWorker(QObject):
     def ready(self) -> bool:
         return self._ready
 
-    def setVideoFrame(self, frame: QVideoFrame):  # do not decorate with Slot
+    @Slot(QVideoFrame)
+    def setVideoFrame(self, frame: QVideoFrame):
         self._ready = False
         processedFrame = self.processVideoFrame(frame)
         self.videoFrameChanged.emit(processedFrame)

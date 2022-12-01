@@ -101,8 +101,8 @@ class VideoProcessWorkerTester(QtCore.QObject):
         if not outputImg.isNull() and worker is not None:
             outputArray = self.imageToArray(outputImg)
             assert np.all(worker.processArray(self._inputArray) == outputArray)
+            self._count += 1
 
-        self._count += 1
         if self._count >= self._maxCount:
             self._ready = False
             self.maximumReached.emit()

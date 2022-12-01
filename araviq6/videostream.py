@@ -72,9 +72,15 @@ class VideoProcessWorker(QtCore.QObject):
             )
             frameFormat = QtMultimedia.QVideoFrameFormat(newimg.size(), pixelFormat)
             processedFrame = QtMultimedia.QVideoFrame(frameFormat)
-            processedFrame.map(QtMultimedia.QVideoFrame.MapMode.WriteOnly)
-            processedFrame.bits(0)[:] = newimg.bits()  # type: ignore[index]
-            processedFrame.unmap()
+            mapped = processedFrame.map(QtMultimedia.QVideoFrame.MapMode.WriteOnly)
+            if mapped:
+                processedFrame.bits(0)[:] = newimg.bits()  # type: ignore[index]
+                processedFrame.unmap()
+
+            # set *processedFrame* properties same to *frame*
+            processedFrame.map(frame.mapMode())
+            processedFrame.setStartTime(frame.startTime())
+            processedFrame.setEndTime(frame.endTime())
         else:
             processedFrame = frame
 

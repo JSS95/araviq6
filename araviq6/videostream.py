@@ -113,8 +113,8 @@ class VideoFrameProcessor(QtCore.QObject):
 
     @QtCore.Slot(QtMultimedia.QVideoFrame)
     def setVideoFrame(self, frame: QtMultimedia.QVideoFrame):
-        worker = self._worker
-        if not worker.ready():
+        worker = self.worker()
+        if worker is None or not worker.ready():
             return
         self._processRequested.emit(frame)
 

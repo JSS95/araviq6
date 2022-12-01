@@ -1,7 +1,12 @@
 import cv2  # type: ignore[import]
 import numpy as np
 import pytest
-from qimage2ndarray import byte_view, rgb_view, gray2qimage, array2qimage  # type: ignore[import]
+from qimage2ndarray import (  # type: ignore[import]
+    byte_view,
+    rgb_view,
+    gray2qimage,
+    array2qimage,
+)
 from araviq6 import FrameToArrayConverter, get_samples_path
 from araviq6.qt_compat import QtMultimedia
 
@@ -30,7 +35,7 @@ def test_QImage_to_QVideoFrame(qtbot):
     rgb_img = array2qimage(rgb_array)
 
     imgFormat = rgb_img.format()
-    pixelFormat =  QtMultimedia.QVideoFrameFormat.pixelFormatFromImageFormat(imgFormat)
+    pixelFormat = QtMultimedia.QVideoFrameFormat.pixelFormatFromImageFormat(imgFormat)
     frameFormat = QtMultimedia.QVideoFrameFormat(rgb_img.size(), pixelFormat)
     videoFrame = QtMultimedia.QVideoFrame(frameFormat)
 

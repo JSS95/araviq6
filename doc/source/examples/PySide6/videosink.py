@@ -7,7 +7,7 @@ from PySide6.QtMultimediaWidgets import QVideoWidget
 from araviq6 import VideoProcessWorker, VideoFrameProcessor
 
 
-class BlurringWorker(VideoProcessWorker):
+class BlurWorker(VideoProcessWorker):
     def processArray(self, array: np.ndarray) -> np.ndarray:
         return cv2.GaussianBlur(array, (0, 0), 25)
 
@@ -19,6 +19,7 @@ class Window(QMainWindow):
         self._captureSession = QMediaCaptureSession()
         self._cameraVideoSink = QVideoSink()
         self._frameProcessor = VideoFrameProcessor()
+        self._blurWorker = BlurWorker()
         self._videoWidget = QVideoWidget()
 
         # set up the pipeline
@@ -29,7 +30,7 @@ class Window(QMainWindow):
         )
         self._frameProcessor.videoFrameChanged.connect(self.displayVideoFrame)
 
-        self._frameProcessor.setWorker(BlurringWorker())
+        self._frameProcessor.setWorker(self._blurWorker)
         self.setCentralWidget(self._videoWidget)
 
         self._camera.start()

@@ -47,7 +47,7 @@ jobs:
           pip install .[test]
 
       - name: run mypy check
-        run: mypy .
+        run: mypy araviq6 doc/source
 
 
   unit-test:

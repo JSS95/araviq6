@@ -33,14 +33,12 @@ def test_QImage_to_QVideoFrame(qtbot):
     rgb_array = cv2.cvtColor(bgr_array, cv2.COLOR_BGR2RGB)
 
     rgb_img = array2qimage(rgb_array)
-
     imgFormat = rgb_img.format()
     pixelFormat = QtMultimedia.QVideoFrameFormat.pixelFormatFromImageFormat(imgFormat)
     frameFormat = QtMultimedia.QVideoFrameFormat(rgb_img.size(), pixelFormat)
     videoFrame = QtMultimedia.QVideoFrame(frameFormat)
-
     videoFrame.map(QtMultimedia.QVideoFrame.MapMode.WriteOnly)
     videoFrame.bits(0)[:] = rgb_img.bits()
     videoFrame.unmap()
 
-    assert np.all(rgb_view(videoFrame.toImage()) == bgr_array)
+    assert np.all(rgb_view(videoFrame.toImage(), byteorder=None) == rgb_array)

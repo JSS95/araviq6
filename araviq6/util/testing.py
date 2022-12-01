@@ -60,13 +60,10 @@ class VideoProcessWorkerTester(QtCore.QObject):
         self._inputArray = np.empty((0,))
 
         self._count = 0
-        self._maxCount = 5
+        self._maxCount = 1
 
     def worker(self) -> Optional[VideoProcessWorker]:
         return self._worker
-
-    def maxCount(self) -> int:
-        return self._maxCount
 
     def setWorker(self, worker: Optional[VideoProcessWorker]):
         oldWorker = self.worker()
@@ -75,6 +72,15 @@ class VideoProcessWorkerTester(QtCore.QObject):
         self._worker = worker
         if worker is not None:
             worker.videoFrameChanged.connect(self._onVideoFramePassedByWorker)
+
+    def count(self) -> int:
+        return self._count
+
+    def maxCount(self) -> int:
+        return self._maxCount
+
+    def setMaxCount(self, maxCount: int):
+        self._maxCount = maxCount
 
     def setVideoFrame(self, frame: QtMultimedia.QVideoFrame):
         if not self._ready:

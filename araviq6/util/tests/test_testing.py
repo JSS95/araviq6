@@ -16,4 +16,4 @@ def test_VideoProcessWorkerTester(qtbot):
     tester.setWorker(worker)
     player.setSource(QtCore.QUrl.fromLocalFile(get_samples_path("hello.mp4")))
     player.play()
-    qtbot.waitUntil(lambda: player.playbackState() == player.PlaybackState.StoppedState)
+    qtbot.waitUntil(lambda: player.playbackState() != player.PlaybackState.PlayingState)

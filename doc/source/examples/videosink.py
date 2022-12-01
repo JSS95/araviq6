@@ -1,8 +1,23 @@
+import cv2  # type: ignore[import]
 from PySide6.QtCore import QObject, Signal, Slot, QThread
+from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QMainWindow
-from PySide6.QtMultimedia import QCamera, QMediaCaptureSession, QVideoFrame, QVideoSink
+from PySide6.QtMultimedia import (
+    QCamera,
+    QMediaCaptureSession,
+    QVideoFrame,
+    QVideoFrameFormat,
+    QVideoSink,
+)
 from PySide6.QtMultimediaWidgets import QVideoWidget
-import time
+import qimage2ndarray  # type: ignore[import]
+
+
+# Monkeypatch qimage2ndarray until new version (> 1.9.0)
+# https://github.com/hmeine/qimage2ndarray/issues/29
+for name, qimage_format in qimage2ndarray.qimageview_python.FORMATS.items():
+    if name in dir(QImage.Format):
+        qimage_format.code = getattr(QImage, name)
 
 
 class VideoFrameProcessor(QObject):
@@ -45,9 +60,25 @@ class ProcessWorker(QObject):
 
     def setVideoFrame(self, frame: QVideoFrame):  # do not decorate with Slot
         self._ready = False
-        time.sleep(0.1)  # TODO: implement video processing
-        self.videoFrameChanged.emit(frame)
+        processedFrame = self.processVideoFrame(frame)
+        self.videoFrameChanged.emit(processedFrame)
         self._ready = True
+
+    def processVideoFrame(self, frame: QVideoFrame):
+        qimg = frame.toImage()
+        array = qimage2ndarray.rgb_view(qimg, byteorder=None)
+
+        newarray = cv2.GaussianBlur(array, (0, 0), 25)
+
+        newimg = qimage2ndarray.array2qimage(newarray)
+        pixelFormat = QVideoFrameFormat.pixelFormatFromImageFormat(newimg.format())
+        frameFormat = QVideoFrameFormat(newimg.size(), pixelFormat)
+        videoFrame = QVideoFrame(frameFormat)
+        videoFrame.map(QVideoFrame.MapMode.WriteOnly)
+        videoFrame.bits(0)[:] = newimg.bits()
+        videoFrame.unmap()
+
+        return videoFrame
 
 
 class Window(QMainWindow):

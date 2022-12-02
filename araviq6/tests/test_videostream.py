@@ -4,13 +4,15 @@ import qimage2ndarray  # type: ignore[import]
 import pytest
 from araviq6 import qimage2qvideoframe, FrameToArrayConverter
 from araviq6.util import get_samples_path
+from araviq6.qt_compat import QtMultimedia
 
 
 def test_qimage2qvideoframe(qtbot):
     array = cv2.imread(get_samples_path("hello.jpg"))
     image = qimage2ndarray.array2qimage(array)
     frame = qimage2qvideoframe(image)
-    frame.toImage()
+    frame.map(QtMultimedia.QVideoFrame.MapMode.ReadOnly)
+    assert frame.toImage().convertToFormat(image.format()) == image
 
 
 def test_FrameToArrayConverter(qtbot):

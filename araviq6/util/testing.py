@@ -53,7 +53,8 @@ class VideoProcessWorkerTester(QtCore.QObject):
     Class to test :class:`VideoProcessWorker` by checking frame bits.
 
     To test a worker, set it to :meth:`worker` and pass proper video frame to
-    :meth:`testVideoFrame`.
+    :meth:`testVideoFrame`. The tester checks if the video frame emittd by the
+    worker is correctly processed. :class:`AssertionError` is raised on error.
 
     Notes
     =====

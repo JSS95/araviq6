@@ -112,7 +112,14 @@ jobs:
         run: |
           pip install .[test-ci]
 
-      - run: pytest
+      - name: run pytest without one that fails X server  # https://github.com/The-Compiler/pytest-xvfb/issues/11#issuecomment-1334104132
+        run: |
+          pytest --ignore=araviq6/tests/test_processor.py
+
+      - name: run ignored test
+        run: |
+          pytest araviq6/tests/test_processor.py
+
 
   doc:
 

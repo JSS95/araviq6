@@ -32,35 +32,3 @@ def test_VideoProcessWorkerTester(qtbot):
     tester.testVideoFrame(validSink.videoFrame())
 
     player.stop()
-
-
-def test_VideoProcessWorkerTester2(qtbot):
-    worker = VideoProcessWorker()
-    tester = VideoProcessWorkerTester()
-    tester.setWorker(worker)
-
-    player = QtMultimedia.QMediaPlayer()
-    playerSink = QtMultimedia.QVideoSink()
-    validSink = ValidVideoFrameSink()
-    player.setVideoSink(playerSink)
-    playerSink.videoFrameChanged.connect(validSink.setVideoFrame)
-    validSink.videoFrameChanged.connect(player.pause)
-
-    player.setSource(QtCore.QUrl.fromLocalFile(get_samples_path("hello.mp4")))
-
-    player.play()
-    qtbot.waitUntil(lambda: player.playbackState() != player.PlaybackState.PlayingState)
-    assert validSink.videoFrame().isValid()
-    tester.testVideoFrame(validSink.videoFrame())
-
-    player.play()
-    qtbot.waitUntil(lambda: player.playbackState() != player.PlaybackState.PlayingState)
-    assert validSink.videoFrame().isValid()
-    tester.testVideoFrame(validSink.videoFrame())
-
-    player.stop()
-
-
-def test_dummy(qtbot):
-    """Test if breaks ci"""
-    pass

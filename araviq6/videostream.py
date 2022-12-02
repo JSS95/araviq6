@@ -219,13 +219,13 @@ class VideoFrameProcessor(QtCore.QObject):
 
 class FrameToArrayConverter(QtCore.QObject):
     """
-    Video pipeline component which converts ``QVideoFrame`` to numpy array and
-    emits to :attr:`arrayConverted`.
+    Video pipeline component which converts ``QVideoFrame`` to numpy array.
 
-    ``QVideoFrame`` is first transformed to ``QImage`` and then converted to
-    array by :meth:`converter`.
+    :class:`FrameToArrayConverter` first converts ``QVideoFrame`` to ``QImage``
+    and then converts to numpy array :meth:`imageToArray`. Resulting array is
+    emitted to :attr:`arrayConverted`.
 
-    ``QVideoPlayer`` sends empty video frame at the end of video.
+    Since ``QVideoPlayer`` sends dummy video frame at the end of video,
     :meth:`ignoreNullFrame` determines whether null frame should be ignored or
     empty array should be emitted.
 

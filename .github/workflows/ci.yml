@@ -112,12 +112,7 @@ jobs:
         run: |
           pip install .[test-ci]
 
-      # araviq6/tests/test_processor.py must be run separately to prevent X server error
-      # https://github.com/The-Compiler/pytest-xvfb/issues/11#issuecomment-1334104132
-      - name: run pytest
-        run: |
-          pytest --ignore=araviq6/tests/test_processor.py
-          pytest araviq6/tests/test_processor.py
+      - run: pytest
 
 
   doc:

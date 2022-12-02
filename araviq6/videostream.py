@@ -51,6 +51,7 @@ from typing import Optional, Callable
 
 
 __all__ = [
+    "qimage2qvideoframe",
     "VideoProcessWorker",
     "VideoFrameProcessor",
     "FrameToArrayConverter",
@@ -64,6 +65,17 @@ __all__ = [
 for name, qimage_format in qimage2ndarray.qimageview_python.FORMATS.items():
     if name in dir(QtGui.QImage.Format):
         qimage_format.code = getattr(QtGui.QImage, name)
+
+
+def qimage2qvideoframe(image: QtGui.QImage) -> QtMultimedia.QVideoFrame:
+    imgFormat = image.format()
+    pixelFormat = QtMultimedia.QVideoFrameFormat.pixelFormatFromImageFormat(imgFormat)
+    frameFormat = QtMultimedia.QVideoFrameFormat(image.size(), pixelFormat)
+    frame = QtMultimedia.QVideoFrame(frameFormat)
+    frame.map(QtMultimedia.QVideoFrame.MapMode.WriteOnly)
+    frame.bits(0)[:] = image.bits()  # type: ignore[index]
+    frame.unmap()
+    return frame
 
 
 class VideoProcessWorker(QtCore.QObject):
@@ -112,15 +124,7 @@ class VideoProcessWorker(QtCore.QObject):
             array = self.imageToArray(qimg)
             newarray = self.processArray(array)
             newimg = qimage2ndarray.array2qimage(newarray)
-            pixelFormat = QtMultimedia.QVideoFrameFormat.pixelFormatFromImageFormat(
-                newimg.format()
-            )
-            frameFormat = QtMultimedia.QVideoFrameFormat(newimg.size(), pixelFormat)
-            processedFrame = QtMultimedia.QVideoFrame(frameFormat)
-            mapped = processedFrame.map(QtMultimedia.QVideoFrame.MapMode.WriteOnly)
-            if mapped:
-                processedFrame.bits(0)[:] = newimg.bits()  # type: ignore[index]
-                processedFrame.unmap()
+            processedFrame = qimage2qvideoframe(newimg)
 
             # set *processedFrame* properties same to *frame*
             processedFrame.map(frame.mapMode())

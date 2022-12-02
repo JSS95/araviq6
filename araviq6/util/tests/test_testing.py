@@ -11,10 +11,16 @@ def test_VideoProcessWorkerTester(qtbot):
     player = QtMultimedia.QMediaPlayer()
     sink = QtMultimedia.QVideoSink()
     player.setVideoSink(sink)
-    sink.videoFrameChanged.connect(player.stop)
+    sink.videoFrameChanged.connect(player.pause)
 
     player.setSource(QtCore.QUrl.fromLocalFile(get_samples_path("hello.mp4")))
-    player.play()
 
+    player.play()
+    qtbot.waitUntil(lambda: player.playbackState() != player.PlaybackState.PlayingState)
     tester.testVideoFrame(sink.videoFrame())
+
+    player.play()
+    qtbot.waitUntil(lambda: player.playbackState() != player.PlaybackState.PlayingState)
+    tester.testVideoFrame(sink.videoFrame())
+
     player.stop()

@@ -21,7 +21,7 @@ Pipeline classes
 
 .. autoclass:: VideoFrameProcessor
    :members:
-   :exclude-members: videoFrameChanged
+   :exclude-members: videoFrameProcessed
 
 .. autoclass:: VideoProcessWorker
    :members:
@@ -29,7 +29,7 @@ Pipeline classes
 
 .. autoclass:: FrameToArrayConverter
    :members:
-   :exclude-members: arrayChanged
+   :exclude-members: arrayConverted
 
 Convenience classes
 -------------------
@@ -220,7 +220,7 @@ class VideoFrameProcessor(QtCore.QObject):
 class FrameToArrayConverter(QtCore.QObject):
     """
     Video pipeline component which converts ``QVideoFrame`` to numpy array and
-    emits to :attr:`arrayChanged`.
+    emits to :attr:`arrayConverted`.
 
     ``QVideoFrame`` is first transformed to ``QImage`` and then converted to
     array by :meth:`converter`.
@@ -231,7 +231,7 @@ class FrameToArrayConverter(QtCore.QObject):
 
     """
 
-    arrayChanged = QtCore.Signal(np.ndarray)
+    arrayConverted = QtCore.Signal(np.ndarray)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -240,7 +240,7 @@ class FrameToArrayConverter(QtCore.QObject):
 
     def ignoreNullFrame(self) -> bool:
         """
-        If True, null ``QVideoFrame`` passed to :meth:`setVideoFrame` is be
+        If True, null ``QVideoFrame`` passed to :meth:`convertVideoFrame` is be
         ignored. Else, empty array with shape ``(0, 0, 0)`` is emitted.
         """
         return self._ignoreNullFrame
@@ -251,7 +251,7 @@ class FrameToArrayConverter(QtCore.QObject):
         self._ignoreNullFrame = ignore
 
     @QtCore.Slot(QtMultimedia.QVideoFrame)
-    def setVideoFrame(self, frame: QtMultimedia.QVideoFrame):
+    def convertVideoFrame(self, frame: QtMultimedia.QVideoFrame):
         """
         Convert ``QVideoFrame`` to :class:`numpy.ndarray` and emit to
         :meth:`setArray`.
@@ -263,7 +263,7 @@ class FrameToArrayConverter(QtCore.QObject):
             array = np.empty((0, 0, 0), dtype=np.uint8)
         else:
             return
-        self.arrayChanged.emit(array)
+        self.arrayConverted.emit(array)
 
     def imageToArray(self, image: QtGui.QImage) -> np.ndarray:
         """
@@ -289,11 +289,13 @@ class NDArrayVideoPlayer(QtMultimedia.QMediaPlayer):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._videoSink = QtMultimedia.QVideoSink()
-        self._frame2Arr = FrameToArrayConverter(self)
+        self._arrayConverter = FrameToArrayConverter(self)
 
         self.setVideoSink(self._videoSink)
-        self._videoSink.videoFrameChanged.connect(self._frame2Arr.setVideoFrame)
-        self._frame2Arr.arrayChanged.connect(self.arrayChanged)
+        self._videoSink.videoFrameChanged.connect(
+            self._arrayConverter.convertVideoFrame
+        )
+        self._arrayConverter.arrayConverted.connect(self.arrayChanged)
 
 
 class NDArrayMediaCaptureSession(QtMultimedia.QMediaCaptureSession):
@@ -309,8 +311,10 @@ class NDArrayMediaCaptureSession(QtMultimedia.QMediaCaptureSession):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._videoSink = QtMultimedia.QVideoSink()
-        self._frame2Arr = FrameToArrayConverter(self)
+        self._arrayConverter = FrameToArrayConverter(self)
 
         self.setVideoSink(self._videoSink)
-        self._videoSink.videoFrameChanged.connect(self._frame2Arr.setVideoFrame)
-        self._frame2Arr.arrayChanged.connect(self.arrayChanged)
+        self._videoSink.videoFrameChanged.connect(
+            self._arrayConverter.convertVideoFrame
+        )
+        self._arrayConverter.arrayConverted.connect(self.arrayChanged)

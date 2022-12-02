@@ -50,8 +50,10 @@ class Window(QMainWindow):
         # set up the pipeline
         self._captureSession.setCamera(self._camera)
         self._captureSession.setVideoSink(self._cameraSink)
-        self._cameraSink.videoFrameChanged.connect(self._arrayConverter.setVideoFrame)
-        self._arrayConverter.arrayChanged.connect(self._displayImageFromCamera)
+        self._cameraSink.videoFrameChanged.connect(
+            self._arrayConverter.convertVideoFrame
+        )
+        self._arrayConverter.arrayConverted.connect(self._displayImageFromCamera)
         self._processRequested.connect(self._arrayProcessor.setArray)
         self._arrayProcessor.arrayChanged.connect(self._arrayLabel.setArray)
 

@@ -12,7 +12,10 @@ def test_qimage2qvideoframe(qtbot):
     image = qimage2ndarray.array2qimage(array)
     frame = qimage2qvideoframe(image)
     frame.map(QtMultimedia.QVideoFrame.MapMode.ReadOnly)
-    assert frame.toImage().convertToFormat(image.format()) == image
+    image2 = frame.toImage()
+    frame.unmap()
+    image2.convertTo(image.format())
+    assert image == image2
 
 
 def test_FrameToArrayConverter(qtbot):

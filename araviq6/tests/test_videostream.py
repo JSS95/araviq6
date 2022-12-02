@@ -12,11 +12,8 @@ from araviq6.qt_compat import QtCore, QtMultimedia
 
 
 def test_VideoProcessWorker(qtbot):
-    class BGRWorker(VideoProcessWorker):
-        def processArray(self, array):
-            return array
 
-    worker = BGRWorker()
+    worker = VideoProcessWorker()
     tester = VideoProcessWorkerTester()
     tester.setWorker(worker)
 

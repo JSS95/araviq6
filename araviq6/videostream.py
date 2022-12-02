@@ -68,14 +68,13 @@ for name, qimage_format in qimage2ndarray.qimageview_python.FORMATS.items():
 
 
 def qimage2qvideoframe(image: QtGui.QImage) -> QtMultimedia.QVideoFrame:
-    image = image.copy()
     imgFormat = image.format()
     pixelFormat = QtMultimedia.QVideoFrameFormat.pixelFormatFromImageFormat(imgFormat)
     frameFormat = QtMultimedia.QVideoFrameFormat(image.size(), pixelFormat)
     frame = QtMultimedia.QVideoFrame(frameFormat)
     frame.map(QtMultimedia.QVideoFrame.MapMode.WriteOnly)
     frame.bits(0)[:] = image.bits()  # type: ignore[index]
-    frame.unmap()
+    frame.unmap()  # update the modified memory to frame object
     return frame
 
 

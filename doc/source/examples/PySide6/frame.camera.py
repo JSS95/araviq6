@@ -1,3 +1,11 @@
+"""
+Camera example with blurring pipeline on QVideoframe.
+
+The processor receives video frame from the video sink of media capture session,
+and emits processed video frame.
+
+"""
+
 import cv2  # type: ignore[import]
 import numpy as np
 from PySide6.QtCore import Slot

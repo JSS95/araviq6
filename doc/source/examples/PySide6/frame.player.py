@@ -1,3 +1,11 @@
+"""
+Video player example with canny edge detection pipeline on QVideoframe.
+
+The processor receives video frame from the video sink of media player, and emits
+processed video frame.
+
+"""
+
 import cv2  # type: ignore[import]
 import numpy as np
 from PySide6.QtCore import Slot, QUrl

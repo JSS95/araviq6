@@ -1,6 +1,9 @@
 """
-Camera example with multithreaded Gaussian blurring process, building every
-video pipeline component.
+Video player example with blurring pipeline on numpy array.
+
+The converter receives video frame from the video sink of media capture session,
+and emits numpy array. The processor then receives it and emits processed array.
+
 """
 
 import cv2  # type: ignore

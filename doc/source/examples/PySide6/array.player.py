@@ -1,6 +1,10 @@
 """
-Video player example with multithreaded canny edge detection process, using
-pre-built video pipeline in :class:`NDArrayVideoPlayer`.
+Video player example with array-based video player and canny edge detection
+pipeline on numpy array.
+
+The processor directly receives numpy array from the media player, and emits
+processed array.
+
 """
 
 import cv2  # type: ignore[import]

@@ -21,7 +21,7 @@ Pipeline classes
 
 .. autoclass:: VideoFrameProcessor
    :members:
-   :exclude-members: videoFrameChanged
+   :exclude-members: videoFrameProcessed
 
 .. autoclass:: VideoProcessWorker
    :members:

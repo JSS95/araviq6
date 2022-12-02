@@ -92,7 +92,6 @@ class VideoProcessWorker(QtCore.QObject):
         """
         return self._ready
 
-    @QtCore.Slot(QtMultimedia.QVideoFrame)
     def setVideoFrame(self, frame: QtMultimedia.QVideoFrame):
         """
         Process *frame* and emit the result to :attr:`videoFrameProcessed`.
@@ -100,6 +99,11 @@ class VideoProcessWorker(QtCore.QObject):
         Video frame is converted to ``QImage``, which is then converted to numpy
         array by :meth:`imageToArray`. The array is then processed by
         :meth:`processArray`, and new video frame is constructed from it.
+
+        Note
+        ====
+
+        This method must *not* be Qt Slot to be multithreaded.
         """
         self._ready = False
 

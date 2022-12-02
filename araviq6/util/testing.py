@@ -8,9 +8,8 @@ Testing helpers
 
 import os
 import numpy as np
-import qimage2ndarray  # type: ignore[import]
 import araviq6
-from araviq6.qt_compat import QtCore, QtGui, QtMultimedia
+from araviq6.qt_compat import QtCore, QtMultimedia
 from araviq6.videostream import VideoProcessWorker
 from typing import Optional
 
@@ -99,19 +98,14 @@ class VideoProcessWorkerTester(QtCore.QObject):
     def testVideoFrame(self, frame: QtMultimedia.QVideoFrame):
         """Test :meth:`worker` with *frame*."""
         inputImg = frame.toImage()
-        if not inputImg.isNull():
-            self._inputArray = self.imageToArray(inputImg).copy()
-
         worker = self.worker()
-        if worker is not None:
+        if not inputImg.isNull() and worker is not None:
+            self._inputArray = worker.imageToArray(inputImg).copy()
             worker.setVideoFrame(frame)
 
     def _onVideoFramePassedByWorker(self, frame: QtMultimedia.QVideoFrame):
         worker = self.worker()
         outputImg = frame.toImage()
         if not outputImg.isNull() and worker is not None:
-            outputArray = self.imageToArray(outputImg)
+            outputArray = worker.imageToArray(outputImg)
             assert np.all(worker.processArray(self._inputArray) == outputArray)
-
-    def imageToArray(self, image: QtGui.QImage) -> np.ndarray:
-        return qimage2ndarray.rgb_view(image, byteorder=None)

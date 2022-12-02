@@ -40,7 +40,9 @@ class CannyEdgeDetector(QObject):
 
     def setArray(self, array: np.ndarray):
         self._ready = False
-        if array.size > 0 and self.cannyMode():
+        if array.size == 0:
+            ret = array
+        elif self.cannyMode():
             gray = cv2.cvtColor(array, cv2.COLOR_RGB2GRAY)
             canny = cv2.Canny(gray, 50, 200)
             ret = cv2.cvtColor(canny, cv2.COLOR_GRAY2RGB)

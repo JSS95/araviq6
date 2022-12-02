@@ -2,14 +2,14 @@ import cv2  # type: ignore[import]
 import numpy as np
 import qimage2ndarray  # type: ignore[import]
 import pytest
-from araviq6 import FrameToArrayConverter
+from araviq6 import qimage2qvideoframe, FrameToArrayConverter
 from araviq6.util import get_samples_path
 
 
 def test_qimage2qvideoframe(qtbot):
     array = cv2.imread(get_samples_path("hello.jpg"))
-    qimage2ndarray.array2qimage(array)
-    # image = qimage2ndarray.array2qimage(array)
+    image = qimage2ndarray.array2qimage(array)
+    qimage2qvideoframe(image)
     # frame = qimage2qvideoframe(image)
     # assert image == frame.toImage().convertToFormat(image.format())
 

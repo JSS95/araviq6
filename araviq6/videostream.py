@@ -223,13 +223,13 @@ class FrameToArrayConverter(QtCore.QObject):
 
     :class:`FrameToArrayConverter` first converts ``QVideoFrame`` to ``QImage``
     and then converts to numpy array :meth:`imageToArray`. Resulting array is
-    emitted to :attr:`arrayConverted`.
+    emitted to :attr:`arrayConverted` with original frame.
 
     Invalid video frame is converted to 3D empty array.
 
     """
 
-    arrayConverted = QtCore.Signal(np.ndarray)
+    arrayConverted = QtCore.Signal(np.ndarray, QtMultimedia.QVideoFrame)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -246,7 +246,7 @@ class FrameToArrayConverter(QtCore.QObject):
             array = self.imageToArray(qimg).copy()  # copy to detach reference
         else:
             array = np.empty((0, 0, 0), dtype=np.uint8)
-        self.arrayConverted.emit(array)
+        self.arrayConverted.emit(array, frame)
 
     def imageToArray(self, image: QtGui.QImage) -> np.ndarray:
         """
@@ -261,13 +261,14 @@ class FrameToArrayConverter(QtCore.QObject):
 
 class NDArrayVideoPlayer(QtMultimedia.QMediaPlayer):
     """
-    Minimal implementation of video player which emits frames as numpy arrays to
-    :attr:`arrayChanged` signal.
+    Video player which emits numpy array.
 
-    User may use this class for convenience, or define own pipeline.
+    :class:`NDArrayVideoPlayer` emits the the numpy array and its original frame
+    to :attr:`arrayChanged` signal. User may use this class for convenience, or
+    define own pipeline.
     """
 
-    arrayChanged = QtCore.Signal(np.ndarray)
+    arrayChanged = QtCore.Signal(np.ndarray, QtMultimedia.QVideoFrame)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -283,13 +284,14 @@ class NDArrayVideoPlayer(QtMultimedia.QMediaPlayer):
 
 class NDArrayMediaCaptureSession(QtMultimedia.QMediaCaptureSession):
     """
-    Minimal implementation of media capture session which emits frames as
-    numpy arrays to :attr:`arrayChanged` signal.
+    Capture session which emits numpy array.
 
-    User may use this class for convenience, or define own pipeline.
+    :class:`NDArrayMediaCaptureSession` emits the the numpy array and its
+    original frame to :attr:`arrayChanged` signal. User may use this class for
+    convenience, or define own pipeline.
     """
 
-    arrayChanged = QtCore.Signal(np.ndarray)
+    arrayChanged = QtCore.Signal(np.ndarray, QtMultimedia.QVideoFrame)
 
     def __init__(self, parent=None):
         super().__init__(parent)

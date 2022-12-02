@@ -14,8 +14,8 @@ Array label
 
 import enum
 import numpy as np
-from araviq6.qt_compat import QtCore, QtGui, QtWidgets
 import qimage2ndarray  # type: ignore[import]
+from araviq6.qt_compat import QtCore, QtGui, QtWidgets
 
 __all__ = [
     "ScalableQLabel",

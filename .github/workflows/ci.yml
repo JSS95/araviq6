@@ -34,6 +34,12 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+
+      matrix:
+        qt: [PySide6]
+
     steps: 
 
       - name: get repo
@@ -42,12 +48,19 @@ jobs:
       - name: set up Python
         uses: actions/setup-python@v2
 
+      - name: install qt
+        run: |
+          pip install ${{ matrix.qt }}
+
       - name: install package
         run: |
           pip install .[test]
 
       - name: run mypy check
-        run: mypy araviq6
+        run: |
+          mypy araviq6
+          mypy doc/source --exclude doc/source/examples
+          mypy doc/source/examples/${{ matrix.qt }}
 
 
   unit-test:

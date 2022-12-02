@@ -4,10 +4,10 @@
 Examples
 ========
 
-This page gives advanced examples to perform image analysis with AraViQ6.
+This page gives examples to perform video processing with AraViQ6.
 
 .. toctree::
    :maxdepth: 2
 
-   videoplayer
-   camera
+   frame
+   array

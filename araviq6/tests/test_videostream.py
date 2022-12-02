@@ -9,8 +9,8 @@ from araviq6.util import get_samples_path
 def test_qimage2qvideoframe(qtbot):
     array = cv2.imread(get_samples_path("hello.jpg"))
     image = qimage2ndarray.array2qimage(array)
-    qimage2qvideoframe(image)
-    # frame = qimage2qvideoframe(image)
+    frame = qimage2qvideoframe(image)
+    frame
     # assert image == frame.toImage().convertToFormat(image.format())
 
 

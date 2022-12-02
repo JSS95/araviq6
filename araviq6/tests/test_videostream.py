@@ -14,7 +14,7 @@ from araviq6.qt_compat import QtCore, QtMultimedia
 def test_VideoProcessWorker(qtbot):
     class BGRWorker(VideoProcessWorker):
         def processArray(self, array):
-            return cv2.cvtColor(array, cv2.COLOR_RGB2BGR)
+            return array
 
     worker = BGRWorker()
     tester = VideoProcessWorkerTester()

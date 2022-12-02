@@ -1,3 +1,4 @@
+import cv2  # type: ignore[import]
 from araviq6 import VideoProcessWorker
 from araviq6.util import (
     get_samples_path,
@@ -7,7 +8,7 @@ from araviq6.util import (
 from araviq6.qt_compat import QtCore, QtMultimedia
 
 
-def test_VideoProcessWorkerTester(qtbot):
+def test_VideoProcessWorker(qtbot):
     worker = VideoProcessWorker()
     tester = VideoProcessWorkerTester()
     tester.setWorker(worker)
@@ -25,7 +26,24 @@ def test_VideoProcessWorkerTester(qtbot):
     qtbot.waitUntil(lambda: player.playbackState() != player.PlaybackState.PlayingState)
     assert validSink.videoFrame().isValid()
     tester.testVideoFrame(validSink.videoFrame())
+    player.play()
+    qtbot.waitUntil(lambda: player.playbackState() != player.PlaybackState.PlayingState)
+    assert validSink.videoFrame().isValid()
+    tester.testVideoFrame(validSink.videoFrame())
 
+    player.stop()
+
+    class BGRWorker(VideoProcessWorker):
+        def processArray(self, array):
+            return cv2.cvtColor(array, cv2.COLOR_RGB2BGR)
+
+    worker = BGRWorker()
+    tester.setWorker(worker)
+
+    player.play()
+    qtbot.waitUntil(lambda: player.playbackState() != player.PlaybackState.PlayingState)
+    assert validSink.videoFrame().isValid()
+    tester.testVideoFrame(validSink.videoFrame())
     player.play()
     qtbot.waitUntil(lambda: player.playbackState() != player.PlaybackState.PlayingState)
     assert validSink.videoFrame().isValid()

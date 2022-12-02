@@ -2,27 +2,14 @@ import cv2  # type: ignore[import]
 import numpy as np
 import qimage2ndarray  # type: ignore[import]
 import pytest
-from araviq6 import FrameToArrayConverter
+from araviq6 import qimage2qvideoframe, FrameToArrayConverter
 from araviq6.util import get_samples_path
-from araviq6.qt_compat import QtCore, QtMultimedia
 
 
 def test_qimage2qvideoframe(qtbot):
-    # array = cv2.imread(get_samples_path("hello.jpg"))
-    # image = qimage2ndarray.array2qimage(array)
-    # frame = qimage2qvideoframe(image)
-    # frame.toImage()
-    # assert image == frame.toImage().convertToFormat(image.format())
-    frame = QtMultimedia.QVideoFrame()
-    frame.toImage()
-
-    player = QtMultimedia.QMediaPlayer()
-    sink = QtMultimedia.QVideoSink()
-    player.setVideoSink(sink)
-    sink.videoFrameChanged.connect(player.stop)
-    player.setSource(QtCore.QUrl.fromLocalFile(get_samples_path("hello.mp4")))
-    player.play()
-    frame = sink.videoFrame()
+    array = cv2.imread(get_samples_path("hello.jpg"))
+    image = qimage2ndarray.array2qimage(array)
+    frame = qimage2qvideoframe(image)
     frame.toImage()
 
 

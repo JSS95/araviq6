@@ -225,9 +225,7 @@ class FrameToArrayConverter(QtCore.QObject):
     and then converts to numpy array :meth:`imageToArray`. Resulting array is
     emitted to :attr:`arrayConverted`.
 
-    Since ``QVideoPlayer`` sends dummy video frame at the end of video,
-    :meth:`ignoreNullFrame` determines whether null frame should be ignored or
-    empty array should be emitted.
+    Invalid video frame is converted to 3D empty array.
 
     """
 
@@ -235,20 +233,7 @@ class FrameToArrayConverter(QtCore.QObject):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._ignoreNullFrame = True
         self._converter = qimage2ndarray.rgb_view
-
-    def ignoreNullFrame(self) -> bool:
-        """
-        If True, null ``QVideoFrame`` passed to :meth:`convertVideoFrame` is be
-        ignored. Else, empty array with shape ``(0, 0, 0)`` is emitted.
-        """
-        return self._ignoreNullFrame
-
-    @QtCore.Slot(bool)
-    def setIgnoreNullFrame(self, ignore: bool):
-        """Update :meth:`ignoreNullFrame`."""
-        self._ignoreNullFrame = ignore
 
     @QtCore.Slot(QtMultimedia.QVideoFrame)
     def convertVideoFrame(self, frame: QtMultimedia.QVideoFrame):
@@ -259,10 +244,8 @@ class FrameToArrayConverter(QtCore.QObject):
         qimg = frame.toImage()
         if not qimg.isNull():
             array = self.imageToArray(qimg).copy()  # copy to detach reference
-        elif not self.ignoreNullFrame():
-            array = np.empty((0, 0, 0), dtype=np.uint8)
         else:
-            return
+            array = np.empty((0, 0, 0), dtype=np.uint8)
         self.arrayConverted.emit(array)
 
     def imageToArray(self, image: QtGui.QImage) -> np.ndarray:

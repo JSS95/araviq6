@@ -30,7 +30,6 @@ class BlurringProcessor(QObject):
     @Slot(np.ndarray)
     def setArray(self, array: np.ndarray):
         self._ready = False
-        array = cv2.cvtColor(array, cv2.COLOR_BGR2RGB)
         self.arrayChanged.emit(cv2.GaussianBlur(array, (0, 0), 25))
         self._ready = True
 

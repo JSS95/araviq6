@@ -47,7 +47,7 @@ Convenience classes
 import numpy as np
 import qimage2ndarray  # type: ignore[import]
 from araviq6.qt_compat import QtCore, QtGui, QtMultimedia
-from typing import Optional, Callable
+from typing import Optional
 
 
 __all__ = [
@@ -257,32 +257,23 @@ class FrameToArrayConverter(QtCore.QObject):
         :meth:`setArray`.
         """
         qimg = frame.toImage()
-        if qimg.isNull() and self.ignoreNullFrame():
-            pass
-        else:
-            array = self.convertQImageToArray(qimg)
-            self.arrayChanged.emit(array)
-
-    def converter(self) -> Callable[[QtGui.QImage], np.ndarray]:
-        """
-        Callable object to convert ``QImage`` instance to numpy array. Default is
-        ``qimage2ndarray.rgb_view``.
-        """
-        return self._converter
-
-    def setConverter(self, func: Callable[[QtGui.QImage], np.ndarray]):
-        self._converter = func
-
-    def convertQImageToArray(self, qimg: QtGui.QImage) -> np.ndarray:
-        """
-        Convert *qimg* to numpy array. Null image is converted to empty array.
-        """
-        converter = self.converter()
         if not qimg.isNull():
-            array = converter(qimg).copy()  # copy to detach reference
+            array = self.imageToArray(qimg).copy()  # copy to detach reference
+        elif not self.ignoreNullFrame():
+            array = np.empty((0, 0, 0), dtype=np.uint8)
         else:
-            array = np.empty((0, 0, 0))
-        return array
+            return
+        self.arrayChanged.emit(array)
+
+    def imageToArray(self, image: QtGui.QImage) -> np.ndarray:
+        """
+        Convert *image* to numpy array.
+
+        *image* is ``QImage`` from ``QVidoeFrame``. By default this method
+        uses ``qimage2ndarray.rgb_view`` for conversion. Subclass can redefine
+        this method.
+        """
+        return qimage2ndarray.rgb_view(image, byteorder=None)
 
 
 class NDArrayVideoPlayer(QtMultimedia.QMediaPlayer):

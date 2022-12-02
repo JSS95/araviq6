@@ -72,8 +72,8 @@ class VideoProcessWorker(QtCore.QObject):
 
     :class:`VideoProcessWorker` converts ``QVideoFrame`` to numpy array, performs
     array processing and constructs a new ``QVideoFrame`` with the new array.
-    Pass the input ``QVideoFrame`` to :meth:`setVideoFrame` slot and listen to
-    :attr:`videoFrameProcessed` signal.
+    Pass the input ``QVideoFrame`` to :meth:`processVideoFrame` slot and listen
+    to :attr:`videoFrameProcessed` signal.
 
     Video frame is first converted to ``QImage``, and then to numpy array by
     :meth:`imageToArray`. Array processing is defined in :meth:`processArray`.
@@ -92,7 +92,7 @@ class VideoProcessWorker(QtCore.QObject):
         """
         return self._ready
 
-    def setVideoFrame(self, frame: QtMultimedia.QVideoFrame):
+    def processVideoFrame(self, frame: QtMultimedia.QVideoFrame):
         """
         Process *frame* and emit the result to :attr:`videoFrameProcessed`.
 
@@ -158,12 +158,13 @@ class VideoFrameProcessor(QtCore.QObject):
 
     :class:`VideoFrameProcessor` runs :class:`VideoProcessWorker` in internal
     thread to process the incoming video frame. Pass the input ``QVideoFrame``
-    to :meth:`setVideoFrame` slot and listen to :attr:`videoFrameChanged` signal.
+    to :meth:`processVideoFrame` slot and listen to :attr:`videoFrameProcessed`
+    signal.
 
     """
 
     _processRequested = QtCore.Signal(QtMultimedia.QVideoFrame)
-    videoFrameChanged = QtCore.Signal(QtMultimedia.QVideoFrame)
+    videoFrameProcessed = QtCore.Signal(QtMultimedia.QVideoFrame)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -188,23 +189,23 @@ class VideoFrameProcessor(QtCore.QObject):
         """
         oldWorker = self.worker()
         if oldWorker is not None:
-            self._processRequested.disconnect(oldWorker.setVideoFrame)
-            oldWorker.videoFrameProcessed.disconnect(self.videoFrameChanged)
+            self._processRequested.disconnect(oldWorker.processVideoFrame)
+            oldWorker.videoFrameProcessed.disconnect(self.videoFrameProcessed)
         self._worker = worker
         if worker is not None:
-            self._processRequested.connect(worker.setVideoFrame)
-            worker.videoFrameProcessed.connect(self.videoFrameChanged)
+            self._processRequested.connect(worker.processVideoFrame)
+            worker.videoFrameProcessed.connect(self.videoFrameProcessed)
             worker.moveToThread(self._processorThread)
 
     @QtCore.Slot(QtMultimedia.QVideoFrame)
-    def setVideoFrame(self, frame: QtMultimedia.QVideoFrame):
+    def processVideoFrame(self, frame: QtMultimedia.QVideoFrame):
         """
         Process *frame* and emit the result to :attr:`videoFrameProcessed`.
 
         """
         worker = self.worker()
         if worker is None:
-            self.videoFrameChanged.emit(frame)
+            self.videoFrameProcessed.emit(frame)
         elif worker.ready():
             self._processRequested.emit(frame)
         else:

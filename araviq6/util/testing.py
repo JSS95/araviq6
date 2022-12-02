@@ -101,7 +101,7 @@ class VideoProcessWorkerTester(QtCore.QObject):
         worker = self.worker()
         if not inputImg.isNull() and worker is not None:
             self._inputArray = worker.imageToArray(inputImg).copy()
-            worker.setVideoFrame(frame)
+            worker.processVideoFrame(frame)
 
     def _onVideoFramePassedByWorker(self, frame: QtMultimedia.QVideoFrame):
         worker = self.worker()

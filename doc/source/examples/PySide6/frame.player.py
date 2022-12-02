@@ -45,9 +45,9 @@ class Window(QWidget):
         # set up the pipeline
         self._videoPlayer.setVideoSink(self._playerVideoSink)
         self._playerVideoSink.videoFrameChanged.connect(
-            self._frameProcessor.setVideoFrame
+            self._frameProcessor.processVideoFrame
         )
-        self._frameProcessor.videoFrameChanged.connect(self.displayVideoFrame)
+        self._frameProcessor.videoFrameProcessed.connect(self.displayVideoFrame)
 
         self._mediaController.setPlayer(self._videoPlayer)
         self._frameProcessor.setWorker(self._cannyWorker)
@@ -65,7 +65,7 @@ class Window(QWidget):
     def _onCannyButtonToggle(self, state: bool):
         self._cannyWorker.setCannyMode(state)
         if self._videoPlayer.playbackState() != QMediaPlayer.PlaybackState.PlayingState:
-            self._frameProcessor.setVideoFrame(self._playerVideoSink.videoFrame())
+            self._frameProcessor.processVideoFrame(self._playerVideoSink.videoFrame())
 
     def setSource(self, url: QUrl):
         self._videoPlayer.setSource(url)

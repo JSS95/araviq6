@@ -34,9 +34,9 @@ class Window(QMainWindow):
         self._captureSession.setCamera(self._camera)
         self._captureSession.setVideoSink(self._cameraVideoSink)
         self._cameraVideoSink.videoFrameChanged.connect(
-            self._frameProcessor.setVideoFrame
+            self._frameProcessor.processVideoFrame
         )
-        self._frameProcessor.videoFrameChanged.connect(self.displayVideoFrame)
+        self._frameProcessor.videoFrameProcessed.connect(self.displayVideoFrame)
 
         self._frameProcessor.setWorker(self._blurWorker)
         self.setCentralWidget(self._videoWidget)

@@ -68,6 +68,7 @@ for name, qimage_format in qimage2ndarray.qimageview_python.FORMATS.items():
 
 
 def qimage2qvideoframe(image: QtGui.QImage) -> QtMultimedia.QVideoFrame:
+    image = image.copy()
     imgFormat = image.format()
     pixelFormat = QtMultimedia.QVideoFrameFormat.pixelFormatFromImageFormat(imgFormat)
     frameFormat = QtMultimedia.QVideoFrameFormat(image.size(), pixelFormat)

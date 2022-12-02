@@ -10,7 +10,7 @@ def test_qimage2qvideoframe(qtbot):
     array = cv2.imread(get_samples_path("hello.jpg"))
     image = qimage2ndarray.array2qimage(array)
     frame = qimage2qvideoframe(image)
-    frame
+    frame.toImage()
     # assert image == frame.toImage().convertToFormat(image.format())
 
 

@@ -2,7 +2,7 @@
 Testing helpers
 ===============
 
-:mod:`araviq6.util.testing` provides functions to help writing unit tests.
+:mod:`araviq6.util.testing` provides utilities to help writing unit tests.
 
 """
 
@@ -49,17 +49,45 @@ def get_samples_path(*paths: str) -> str:
 
 
 class VideoProcessWorkerTester(QtCore.QObject):
+    """
+    Class to test :class:`VideoProcessWorker` by checking frame bits.
+
+    To test a worker, set it to :meth:`worker` and pass proper video frame to
+    :meth:`testVideoFrame`.
+
+    Notes
+    =====
+
+    ``QVideoFrame`` easily faces memory issue when assigned to a variable outside
+    video pipeline. Use ``QVideoSink.videoFrame()`` to test with video frame.
+
+    .. code-block:: python
+
+       player.setVideoSink(sink)
+       sink.videoFrameChanged.connect(player.stop)
+       player.play()  # immediately stops after passing first frame to sink
+       tester.testVideoFrame(sink.videoFrame())
+    """
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self._worker = None
-        self._ready = True
-
         self._inputArray = np.empty((0,))
 
     def worker(self) -> Optional[VideoProcessWorker]:
+        """
+        Worker instance which will be tested.
+
+        See also :meth:`setWorker`.
+        """
         return self._worker
 
     def setWorker(self, worker: Optional[VideoProcessWorker]):
+        """
+        Set *worker* to be tested.
+
+        See also :meth:`worker`.
+        """
         oldWorker = self.worker()
         if oldWorker is not None:
             oldWorker.videoFrameProcessed.disconnect(self._onVideoFramePassedByWorker)
@@ -68,10 +96,7 @@ class VideoProcessWorkerTester(QtCore.QObject):
             worker.videoFrameProcessed.connect(self._onVideoFramePassedByWorker)
 
     def testVideoFrame(self, frame: QtMultimedia.QVideoFrame):
-        if not self._ready:
-            return
-        self._ready = False
-
+        """Test :meth:`worker` with *frame*."""
         inputImg = frame.toImage()
         if not inputImg.isNull():
             self._inputArray = self.imageToArray(inputImg).copy()
@@ -86,8 +111,6 @@ class VideoProcessWorkerTester(QtCore.QObject):
         if not outputImg.isNull() and worker is not None:
             outputArray = self.imageToArray(outputImg)
             assert np.all(worker.processArray(self._inputArray) == outputArray)
-
-        self._ready = True
 
     def imageToArray(self, image: QtGui.QImage) -> np.ndarray:
         return qimage2ndarray.rgb_view(image, byteorder=None)

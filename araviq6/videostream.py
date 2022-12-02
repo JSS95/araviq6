@@ -182,7 +182,7 @@ class VideoFrameProcessor(QtCore.QObject):
 
     def setWorker(self, worker: Optional[VideoProcessWorker]):
         """
-        Sets *worker* and handles signal connections.
+        Set *worker* as video frame processor.
 
         See also :meth:`worker`.
         """
@@ -211,7 +211,7 @@ class VideoFrameProcessor(QtCore.QObject):
             return
 
     def stop(self):
-        """Stops the worker thread."""
+        """Stop the worker thread."""
         self._processorThread.quit()
         self._processorThread.wait()
 

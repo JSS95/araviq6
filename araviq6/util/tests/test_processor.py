@@ -59,3 +59,8 @@ def test_VideoProcessWorkerTester2(qtbot):
     tester.testVideoFrame(validSink.videoFrame())
 
     player.stop()
+
+
+def test_dummy(qtbot):
+    """Test if breaks ci"""
+    pass

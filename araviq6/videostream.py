@@ -199,10 +199,12 @@ class VideoFrameProcessor(QtCore.QObject):
 
         """
         worker = self.worker()
-        if worker is None or not worker.ready():
+        if worker is None:
             self.videoFrameChanged.emit(frame)
-        else:
+        elif worker.ready():
             self._processRequested.emit(frame)
+        else:
+            return
 
     def stop(self):
         """Stops the worker thread."""

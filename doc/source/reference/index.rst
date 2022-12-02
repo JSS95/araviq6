@@ -11,7 +11,7 @@ This manual describes the modules and objects in :mod:`araviq6`.
 .. toctree::
    :maxdepth: 1
 
-   labels
    videostream
+   labels
    videowidgets
    util

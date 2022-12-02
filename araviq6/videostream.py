@@ -67,6 +67,17 @@ for name, qimage_format in qimage2ndarray.qimageview_python.FORMATS.items():
 
 
 class VideoProcessWorker(QtCore.QObject):
+    """
+    Worker to process ``QVideoFrame`` using :class:`numpy.ndarray` operation.
+
+    :class:`VideoProcessWorker` converts ``QVideoFrame`` to numpy array, performs
+    array processing and constructs a new ``QVideoFrame`` with the new array.
+    Pass the input ``QVideoFrame`` to :meth:`setVideoFrame` slot and listen to
+    :attr:`videoFrameProcessed` signal.
+
+    Video frame is first converted to ``QImage``, and then to numpy array by
+    :meth:`imageToArray`. Array processing is defined in :meth:`processArray`.
+    """
 
     videoFrameProcessed = QtCore.Signal(QtMultimedia.QVideoFrame)
 
@@ -75,10 +86,21 @@ class VideoProcessWorker(QtCore.QObject):
         self._ready = True
 
     def ready(self) -> bool:
+        """
+        Returns true if the worker finished processing and can process the next
+        video frame without being blocked.
+        """
         return self._ready
 
     @QtCore.Slot(QtMultimedia.QVideoFrame)
     def setVideoFrame(self, frame: QtMultimedia.QVideoFrame):
+        """
+        Process *frame* and emit the result to :attr:`videoFrameProcessed`.
+
+        Video frame is converted to ``QImage``, which is then converted to numpy
+        array by :meth:`imageToArray`. The array is then processed by
+        :meth:`processArray`, and new video frame is constructed from it.
+        """
         self._ready = False
 
         qimg = frame.toImage()  # must assign to avoid crash
@@ -107,13 +129,34 @@ class VideoProcessWorker(QtCore.QObject):
         self._ready = True
 
     def imageToArray(self, image: QtGui.QImage) -> np.ndarray:
+        """
+        Convert *image* to numpy array.
+
+        *image* is ``QImage`` from ``QVidoeFrame``. By default this method
+        uses ``qimage2ndarray.rgb_view`` for conversion. Subclass can redefine
+        this method.
+        """
         return qimage2ndarray.rgb_view(image, byteorder=None)
 
     def processArray(self, array: np.ndarray) -> np.ndarray:
+        """
+        Perform image processing on *array* and return the result.
+
+        By default this method does not perform any processing. Subclass can
+        redefine this method.
+        """
         return array
 
 
 class VideoFrameProcessor(QtCore.QObject):
+    """
+    Video pipeline component to process ``QVideoFrame``
+
+    :class:`VideoFrameProcessor` runs :class:`VideoProcessWorker` in internal
+    thread to process the incoming video frame. Pass the input ``QVideoFrame``
+    to :meth:`setVideoFrame` slot and listen to :attr:`videoFrameChanged` signal.
+
+    """
 
     _processRequested = QtCore.Signal(QtMultimedia.QVideoFrame)
     videoFrameChanged = QtCore.Signal(QtMultimedia.QVideoFrame)
@@ -126,9 +169,19 @@ class VideoFrameProcessor(QtCore.QObject):
         self._processorThread.start()
 
     def worker(self) -> Optional[VideoProcessWorker]:
+        """
+        Worker to process the video frame. If ``None``, frame is not processed.
+
+        See also :meth:`setWorker`.
+        """
         return self._worker
 
     def setWorker(self, worker: Optional[VideoProcessWorker]):
+        """
+        Sets *worker* and handles signal connections.
+
+        See also :meth:`worker`.
+        """
         oldWorker = self.worker()
         if oldWorker is not None:
             self._processRequested.disconnect(oldWorker.setVideoFrame)
@@ -141,6 +194,10 @@ class VideoFrameProcessor(QtCore.QObject):
 
     @QtCore.Slot(QtMultimedia.QVideoFrame)
     def setVideoFrame(self, frame: QtMultimedia.QVideoFrame):
+        """
+        Process *frame* and emit the result to :attr:`videoFrameProcessed`.
+
+        """
         worker = self.worker()
         if worker is None or not worker.ready():
             self.videoFrameChanged.emit(frame)
@@ -148,6 +205,7 @@ class VideoFrameProcessor(QtCore.QObject):
             self._processRequested.emit(frame)
 
     def stop(self):
+        """Stops the worker thread."""
         self._processorThread.quit()
         self._processorThread.wait()
 

@@ -16,6 +16,7 @@ from typing import Optional
 
 __all__ = [
     "get_samples_path",
+    "ValidVideoFrameSink",
     "VideoProcessWorkerTester",
 ]
 
@@ -45,6 +46,15 @@ def get_samples_path(*paths: str) -> str:
 
     path = os.path.join(sample_dir, *paths)
     return path
+
+
+class ValidVideoFrameSink(QtMultimedia.QVideoSink):
+    """Video sink which ignores invalid video frame."""
+
+    def setVideoFrame(self, frame: QtMultimedia.QVideoFrame):
+        if not frame.isValid():
+            return
+        super().setVideoFrame(frame)
 
 
 class VideoProcessWorkerTester(QtCore.QObject):

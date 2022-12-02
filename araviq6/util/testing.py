@@ -62,10 +62,10 @@ class VideoProcessWorkerTester(QtCore.QObject):
     def setWorker(self, worker: Optional[VideoProcessWorker]):
         oldWorker = self.worker()
         if oldWorker is not None:
-            oldWorker.videoFrameChanged.disconnect(self._onVideoFramePassedByWorker)
+            oldWorker.videoFrameProcessed.disconnect(self._onVideoFramePassedByWorker)
         self._worker = worker
         if worker is not None:
-            worker.videoFrameChanged.connect(self._onVideoFramePassedByWorker)
+            worker.videoFrameProcessed.connect(self._onVideoFramePassedByWorker)
 
     def testVideoFrame(self, frame: QtMultimedia.QVideoFrame):
         if not self._ready:

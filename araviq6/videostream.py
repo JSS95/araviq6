@@ -49,8 +49,7 @@ for name, qimage_format in qimage2ndarray.qimageview_python.FORMATS.items():
 
 class VideoProcessWorker(QtCore.QObject):
 
-    videoFrameChanged = QtCore.Signal(QtMultimedia.QVideoFrame)
-    # TODO: rename to videoFrameProcessed
+    videoFrameProcessed = QtCore.Signal(QtMultimedia.QVideoFrame)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -85,7 +84,7 @@ class VideoProcessWorker(QtCore.QObject):
         else:
             processedFrame = frame
 
-        self.videoFrameChanged.emit(processedFrame)
+        self.videoFrameProcessed.emit(processedFrame)
         self._ready = True
 
     def imageToArray(self, image: QtGui.QImage) -> np.ndarray:
@@ -114,11 +113,11 @@ class VideoFrameProcessor(QtCore.QObject):
         oldWorker = self.worker()
         if oldWorker is not None:
             self._processRequested.disconnect(oldWorker.setVideoFrame)
-            oldWorker.videoFrameChanged.disconnect(self.videoFrameChanged)
+            oldWorker.videoFrameProcessed.disconnect(self.videoFrameChanged)
         self._worker = worker
         if worker is not None:
             self._processRequested.connect(worker.setVideoFrame)
-            worker.videoFrameChanged.connect(self.videoFrameChanged)
+            worker.videoFrameProcessed.connect(self.videoFrameChanged)
             worker.moveToThread(self._processorThread)
 
     @QtCore.Slot(QtMultimedia.QVideoFrame)

@@ -1,3 +1,29 @@
+"""
+Array-frame converter
+=====================
+
+:mod:`araviq6.array2qvideoframe` provides functions to convert the ndarray to
+QVideoFrame and vice versa.
+
+.. note::
+   This module imitates https://github.com/hmeine/qimage2ndarray.
+
+Frame -> Array
+--------------
+
+.. autofunction:: byte_view
+
+.. autofunction:: rgb_view
+
+.. autofunction:: alpha_view
+
+Array -> Frame
+--------------
+
+.. autofunction:: array2qvideoframe
+
+"""
+
 import numpy as np
 import numpy.typing as npt
 import sys

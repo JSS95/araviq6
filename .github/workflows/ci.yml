@@ -112,7 +112,15 @@ jobs:
         run: |
           pip install .[test-ci]
 
-      - run: pytest
+      - name: run pytest
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            pytest --ignore=araviq6/tests/test_array2qvideoframe.py
+            pytest araviq6/tests/test_array2qvideoframe.py
+          else
+            pytest
+          fi
+        shell: bash   
 
   doc:
 

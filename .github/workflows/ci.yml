@@ -114,8 +114,15 @@ jobs:
 
       - name: run pytest
         run: |
-          pytest --ignore=araviq6/tests/test_qimage2qvideoframe.py
-          pytest araviq6/tests/test_qimage2qvideoframe.py
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            pytest --ignore=araviq6/tests/test_qimage2qvideoframe.py
+            pytest araviq6/tests/test_qimage2qvideoframe.py
+          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+            pytest --ignore=araviq6/tests/test_qimage2qvideoframe.py
+          else
+            pytest
+          fi
+        shell: bash          
 
 
   doc:

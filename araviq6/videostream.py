@@ -51,6 +51,7 @@ from typing import Optional, Callable
 
 
 __all__ = [
+    "qimage2qvideoframe",
     "VideoProcessWorker",
     "VideoFrameProcessor",
     "FrameToArrayConverter",

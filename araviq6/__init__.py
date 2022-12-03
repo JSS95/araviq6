@@ -11,6 +11,7 @@ from .version import __version__  # noqa
 
 from .labels import ScalableQLabel, NDArrayLabel
 from .videostream import (
+    qimage2qvideoframe,
     VideoProcessWorker,
     VideoFrameProcessor,
     FrameToArrayConverter,
@@ -31,6 +32,7 @@ from .util import (
 __all__ = [
     "ScalableQLabel",
     "NDArrayLabel",
+    "qimage2qvideoframe",
     "VideoProcessWorker",
     "VideoFrameProcessor",
     "FrameToArrayConverter",

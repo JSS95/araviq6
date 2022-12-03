@@ -30,9 +30,9 @@ class ArrayInterfaceAroundQVideoFrame(object):
 
 def qvideoframeview(frame: QtMultimedia.QVideoFrame) -> np.ndarray:
     pixelFormat = frame.surfaceFormat().pixelFormat()
-    if pixelFormat == QtMultimedia.QVideoFrameFormat.Format_ARGB8888:
+    if pixelFormat == QtMultimedia.QVideoFrameFormat.Format_BGRA8888:
         bits = 32
-    elif pixelFormat == QtMultimedia.QVideoFrameFormat.Format_BGRA8888:
+    elif pixelFormat == QtMultimedia.QVideoFrameFormat.Format_BGRX8888:
         bits = 32
     else:
         raise TypeError(f"Invalid pixel format: {pixelFormat}")
@@ -93,9 +93,9 @@ def array2qvideoframe(array: np.ndarray) -> QtMultimedia.QVideoFrame:
 
     hasAlpha = np.ma.is_masked(array) or ch in (2, 4)
     if hasAlpha:
-        pixelFormat = QtMultimedia.QVideoFrameFormat.Format_ARGB8888
-    else:
         pixelFormat = QtMultimedia.QVideoFrameFormat.Format_BGRA8888
+    else:
+        pixelFormat = QtMultimedia.QVideoFrameFormat.Format_BGRX8888
     frameFormat = QtMultimedia.QVideoFrameFormat(QtCore.QSize(w, h), pixelFormat)
     frame = QtMultimedia.QVideoFrame(frameFormat)
 

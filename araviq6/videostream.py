@@ -68,6 +68,14 @@ for name, qimage_format in qimage2ndarray.qimageview_python.FORMATS.items():
 
 
 def qimage2qvideoframe(image: QtGui.QImage) -> QtMultimedia.QVideoFrame:
+    """
+    Convert *image* to ``QVideoFrame``.
+
+    Notes
+    =====
+
+    This function is not guaranteed to work on macOS.
+    """
     imageFormat = image.format()
     pixelFormat = QtMultimedia.QVideoFrameFormat.pixelFormatFromImageFormat(imageFormat)
     frameFormat = QtMultimedia.QVideoFrameFormat(image.size(), pixelFormat)

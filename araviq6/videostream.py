@@ -5,13 +5,19 @@ Video frame pipeline
 :mod:`araviq6.videostream` provides video pipeline classes to handle
 ``QVideoFrame`` using numpy array processing.
 
-There are two options to process a video frame.
+There are two options to handle the pipeline.
 
-1. :class:`VideoFrameProcessor` (QVideoFrame -> ndarray -> QVideoFrame)
-2. :class:`FrameToArrayConverter` (QVideoFrame -> ndarray)
+1. Frame-based approach
+2. Array-based approach
 
-Convenience multimedia classes for the second option are also provided in this
-module.
+The first approach can be achieved by connecting :class:`VideoFrameProcessor`
+with ``QVideoSink``. The second is more low-level, and consists of
+:class:`FrameToArrayConverter`, :class:`ArrayProcessor` and
+:class:`ArrayToFrameConverter`
+
+Convenience multimedia classes for array-based pipeline are also provided in this
+module. These classes can replace the :class:`FrameToArrayConverter` connected
+to ``QVideoSink``.
 
 1. :class:`NDArrayVideoPlayer` (video file -> ndarray)
 2. :class:`NDArrayMediaCaptureSession` (camera -> ndarray)
@@ -25,6 +31,7 @@ Pipeline classes
 
 .. autoclass:: VideoProcessWorker
    :members:
+   :exclude-members: arrayProcessed
    :exclude-members: videoFrameProcessed
 
 .. autoclass:: FrameToArrayConverter
@@ -34,6 +41,14 @@ Pipeline classes
 .. autoclass:: ArrayToFrameConverter
    :members:
    :exclude-members: frameConverted
+
+.. autoclass:: ArrayProcessor
+   :members:
+   :exclude-members: arrayProcessed
+
+.. autoclass:: ArrayProcessWorker
+   :members:
+   :exclude-members: arrayProcessed
 
 Convenience classes
 -------------------

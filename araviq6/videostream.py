@@ -77,15 +77,14 @@ class VideoProcessWorker(QtCore.QObject):
     """
     Worker to process ``QVideoFrame`` using :class:`numpy.ndarray` operation.
 
-    :class:`VideoProcessWorker` converts ``QVideoFrame`` to numpy array, performs
-    array processing and constructs a new ``QVideoFrame`` with the new array.
-    Pass the input ``QVideoFrame`` to :meth:`processVideoFrame` slot and listen
-    to :attr:`videoFrameProcessed` signal.
+    To perform processing, pass the input frame to :meth:`processVideoFrame` and
+    listen to :attr:`arrayProcessed` or :attr:`videoFrameProcessed` signals.
 
-    Video frame is first converted to ``QImage``, and then to numpy array by
-    :meth:`imageToArray`. Array processing is defined in :meth:`processArray`.
+    :meth:`ready` is set to ``False`` when the processing is being run. This
+    property can be utilized in multithreading.
     """
 
+    arrayProcessed = QtCore.Signal(np.ndarray)
     videoFrameProcessed = QtCore.Signal(QtMultimedia.QVideoFrame)
 
     def __init__(self, parent=None):
@@ -101,11 +100,15 @@ class VideoProcessWorker(QtCore.QObject):
 
     def processVideoFrame(self, frame: QtMultimedia.QVideoFrame):
         """
-        Process *frame* and emit the result to :attr:`videoFrameProcessed`.
+        Process *frame* and emit the result to :attr:`arrayProcessed` and
+        :attr:`videoFrameProcessed`.
 
-        Video frame is converted to ``QImage``, which is then converted to numpy
-        array by :meth:`imageToArray`. The array is then processed by
-        :meth:`processArray`, and new video frame is constructed from it.
+        When a video frame is passed, it is first converted to ``QImage`` by
+        ``QVideoFrame.toImage()`` and then to array by :meth:`imageToArray`.
+        Array processing is done by :meth:`processArray`, and the result is
+        converted back to ``QVideoFrame`` by :meth:`arrayToVideoFrame`.
+
+        During the processing :meth:`ready` is set to False.
 
         Note
         ====
@@ -115,18 +118,11 @@ class VideoProcessWorker(QtCore.QObject):
         self._ready = False
 
         qimg = frame.toImage()  # must assign to avoid crash
-        if not qimg.isNull():
-            array = self.imageToArray(qimg)
-            processedArray = self.processArray(array)
-            processedFrame = array2qvideoframe(processedArray)
+        array = self.imageToArray(qimg)
+        processedArray = self.processArray(array)
+        processedFrame = self.arrayToVideoFrame(processedArray, frame)
 
-            # set *processedFrame* properties same to *frame*
-            processedFrame.map(frame.mapMode())
-            processedFrame.setStartTime(frame.startTime())
-            processedFrame.setEndTime(frame.endTime())
-        else:
-            processedFrame = frame
-
+        self.arrayProcessed.emit(processedArray)
         self.videoFrameProcessed.emit(processedFrame)
         self._ready = True
 
@@ -134,11 +130,15 @@ class VideoProcessWorker(QtCore.QObject):
         """
         Convert *image* to numpy array.
 
-        *image* is ``QImage`` from ``QVidoeFrame``. By default this method
-        uses ``qimage2ndarray.rgb_view`` for conversion. Subclass can redefine
-        this method.
+        By default, this method uses ``qimage2ndarray.rgb_view`` for conversion.
+        Null image is converted to 3D empty array. Subclass can redefine this
+        method.
         """
-        return qimage2ndarray.rgb_view(image, byteorder=None)
+        if image.isNull():
+            ret = np.empty((0, 0, 0), dtype=np.uint8)
+        else:
+            ret = qimage2ndarray.rgb_view(image, byteorder=None)
+        return ret
 
     def processArray(self, array: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8]:
         """
@@ -148,6 +148,26 @@ class VideoProcessWorker(QtCore.QObject):
         redefine this method.
         """
         return array
+
+    def arrayToVideoFrame(
+        self, array: npt.NDArray[np.uint8], hintFrame: QtMultimedia.QVideoFrame
+    ) -> QtMultimedia.QVideoFrame:
+        """
+        Convert *array* to ``QVideoFrame``, using *hintFrame* as hint.
+
+        By default this method uses :func:`array2qvideoframe` for conversion.
+        Then, it updates ``mapMode()``, ``startTime()``, and ``endTime()``
+        properties of the new frame with those of *hintFrame*. For empty array,
+        *hintFrame* is just returned. Subclass can redefine this method.
+        """
+        if array.size == 0:
+            ret = hintFrame
+        else:
+            ret = array2qvideoframe(array)
+            ret.map(hintFrame.mapMode())
+            ret.setStartTime(hintFrame.startTime())
+            ret.setEndTime(hintFrame.endTime())
+        return ret
 
 
 class VideoFrameProcessor(QtCore.QObject):

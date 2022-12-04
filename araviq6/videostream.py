@@ -209,7 +209,7 @@ class VideoFrameProcessor(QtCore.QObject):
 
     def worker(self) -> Optional[VideoProcessWorker]:
         """
-        Worker to process the video frame. If ``None``, frame is not processed.
+        Worker to process the video frame.
 
         See also :meth:`setWorker`.
         """
@@ -238,9 +238,7 @@ class VideoFrameProcessor(QtCore.QObject):
 
         """
         worker = self.worker()
-        if worker is None:
-            self.videoFrameProcessed.emit(frame)
-        elif worker.ready():
+        if worker is not None and worker.ready():
             self._processRequested.emit(frame)
         else:
             return
@@ -432,7 +430,7 @@ class ArrayProcessor(QtCore.QObject):
 
     def worker(self) -> Optional[ArrayProcessWorker]:
         """
-        Worker to process the array. If ``None``, array is not processed.
+        Worker to process the array.
 
         See also :meth:`setWorker`.
         """
@@ -461,9 +459,7 @@ class ArrayProcessor(QtCore.QObject):
 
         """
         worker = self.worker()
-        if worker is None:
-            self.arrayProcessed.emit(array)
-        elif worker.ready():
+        if worker is not None and worker.ready():
             self._processRequested.emit(array)
         else:
             return

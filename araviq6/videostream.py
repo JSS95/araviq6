@@ -31,8 +31,7 @@ Pipeline classes
 
 .. autoclass:: VideoProcessWorker
    :members:
-   :exclude-members: arrayProcessed
-   :exclude-members: videoFrameProcessed
+   :exclude-members: arrayProcessed, videoFrameProcessed
 
 .. autoclass:: FrameToArrayConverter
    :members:

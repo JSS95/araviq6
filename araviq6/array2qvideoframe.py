@@ -29,7 +29,7 @@ import numpy.typing as npt
 import sys
 from qimage2ndarray import _normalize255  # type: ignore[import]
 from araviq6.qt_compat import QtCore, QtMultimedia
-from typing import Optional
+from typing import Optional, Union, Tuple
 
 
 __all__ = [
@@ -73,7 +73,7 @@ def byte_view(
     The dimensions are ``(width, height, channels)``, and the channels are 4 for
     32-bit frame and 1 for 8-bit frame.
 
-    For 32-bit image, the channels are in the ``[B, G, R, A]`` order in little
+    For 32-bit frame, the channels are in the ``[B, G, R, A]`` order in little
     endian, and ``[A, R, G, B]`` in big endian. You may set the argument
     *byteorder* to ``"little"`` (default), ``"big"``, or ``None`` which means
     :obj:`sys.byteorder`.
@@ -128,10 +128,47 @@ def alpha_view(frame: QtMultimedia.QVideoFrame) -> npt.NDArray[np.uint8]:
 
 
 def array2qvideoframe(
-    array: np.ndarray, normalize: bool = False
+    array: np.ndarray, normalize: Union[bool, int, Tuple[int, int]] = False
 ) -> QtMultimedia.QVideoFrame:
     """
-    Convert a 2D or 3D numpy array into ``QVideoFrame``.
+    Convert a 2D or 3D numpy array into 32-bit ``QVideoFrame``.
+
+    The dimensions of a 3D array are ``(width, height, channels)``, and the
+    channels can be 1, 2, 3 or 4. 2D array with ``(width, height)`` dimension is
+    converted to ``(width, height, 1)``.
+
+    Number of the channels is interpreted as follows:
+
+    ========= ===================
+    #channels interpretation
+    ========= ===================
+            1 scalar/gray
+            2 scalar/gray + alpha
+            3 RGB
+            4 RGB + alpha
+    ========= ===================
+
+    Note that the scalar data will be converted into gray RGB triples.
+
+    The parameter *normalize* can be used to normalize an frame's value range
+    to 0-255. 
+
+    If *normalize* = ``(nmin, nmax)``:
+        Scale & clip frame values from ``nmin..nmax`` to ``0..255``
+
+    If *normalize* = ``nmax``:
+        Lets ``nmin`` default to zero, i.e. scale & clip the range ``0..nmax`` to
+        ``0..255``
+    If *normalize* = ``True``:
+        Scale frame values to ``0..255``, except for boolean arays, where
+        ``False`` and ``True`` are mapped to ``0`` and ``255``. Same as passing
+        ``(gray.min(), gray.max())``
+
+    If `array` contains masked values, the corresponding pixels will be
+    transparent in the result. Thus, the result be of ``Format_BGRA8888`` if the
+    input already contains an alhpa channel (i.e., has shape ``(H, W, 4)``) or
+    if there are masked pixels, and ``Format_BGRX8888`` otherwise.
+
     """
     dim = np.ndim(array)
     if dim == 2:

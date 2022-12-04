@@ -30,7 +30,6 @@ class BlurringProcessor(QObject):
     @Slot(np.ndarray)
     def setArray(self, array: np.ndarray):
         self._ready = False
-        array = cv2.cvtColor(array, cv2.COLOR_BGR2RGB)
         self.arrayChanged.emit(cv2.GaussianBlur(array, (0, 0), 25))
         self._ready = True
 
@@ -51,8 +50,10 @@ class Window(QMainWindow):
         # set up the pipeline
         self._captureSession.setCamera(self._camera)
         self._captureSession.setVideoSink(self._cameraSink)
-        self._cameraSink.videoFrameChanged.connect(self._arrayConverter.setVideoFrame)
-        self._arrayConverter.arrayChanged.connect(self._displayImageFromCamera)
+        self._cameraSink.videoFrameChanged.connect(
+            self._arrayConverter.convertVideoFrame
+        )
+        self._arrayConverter.arrayConverted.connect(self._displayImageFromCamera)
         self._processRequested.connect(self._arrayProcessor.setArray)
         self._arrayProcessor.arrayChanged.connect(self._arrayLabel.setArray)
 

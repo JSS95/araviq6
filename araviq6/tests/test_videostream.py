@@ -1,23 +1,98 @@
-import cv2  # type: ignore[import]
+# pytest-xvfb may fail by running this code in ubuntu.
+# It's because for unknown reason, ``QVideoFrame.toImage()`` suffers memory issue
+# when the video frame is manually constructed and modified.
+# This issue happens only when any other test file is run before this one.
+# Should the user encounter such error, run the test for this file separately.
+
 import numpy as np
 import qimage2ndarray  # type: ignore[import]
-import pytest
-from araviq6 import FrameToArrayConverter
-from araviq6.util import get_samples_path
+from araviq6 import array2qvideoframe, FrameToArrayConverter, get_samples_path
+from araviq6.qt_compat import QtCore, QtMultimedia
+
+
+def test_array2qvideoframe(qtbot):
+    bgr_array1 = np.array([[[1]]], dtype=np.uint8)
+    frame1 = array2qvideoframe(bgr_array1)
+    assert np.all(
+        qimage2ndarray.byte_view(frame1.toImage())
+        == np.array([[[1, 1, 1, 255]]], dtype=np.uint8)
+    )
+    assert np.all(
+        qimage2ndarray.rgb_view(frame1.toImage()) == np.array([[[1]]], dtype=np.uint8)
+    )
+    assert np.all(
+        qimage2ndarray.alpha_view(frame1.toImage())
+        == np.array([[[255]]], dtype=np.uint8)
+    )
+
+    bgr_array2 = np.array([[[1, 2]]], dtype=np.uint8)
+    frame2 = array2qvideoframe(bgr_array2)
+    assert np.all(
+        qimage2ndarray.byte_view(frame2.toImage())
+        == np.array([[[1, 1, 1, 2]]], dtype=np.uint8)
+    )
+    assert np.all(
+        qimage2ndarray.rgb_view(frame2.toImage()) == np.array([[[1]]], dtype=np.uint8)
+    )
+    assert np.all(
+        qimage2ndarray.alpha_view(frame2.toImage()) == np.array([[[2]]], dtype=np.uint8)
+    )
+
+    bgr_array3 = np.array([[[1, 2, 3]]], dtype=np.uint8)
+    frame3 = array2qvideoframe(bgr_array3)
+    assert np.all(
+        qimage2ndarray.byte_view(frame3.toImage())
+        == np.array([[[1, 2, 3, 255]]], dtype=np.uint8)
+    )
+    assert np.all(
+        qimage2ndarray.rgb_view(frame3.toImage())
+        == np.array([[[3, 2, 1]]], dtype=np.uint8)
+    )
+    assert np.all(
+        qimage2ndarray.alpha_view(frame3.toImage())
+        == np.array([[[255]]], dtype=np.uint8)
+    )
+
+    bgr_array4 = np.array([[[1, 2, 3, 4]]], dtype=np.uint8)
+    frame4 = array2qvideoframe(bgr_array4)
+    assert np.all(
+        qimage2ndarray.byte_view(frame4.toImage())
+        == np.array([[[1, 2, 3, 4]]], dtype=np.uint8)
+    )
+    assert np.all(
+        qimage2ndarray.rgb_view(frame4.toImage())
+        == np.array([[[3, 2, 1]]], dtype=np.uint8)
+    )
+    assert np.all(
+        qimage2ndarray.alpha_view(frame4.toImage()) == np.array([[[4]]], dtype=np.uint8)
+    )
 
 
 def test_FrameToArrayConverter(qtbot):
-    bgr_array = cv2.imread(get_samples_path("hello.jpg"))
-    gray_array = cv2.cvtColor(bgr_array, cv2.COLOR_BGR2GRAY)
-    rgb_array = cv2.cvtColor(bgr_array, cv2.COLOR_BGR2RGB)
+    class ArraySink(QtCore.QObject):
+        arrayChanged = QtCore.Signal()
 
-    gray_img = qimage2ndarray.gray2qimage(gray_array)
-    rgb_img = qimage2ndarray.array2qimage(rgb_array)
+        def setArray(self, array):
+            if array.size != 0:
+                self.array = array
+                self.arrayChanged.emit()
 
-    conv = FrameToArrayConverter()
-    assert np.all(conv.convertQImageToArray(rgb_img) == rgb_array)
-    with pytest.raises(ValueError):
-        conv.convertQImageToArray(gray_img)
+    player = QtMultimedia.QMediaPlayer()
+    playerSink = QtMultimedia.QVideoSink()
+    converter = FrameToArrayConverter()
+    arraySink = ArraySink()
 
-    conv.setConverter(qimage2ndarray.byte_view)
-    assert np.all(conv.convertQImageToArray(gray_img) == gray_array[..., np.newaxis])
+    player.setVideoSink(playerSink)
+    playerSink.videoFrameChanged.connect(converter.convertVideoFrame)
+    converter.arrayConverted.connect(arraySink.setArray)
+    arraySink.arrayChanged.connect(player.stop)
+
+    with qtbot.waitSignal(arraySink.arrayChanged):
+        player.setSource(QtCore.QUrl.fromLocalFile(get_samples_path("hello.mp4")))
+        player.play()
+    assert arraySink.array.size != 0
+
+    with qtbot.waitSignal(
+        converter.arrayConverted, check_params_cb=lambda array, _: array.size == 0
+    ):
+        converter.convertVideoFrame(QtMultimedia.QVideoFrame())

@@ -12,7 +12,6 @@ from .version import __version__  # noqa
 from .array2qvideoframe import (
     array2qvideoframe,
 )
-from .labels import ScalableQLabel, NDArrayLabel
 from .videostream import (
     VideoProcessWorker,
     VideoFrameProcessor,
@@ -23,6 +22,7 @@ from .videostream import (
     NDArrayVideoPlayer,
     NDArrayMediaCaptureSession,
 )
+from .labels import ScalableQLabel, NDArrayLabel
 from .videowidgets import (
     NDArrayVideoPlayerWidget,
     NDArrayCameraWidget,
@@ -36,8 +36,6 @@ from .util import (
 
 __all__ = [
     "array2qvideoframe",
-    "ScalableQLabel",
-    "NDArrayLabel",
     "VideoProcessWorker",
     "VideoFrameProcessor",
     "FrameToArrayConverter",
@@ -46,6 +44,8 @@ __all__ = [
     "ArrayProcessor",
     "NDArrayVideoPlayer",
     "NDArrayMediaCaptureSession",
+    "ScalableQLabel",
+    "NDArrayLabel",
     "NDArrayVideoPlayerWidget",
     "NDArrayCameraWidget",
     "ClickableSlider",

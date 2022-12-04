@@ -215,9 +215,10 @@ class FrameToArrayConverter(QtCore.QObject):
     """
     Video pipeline component which converts ``QVideoFrame`` to numpy array.
 
-    :class:`FrameToArrayConverter` first converts ``QVideoFrame`` to ``QImage``
-    and then converts to numpy array :meth:`imageToArray`. Resulting array is
-    emitted to :attr:`arrayConverted` with original frame.
+    When video frame is passed to :meth:`convertVideoFrame`,
+    :class:`FrameToArrayConverter` first converts it to ``QImage`` and then
+    to numpy array using :meth:`imageToArray`. Resulting array is emitted to
+    :attr:`arrayConverted` with original frame.
 
     Invalid video frame is converted to 3D empty array.
 
@@ -228,8 +229,11 @@ class FrameToArrayConverter(QtCore.QObject):
     @QtCore.Slot(QtMultimedia.QVideoFrame)
     def convertVideoFrame(self, frame: QtMultimedia.QVideoFrame):
         """
-        Convert ``QVideoFrame`` to :class:`numpy.ndarray` and emit to
-        :meth:`setArray`.
+        Convert *frame* to numpy array and emit to :attr:`arrayConverted`.
+
+        Video frame is converted using using :meth:`imageToArray`. Result array
+        and *frame* are emitted to :meth:`arrayConverted`.
+
         """
         qimg = frame.toImage()
         if not qimg.isNull():
@@ -241,7 +245,8 @@ class FrameToArrayConverter(QtCore.QObject):
     def imageToArray(self, image: QtGui.QImage) -> npt.NDArray[np.uint8]:
         """
         Convert *image* to numpy array.
-        *image* is ``QImage`` from ``QVidoeFrame``. By default this method
+
+        *image* is ``QImage`` from ``QVideoFrame``. By default this method
         uses ``qimage2ndarray.rgb_view`` for conversion. Subclass can redefine
         this method.
         """

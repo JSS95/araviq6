@@ -46,6 +46,7 @@ Convenience classes
 
 import numpy as np
 import qimage2ndarray  # type: ignore[import]
+from araviq6.array2qvideoframe import array2qvideoframe
 from araviq6.qt_compat import QtCore, QtGui, QtMultimedia
 from typing import Optional, Callable
 
@@ -110,17 +111,8 @@ class VideoProcessWorker(QtCore.QObject):
         qimg = frame.toImage()  # must assign to avoid crash
         if not qimg.isNull():
             array = self.imageToArray(qimg)
-            newarray = self.processArray(array)
-            newimg = qimage2ndarray.array2qimage(newarray)
-            pixelFormat = QtMultimedia.QVideoFrameFormat.pixelFormatFromImageFormat(
-                newimg.format()
-            )
-            frameFormat = QtMultimedia.QVideoFrameFormat(newimg.size(), pixelFormat)
-            processedFrame = QtMultimedia.QVideoFrame(frameFormat)
-            mapped = processedFrame.map(QtMultimedia.QVideoFrame.MapMode.WriteOnly)
-            if mapped:
-                processedFrame.bits(0)[:] = newimg.bits()  # type: ignore[index]
-                processedFrame.unmap()
+            processedArray = self.processArray(array)
+            processedFrame = array2qvideoframe(processedArray)
 
             # set *processedFrame* properties same to *frame*
             processedFrame.map(frame.mapMode())

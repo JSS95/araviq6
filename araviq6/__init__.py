@@ -9,6 +9,9 @@ Qt6's ``QVideoFrame``.
 
 from .version import __version__  # noqa
 
+from .array2qvideoframe import (
+    array2qvideoframe,
+)
 from .labels import ScalableQLabel, NDArrayLabel
 from .videostream import (
     VideoProcessWorker,
@@ -29,6 +32,7 @@ from .util import (
 
 
 __all__ = [
+    "array2qvideoframe",
     "ScalableQLabel",
     "NDArrayLabel",
     "VideoProcessWorker",

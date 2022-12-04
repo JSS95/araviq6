@@ -45,6 +45,7 @@ Convenience classes
 """
 
 import numpy as np
+import numpy.typing as npt
 import qimage2ndarray  # type: ignore[import]
 from araviq6.array2qvideoframe import array2qvideoframe
 from araviq6.qt_compat import QtCore, QtGui, QtMultimedia
@@ -55,6 +56,7 @@ __all__ = [
     "VideoProcessWorker",
     "VideoFrameProcessor",
     "FrameToArrayConverter",
+    "ArrayToFrameConverter",
     "NDArrayVideoPlayer",
     "NDArrayMediaCaptureSession",
 ]
@@ -124,7 +126,7 @@ class VideoProcessWorker(QtCore.QObject):
         self.videoFrameProcessed.emit(processedFrame)
         self._ready = True
 
-    def imageToArray(self, image: QtGui.QImage) -> np.ndarray:
+    def imageToArray(self, image: QtGui.QImage) -> npt.NDArray[np.uint8]:
         """
         Convert *image* to numpy array.
 
@@ -134,7 +136,7 @@ class VideoProcessWorker(QtCore.QObject):
         """
         return qimage2ndarray.rgb_view(image, byteorder=None)
 
-    def processArray(self, array: np.ndarray) -> np.ndarray:
+    def processArray(self, array: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8]:
         """
         Perform image processing on *array* and return the result.
 
@@ -236,7 +238,7 @@ class FrameToArrayConverter(QtCore.QObject):
             array = np.empty((0, 0, 0), dtype=np.uint8)
         self.arrayConverted.emit(array, frame)
 
-    def imageToArray(self, image: QtGui.QImage) -> np.ndarray:
+    def imageToArray(self, image: QtGui.QImage) -> npt.NDArray[np.uint8]:
         """
         Convert *image* to numpy array.
         *image* is ``QImage`` from ``QVidoeFrame``. By default this method
@@ -244,6 +246,43 @@ class FrameToArrayConverter(QtCore.QObject):
         this method.
         """
         return qimage2ndarray.rgb_view(image, byteorder=None)
+
+
+class ArrayToFrameConverter(QtCore.QObject):
+    """
+    Video pipeline component which converts numpy array to ``QVideoFrame``.
+
+    """
+
+    frameConverted = QtCore.Signal(QtMultimedia.QVideoFrame)
+
+    @QtCore.Slot(np.ndarray, QtMultimedia.QVideoFrame)
+    def convertArray(
+        self,
+        array: npt.NDArray[np.uint8],
+        frame: Optional[QtMultimedia.QVideoFrame] = None,
+    ):
+        if array.size != 0:
+            newFrame = self.arrayToFrame(array)
+            if frame is not None:
+                newFrame.map(frame.mapMode())
+                newFrame.setStartTime(frame.startTime())
+                newFrame.setEndTime(frame.endTime())
+        else:
+            if frame is not None:
+                newFrameFormat = QtMultimedia.QVideoFrameFormat(
+                    QtCore.QSize(-1, -1), frame.surfaceFormat().pixelFormat()
+                )
+            else:
+                newFrameFormat = QtMultimedia.QVideoFrameFormat(
+                    QtCore.QSize(-1, -1),
+                    QtMultimedia.QVideoFrameFormat.PixelFormat.Format_Invalid,
+                )
+            newFrame = QtMultimedia.QVideoFrame(newFrameFormat)
+        self.frameConverted.emit(newFrame)
+
+    def arrayToFrame(self, array: npt.NDArray[np.uint8]) -> QtMultimedia.QVideoFrame:
+        return array2qvideoframe(array)
 
 
 class NDArrayVideoPlayer(QtMultimedia.QMediaPlayer):

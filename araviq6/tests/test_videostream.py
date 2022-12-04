@@ -126,8 +126,6 @@ def test_ArrayToFrameConverter(qtbot):
     with qtbot.waitSignal(frameSink.frameChanged):
         player.setSource(QtCore.QUrl.fromLocalFile(get_samples_path("hello.mp4")))
         player.play()
-    assert frameSink.frame.startTime() != -1
-    assert frameSink.frame.endTime() != -1
 
     sourceFrame = playerSink.videoFrame()
     with qtbot.waitSignal(

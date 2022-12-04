@@ -73,6 +73,9 @@ def byte_view(
     """
     Returns a raw 3D view of the given QVideoFrame's memory as numpy array.
 
+    *frame* must be mapped using ``QVideoFrame.map()`` with proper map mode
+    before being viewed.
+
     The dimensions are ``(width, height, channels)``, and the channels are 4 for
     32-bit frame and 1 for 8-bit frame.
 
@@ -94,6 +97,9 @@ def rgb_view(
 ) -> npt.NDArray[np.uint8]:
     """
     Returns RGB view of the given 32-bit QVideoFrame's memory as numpy array.
+
+    *frame* must be mapped using ``QVideoFrame.map()`` with proper map mode
+    before being viewed.
 
     The dimensions are ``(width, height, 3)``. Even if the frame had alpha
     channel, it is dropped in this view.
@@ -117,6 +123,9 @@ def rgb_view(
 def alpha_view(frame: QtMultimedia.QVideoFrame) -> npt.NDArray[np.uint8]:
     """
     Returns alpha view of a given 32-bit QVideoFrame's memory as numpy array.
+
+    *frame* must be mapped using ``QVideoFrame.map()`` with proper map mode
+    before being viewed.
 
     Showing only the alpha channel, the dimension of the resulting array is
     ``(width, height, 1)``.

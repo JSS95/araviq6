@@ -6,7 +6,27 @@
 
 import numpy as np
 import qimage2ndarray  # type: ignore[import]
-from araviq6 import array2qvideoframe
+from araviq6 import array2qvideoframe, byte_view, rgb_view, alpha_view, get_samples_path
+from araviq6.qt_compat import QtCore, QtMultimedia
+
+
+def test_views(qtbot):
+    player = QtMultimedia.QMediaPlayer()
+    sink = QtMultimedia.QVideoSink()
+    player.setVideoSink(sink)
+    sink.videoFrameChanged.connect(player.stop)
+    with qtbot.waitSignal(sink.videoFrameChanged):
+        player.setSource(QtCore.QUrl.fromLocalFile(get_samples_path("hello.mp4")))
+        player.play()
+    frame = sink.videoFrame()
+    assert frame.isValid()
+    frame.map(QtMultimedia.QVideoFrame.MapMode.ReadOnly)
+
+    assert np.all(
+        byte_view(frame)[0, 0] == np.array([157, 161, 167, 255], dtype=np.uint8)
+    )
+    assert np.all(rgb_view(frame)[0, 0] == np.array([167, 161, 157], dtype=np.uint8))
+    assert np.all(alpha_view(frame)[0, 0] == np.array([255], dtype=np.uint8))
 
 
 def test_array2qvideoframe(qtbot):

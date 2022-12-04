@@ -27,6 +27,7 @@ Array -> Frame
 import numpy as np
 import numpy.typing as npt
 import sys
+from qimage2ndarray import _normalize255  # type: ignore[import]
 from araviq6.qt_compat import QtCore, QtMultimedia
 from typing import Optional
 
@@ -96,7 +97,9 @@ def alpha_view(frame: QtMultimedia.QVideoFrame) -> npt.NDArray[np.uint8]:
     return ret
 
 
-def array2qvideoframe(array: np.ndarray) -> QtMultimedia.QVideoFrame:
+def array2qvideoframe(
+    array: np.ndarray, normalize: bool = False
+) -> QtMultimedia.QVideoFrame:
     """
     Convert a 2D or 3D numpy array into ``QVideoFrame``.
     """
@@ -124,6 +127,7 @@ def array2qvideoframe(array: np.ndarray) -> QtMultimedia.QVideoFrame:
 
     frame.map(QtMultimedia.QVideoFrame.MapMode.WriteOnly)
 
+    array = _normalize255(array, normalize)
     rgb = rgb_view(frame)
     if ch >= 3:
         rgb[:] = array[..., :3]

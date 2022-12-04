@@ -5,13 +5,19 @@ Video frame pipeline
 :mod:`araviq6.videostream` provides video pipeline classes to handle
 ``QVideoFrame`` using numpy array processing.
 
-There are two options to process a video frame.
+There are two options to handle the pipeline.
 
-1. :class:`VideoFrameProcessor` (QVideoFrame -> ndarray -> QVideoFrame)
-2. :class:`FrameToArrayConverter` (QVideoFrame -> ndarray)
+1. Frame-based approach
+2. Array-based approach
 
-Convenience multimedia classes for the second option are also provided in this
-module.
+The first approach can be achieved by connecting :class:`VideoFrameProcessor`
+with ``QVideoSink``. The second is more low-level, and consists of
+:class:`FrameToArrayConverter`, :class:`ArrayProcessor` and
+:class:`ArrayToFrameConverter`
+
+Convenience multimedia classes for array-based pipeline are also provided in this
+module. These classes can replace the :class:`FrameToArrayConverter` connected
+to ``QVideoSink``.
 
 1. :class:`NDArrayVideoPlayer` (video file -> ndarray)
 2. :class:`NDArrayMediaCaptureSession` (camera -> ndarray)
@@ -25,7 +31,7 @@ Pipeline classes
 
 .. autoclass:: VideoProcessWorker
    :members:
-   :exclude-members: videoFrameProcessed
+   :exclude-members: arrayProcessed, videoFrameProcessed
 
 .. autoclass:: FrameToArrayConverter
    :members:
@@ -34,6 +40,14 @@ Pipeline classes
 .. autoclass:: ArrayToFrameConverter
    :members:
    :exclude-members: frameConverted
+
+.. autoclass:: ArrayProcessor
+   :members:
+   :exclude-members: arrayProcessed
+
+.. autoclass:: ArrayProcessWorker
+   :members:
+   :exclude-members: arrayProcessed
 
 Convenience classes
 -------------------
@@ -61,6 +75,8 @@ __all__ = [
     "VideoFrameProcessor",
     "FrameToArrayConverter",
     "ArrayToFrameConverter",
+    "ArrayProcessWorker",
+    "ArrayProcessor",
     "NDArrayVideoPlayer",
     "NDArrayMediaCaptureSession",
 ]
@@ -339,6 +355,123 @@ class ArrayToFrameConverter(QtCore.QObject):
         Subclass can redefine this method.
         """
         return array2qvideoframe(array)
+
+
+class ArrayProcessWorker(QtCore.QObject):
+    """
+    Worker to process image in numpy array.
+
+    To perform processing, pass the input array to :meth:`runProcess` and
+    listen to :attr:`arrayProcessed` signal.
+
+    :meth:`ready` is set to ``False`` when the processing is being run. This
+    property can be utilized in multithreading.
+    """
+
+    arrayProcessed = QtCore.Signal(np.ndarray)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._ready = True
+
+    def ready(self) -> bool:
+        """
+        Returns true if the worker finished processing and can process the next
+        array without being blocked.
+        """
+        return self._ready
+
+    def runProcess(self, array: npt.NDArray[np.uint8]):
+        """
+        Process *array* and emit the result to :attr:`arrayProcessed`.
+
+        Array processing is done by :meth:`processArray`.
+
+        During the processing :meth:`ready` is set to False.
+
+        Note
+        ====
+
+        This method must *not* be Qt Slot to be multithreaded.
+        """
+        self._ready = False
+        self.arrayProcessed.emit(self.processArray(array))
+        self._ready = True
+
+    def processArray(self, array: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8]:
+        """
+        Perform image processing on *array* and return the result.
+
+        By default this method does not perform any processing. Subclass can
+        redefine this method.
+
+        See also :meth:`runProcess`.
+        """
+        return array
+
+
+class ArrayProcessor(QtCore.QObject):
+    """
+    Video pipeline component to process numpy array.
+
+    :class:`ArrayProcessor` runs :class:`ArrayProcessWorker` in internal thread
+    to process the incoming array. Pass the input array to :meth:`processArray`
+    slot and listen to :attr:`arrayProcessed` signal.
+
+    """
+
+    _processRequested = QtCore.Signal(np.ndarray)
+    arrayProcessed = QtCore.Signal(np.ndarray)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._worker = None
+
+        self._processorThread = QtCore.QThread()
+        self._processorThread.start()
+
+    def worker(self) -> Optional[ArrayProcessWorker]:
+        """
+        Worker to process the array. If ``None``, array is not processed.
+
+        See also :meth:`setWorker`.
+        """
+        return self._worker
+
+    def setWorker(self, worker: Optional[ArrayProcessWorker]):
+        """
+        Set *worker* as array processor.
+
+        See also :meth:`worker`.
+        """
+        oldWorker = self.worker()
+        if oldWorker is not None:
+            self._processRequested.disconnect(oldWorker.runProcess)
+            oldWorker.arrayProcessed.disconnect(self.arrayProcessed)
+        self._worker = worker
+        if worker is not None:
+            self._processRequested.connect(worker.runProcess)
+            worker.arrayProcessed.connect(self.arrayProcessed)
+            worker.moveToThread(self._processorThread)
+
+    @QtCore.Slot(np.ndarray)
+    def processArray(self, array: npt.NDArray[np.uint8]):
+        """
+        Process *array* and emit the result to :attr:`arrayProcessed`.
+
+        """
+        worker = self.worker()
+        if worker is None:
+            self.arrayProcessed.emit(array)
+        elif worker.ready():
+            self._processRequested.emit(array)
+        else:
+            return
+
+    def stop(self):
+        """Stop the worker thread."""
+        self._processorThread.quit()
+        self._processorThread.wait()
 
 
 class NDArrayVideoPlayer(QtMultimedia.QMediaPlayer):

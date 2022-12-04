@@ -9,71 +9,54 @@ processed array.
 
 import cv2  # type: ignore[import]
 import numpy as np
-from PySide6.QtCore import QObject, Signal, Slot, QThread, Qt, QUrl
+from PySide6.QtCore import Qt, QUrl
 from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout
 from PySide6.QtMultimedia import QMediaPlayer
-from araviq6 import NDArrayVideoPlayer, MediaController, NDArrayLabel
+from araviq6 import (
+    ArrayProcessWorker,
+    ArrayProcessor,
+    NDArrayVideoPlayer,
+    MediaController,
+    NDArrayLabel,
+)
 
 
-class CannyEdgeDetector(QObject):
-    """
-    Video pipeline component for Canny edge detection on numpy array.
-    """
-
-    arrayChanged = Signal(np.ndarray)
-
+class CannyWorker(ArrayProcessWorker):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._canny_mode = False
-        self._ready = True
+        self._cannyMode = False
 
-    def cannyMode(self) -> bool:
-        """If False, Canny edge detection is not performed."""
-        return self._canny_mode
-
-    def ready(self) -> bool:
-        return self._ready
-
-    @Slot(bool)
     def setCannyMode(self, mode: bool):
-        self._canny_mode = mode
+        self._cannyMode = mode
 
-    def setArray(self, array: np.ndarray):
-        self._ready = False
-        if array.size != 0 and self.cannyMode():
+    def processArray(self, array: np.ndarray) -> np.ndarray:
+        if self._cannyMode and array.size > 0:
             gray = cv2.cvtColor(array, cv2.COLOR_RGB2GRAY)
             canny = cv2.Canny(gray, 50, 200)
-            ret = cv2.cvtColor(canny, cv2.COLOR_GRAY2RGB)
-        else:
-            ret = array
-        self.arrayChanged.emit(ret)
-        self._ready = True
+            array = cv2.cvtColor(canny, cv2.COLOR_GRAY2RGB)
+        return array
 
 
 class CannyVideoPlayerWidget(QWidget):
-
-    _processRequested = Signal(np.ndarray)
-
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._lastVideoFrame = np.empty((0, 0, 0), dtype=np.uint8)
+        self._lastVideoArray = np.empty((0, 0, 0), dtype=np.uint8)
 
         self._videoPlayer = NDArrayVideoPlayer(self)
-        self._processorThread = QThread()
-        self._arrayProcessor = CannyEdgeDetector()
+        self._arrayProcessor = ArrayProcessor()
+        self._cannyWorker = CannyWorker()
         self._arrayLabel = NDArrayLabel()
         self._mediaController = MediaController()
         self._cannyButton = QPushButton()
 
-        self._arrayProcessor.moveToThread(self._processorThread)
-        self._processorThread.start()
-
-        self._videoPlayer.arrayChanged.connect(self._displayImageFromPlayer)
-        self._processRequested.connect(self._arrayProcessor.setArray)
-        self._arrayProcessor.arrayChanged.connect(self._arrayLabel.setArray)
+        # set up the pipeline
+        self._videoPlayer.arrayChanged.connect(self._storeLastVideoArray)
+        self._videoPlayer.arrayChanged.connect(self._arrayProcessor.processArray)
+        self._arrayProcessor.arrayProcessed.connect(self._arrayLabel.setArray)
 
         self._arrayLabel.setAlignment(Qt.AlignCenter)
         self._mediaController.setPlayer(self._videoPlayer)
+        self._arrayProcessor.setWorker(self._cannyWorker)
         self._cannyButton.setCheckable(True)
         self._cannyButton.toggled.connect(self._onCannyButtonToggle)
 
@@ -85,28 +68,19 @@ class CannyVideoPlayerWidget(QWidget):
         layout.addWidget(self._cannyButton)
         self.setLayout(layout)
 
+    def _onCannyButtonToggle(self, state: bool):
+        self._cannyWorker.setCannyMode(state)
+        if self._videoPlayer.playbackState() != QMediaPlayer.PlaybackState.PlayingState:
+            self._arrayProcessor.processArray(self._lastVideoArray)
+
+    def _storeLastVideoArray(self, array: np.ndarray):
+        self._lastVideoArray = array.copy()
+
     def setSource(self, url: QUrl):
         self._videoPlayer.setSource(url)
 
-    @Slot(np.ndarray)
-    def _displayImageFromPlayer(self, array: np.ndarray):
-        self._lastVideoFrame = array.copy()
-
-        processor = self._arrayProcessor
-        if processor.ready():
-            self._processRequested.emit(array)
-
-    @Slot(bool)
-    def _onCannyButtonToggle(self, state: bool):
-        processor = self._arrayProcessor
-        processor.setCannyMode(state)
-        state = self._videoPlayer.playbackState()
-        if state != QMediaPlayer.PlaybackState.PlayingState:
-            processor.setArray(self._lastVideoFrame)
-
     def closeEvent(self, event):
-        self._processorThread.quit()
-        self._processorThread.wait()
+        self._arrayProcessor.stop()
         super().closeEvent(event)
 
 

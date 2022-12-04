@@ -1,12 +1,17 @@
 """
-Array-frame converter
-=====================
+Array-frame conversion
+======================
 
 :mod:`araviq6.array2qvideoframe` provides functions to convert the ndarray to
 QVideoFrame and vice versa.
 
 .. note::
    This module imitates https://github.com/hmeine/qimage2ndarray.
+
+Array -> Frame
+--------------
+
+.. autofunction:: array2qvideoframe
 
 Frame -> Array
 --------------
@@ -16,11 +21,6 @@ Frame -> Array
 .. autofunction:: rgb_view
 
 .. autofunction:: alpha_view
-
-Array -> Frame
---------------
-
-.. autofunction:: array2qvideoframe
 
 """
 
@@ -67,6 +67,18 @@ def qvideoframeview(frame: QtMultimedia.QVideoFrame) -> np.ndarray:
 def byte_view(
     frame: QtMultimedia.QVideoFrame, byteorder: Optional[str] = "little"
 ) -> npt.NDArray[np.uint8]:
+    """
+    Returns a raw 3D view of the given QVideoFrame's memory as numpy array.
+
+    The dimensions are ``(width, height, channels)``, and the channels are 4 for
+    32-bit frame and 1 for 8-bit frame.
+
+    For 32-bit image, the channels are in the ``[B, G, R, A]`` order in little
+    endian, and ``[A, R, G, B]`` in big endian. You may set the argument
+    *byteorder* to ``"little"`` (default), ``"big"``, or ``None`` which means
+    :obj:`sys.byteorder`.
+
+    """
     raw = qvideoframeview(frame)
     result = raw.view(np.uint8).reshape(raw.shape + (-1,))
     if byteorder is not None and byteorder != sys.byteorder:

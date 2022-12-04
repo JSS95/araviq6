@@ -204,6 +204,7 @@ class VideoFrameProcessor(QtCore.QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._worker = None
+        self._queueToWorker = False
 
         self._processorThread = QtCore.QThread()
         self._processorThread.start()
@@ -234,6 +235,23 @@ class VideoFrameProcessor(QtCore.QObject):
             worker.videoFrameProcessed.connect(self.videoFrameProcessed)
             worker.moveToThread(self._processorThread)
 
+    def queueToWorker(self) -> bool:
+        """
+        If False, incoming frames to :meth:`processVideoFrame` are aborted if
+        :meth:`worker` is not ready.
+
+        If True, incoming frames are queued if worker is not ready. This may
+        consume a significant amount of memory and should be used with
+        discretion.
+
+        See also :meth:`setQueueToWorker`.
+        """
+        return self._queueToWorker
+
+    def setQueueToWorker(self, flag: bool):
+        """Set :meth:`queueToWorker` to *flag*."""
+        self._queueToWorker = flag
+
     @QtCore.Slot(QtMultimedia.QVideoFrame)
     def processVideoFrame(self, frame: QtMultimedia.QVideoFrame):
         """
@@ -241,12 +259,14 @@ class VideoFrameProcessor(QtCore.QObject):
         The result is emitted to :attr:`arrayProcessed` and
         :attr:`videoFrameProcessed`.
 
+        If worker is not ready but :meth:`queueToWorker` is True, *frame* is
+        put into the process queue.
+
         """
         worker = self.worker()
-        if worker is not None and worker.ready():
-            self._processRequested.emit(frame)
-        else:
-            return
+        if worker is not None:
+            if worker.ready() or self.queueToWorker():
+                self._processRequested.emit(frame)
 
     def stop(self):
         """Stop the worker thread."""
@@ -429,6 +449,7 @@ class ArrayProcessor(QtCore.QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._worker = None
+        self._queueToWorker = False
 
         self._processorThread = QtCore.QThread()
         self._processorThread.start()
@@ -457,16 +478,38 @@ class ArrayProcessor(QtCore.QObject):
             worker.arrayProcessed.connect(self.arrayProcessed)
             worker.moveToThread(self._processorThread)
 
+    def queueToWorker(self) -> bool:
+        """
+        If False, incoming arrays to :meth:`processArray` are aborted if
+        :meth:`worker` is not ready.
+
+        If True, incoming arrays are queued if worker is not ready. This may
+        consume a significant amount of memory and should be used with
+        discretion.
+
+        See also :meth:`setQueueToWorker`.
+        """
+        return self._queueToWorker
+
+    def setQueueToWorker(self, flag: bool):
+        """Set :meth:`queueToWorker` to *flag*."""
+        self._queueToWorker = flag
+
     @QtCore.Slot(np.ndarray)
     def processArray(self, array: npt.NDArray[np.uint8]):
         """
         Request :meth:`worker` to process *array*.
         The result is emitted to :attr:`arrayProcessed`.
 
+        If worker is not ready but :meth:`queueToWorker` is True, *array* is
+        put into the process queue.
+
         """
         worker = self.worker()
-        if worker is not None and worker.ready():
-            self._processRequested.emit(array)
+        if worker is not None:
+            if worker.ready() or self.queueToWorker():
+                self._processRequested.emit(array)
+
         else:
             return
 

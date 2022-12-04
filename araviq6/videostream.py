@@ -27,7 +27,7 @@ Pipeline classes
 
 .. autoclass:: VideoFrameProcessor
    :members:
-   :exclude-members: videoFrameProcessed
+   :exclude-members: arrayProcessed, videoFrameProcessed
 
 .. autoclass:: VideoProcessWorker
    :members:
@@ -93,8 +93,8 @@ class VideoProcessWorker(QtCore.QObject):
     """
     Worker to process ``QVideoFrame`` using :class:`numpy.ndarray` operation.
 
-    To perform processing, pass the input frame to :meth:`processVideoFrame` and
-    listen to :attr:`arrayProcessed` or :attr:`videoFrameProcessed` signals.
+    To perform processing, pass the input frame to :meth:`runProcess` and listen
+    to :attr:`arrayProcessed` or :attr:`videoFrameProcessed` signals.
 
     :meth:`ready` is set to ``False`` when the processing is being run. This
     property can be utilized in multithreading.
@@ -114,7 +114,7 @@ class VideoProcessWorker(QtCore.QObject):
         """
         return self._ready
 
-    def processVideoFrame(self, frame: QtMultimedia.QVideoFrame):
+    def runProcess(self, frame: QtMultimedia.QVideoFrame):
         """
         Process *frame* and emit the result to :attr:`arrayProcessed` and
         :attr:`videoFrameProcessed`.
@@ -192,24 +192,26 @@ class VideoFrameProcessor(QtCore.QObject):
 
     :class:`VideoFrameProcessor` runs :class:`VideoProcessWorker` in internal
     thread to process the incoming video frame. Pass the input ``QVideoFrame``
-    to :meth:`processVideoFrame` slot and listen to :attr:`videoFrameProcessed`
-    signal.
+    to :meth:`processVideoFrame` slot and listen to :attr:`arrayProcessed` and
+    :attr:`videoFrameProcessed` signal.
 
     """
 
     _processRequested = QtCore.Signal(QtMultimedia.QVideoFrame)
+    arrayProcessed = QtCore.Signal(np.ndarray)
     videoFrameProcessed = QtCore.Signal(QtMultimedia.QVideoFrame)
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self._worker = None
+        self._queueToWorker = False
 
         self._processorThread = QtCore.QThread()
         self._processorThread.start()
 
     def worker(self) -> Optional[VideoProcessWorker]:
         """
-        Worker to process the video frame. If ``None``, frame is not processed.
+        Worker to process the video frame.
 
         See also :meth:`setWorker`.
         """
@@ -223,27 +225,48 @@ class VideoFrameProcessor(QtCore.QObject):
         """
         oldWorker = self.worker()
         if oldWorker is not None:
-            self._processRequested.disconnect(oldWorker.processVideoFrame)
+            self._processRequested.disconnect(oldWorker.runProcess)
+            oldWorker.arrayProcessed.disconnect(self.arrayProcessed)
             oldWorker.videoFrameProcessed.disconnect(self.videoFrameProcessed)
         self._worker = worker
         if worker is not None:
-            self._processRequested.connect(worker.processVideoFrame)
+            self._processRequested.connect(worker.runProcess)
+            worker.arrayProcessed.connect(self.arrayProcessed)
             worker.videoFrameProcessed.connect(self.videoFrameProcessed)
             worker.moveToThread(self._processorThread)
+
+    def queueToWorker(self) -> bool:
+        """
+        If False, incoming frames to :meth:`processVideoFrame` are aborted if
+        :meth:`worker` is not ready.
+
+        If True, incoming frames are queued if worker is not ready. This may
+        consume a significant amount of memory and should be used with
+        discretion.
+
+        See also :meth:`setQueueToWorker`.
+        """
+        return self._queueToWorker
+
+    def setQueueToWorker(self, flag: bool):
+        """Set :meth:`queueToWorker` to *flag*."""
+        self._queueToWorker = flag
 
     @QtCore.Slot(QtMultimedia.QVideoFrame)
     def processVideoFrame(self, frame: QtMultimedia.QVideoFrame):
         """
-        Process *frame* and emit the result to :attr:`videoFrameProcessed`.
+        Request :meth:`worker` to process *frame*.
+        The result is emitted to :attr:`arrayProcessed` and
+        :attr:`videoFrameProcessed`.
+
+        If worker is not ready but :meth:`queueToWorker` is True, *frame* is
+        put into the process queue.
 
         """
         worker = self.worker()
-        if worker is None:
-            self.videoFrameProcessed.emit(frame)
-        elif worker.ready():
-            self._processRequested.emit(frame)
-        else:
-            return
+        if worker is not None:
+            if worker.ready() or self.queueToWorker():
+                self._processRequested.emit(frame)
 
     def stop(self):
         """Stop the worker thread."""
@@ -426,13 +449,14 @@ class ArrayProcessor(QtCore.QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._worker = None
+        self._queueToWorker = False
 
         self._processorThread = QtCore.QThread()
         self._processorThread.start()
 
     def worker(self) -> Optional[ArrayProcessWorker]:
         """
-        Worker to process the array. If ``None``, array is not processed.
+        Worker to process the array.
 
         See also :meth:`setWorker`.
         """
@@ -454,17 +478,38 @@ class ArrayProcessor(QtCore.QObject):
             worker.arrayProcessed.connect(self.arrayProcessed)
             worker.moveToThread(self._processorThread)
 
+    def queueToWorker(self) -> bool:
+        """
+        If False, incoming arrays to :meth:`processArray` are aborted if
+        :meth:`worker` is not ready.
+
+        If True, incoming arrays are queued if worker is not ready. This may
+        consume a significant amount of memory and should be used with
+        discretion.
+
+        See also :meth:`setQueueToWorker`.
+        """
+        return self._queueToWorker
+
+    def setQueueToWorker(self, flag: bool):
+        """Set :meth:`queueToWorker` to *flag*."""
+        self._queueToWorker = flag
+
     @QtCore.Slot(np.ndarray)
     def processArray(self, array: npt.NDArray[np.uint8]):
         """
-        Process *array* and emit the result to :attr:`arrayProcessed`.
+        Request :meth:`worker` to process *array*.
+        The result is emitted to :attr:`arrayProcessed`.
+
+        If worker is not ready but :meth:`queueToWorker` is True, *array* is
+        put into the process queue.
 
         """
         worker = self.worker()
-        if worker is None:
-            self.arrayProcessed.emit(array)
-        elif worker.ready():
-            self._processRequested.emit(array)
+        if worker is not None:
+            if worker.ready() or self.queueToWorker():
+                self._processRequested.emit(array)
+
         else:
             return
 

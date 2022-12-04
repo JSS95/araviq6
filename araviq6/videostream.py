@@ -62,6 +62,7 @@ __all__ = [
     "FrameToArrayConverter",
     "ArrayToFrameConverter",
     "ArrayProcessWorker",
+    "ArrayProcessor",
     "NDArrayVideoPlayer",
     "NDArrayMediaCaptureSession",
 ]
@@ -393,6 +394,70 @@ class ArrayProcessWorker(QtCore.QObject):
         See also :meth:`runProcess`.
         """
         return array
+
+
+class ArrayProcessor(QtCore.QObject):
+    """
+    Video pipeline component to process numpy array.
+
+    :class:`ArrayProcessor` runs :class:`ArrayProcessWorker` in internal thread
+    to process the incoming array. Pass the input array to :meth:`processArray`
+    slot and listen to :attr:`arrayProcessed` signal.
+
+    """
+
+    _processRequested = QtCore.Signal(np.ndarray)
+    arrayProcessed = QtCore.Signal(np.ndarray)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._worker = None
+
+        self._processorThread = QtCore.QThread()
+        self._processorThread.start()
+
+    def worker(self) -> Optional[ArrayProcessWorker]:
+        """
+        Worker to process the array. If ``None``, array is not processed.
+
+        See also :meth:`setWorker`.
+        """
+        return self._worker
+
+    def setWorker(self, worker: Optional[ArrayProcessWorker]):
+        """
+        Set *worker* as array processor.
+
+        See also :meth:`worker`.
+        """
+        oldWorker = self.worker()
+        if oldWorker is not None:
+            self._processRequested.disconnect(oldWorker.runProcess)
+            oldWorker.arrayProcessed.disconnect(self.arrayProcessed)
+        self._worker = worker
+        if worker is not None:
+            self._processRequested.connect(worker.runProcess)
+            worker.arrayProcessed.connect(self.arrayProcessed)
+            worker.moveToThread(self._processorThread)
+
+    @QtCore.Slot(np.ndarray)
+    def processArray(self, array: npt.NDArray[np.uint8]):
+        """
+        Process *array* and emit the result to :attr:`arrayProcessed`.
+
+        """
+        worker = self.worker()
+        if worker is None:
+            self.arrayProcessed.emit(array)
+        elif worker.ready():
+            self._processRequested.emit(array)
+        else:
+            return
+
+    def stop(self):
+        """Stop the worker thread."""
+        self._processorThread.quit()
+        self._processorThread.wait()
 
 
 class NDArrayVideoPlayer(QtMultimedia.QMediaPlayer):

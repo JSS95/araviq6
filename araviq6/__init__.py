@@ -19,6 +19,7 @@ from .videostream import (
     FrameToArrayConverter,
     ArrayToFrameConverter,
     ArrayProcessWorker,
+    ArrayProcessor,
     NDArrayVideoPlayer,
     NDArrayMediaCaptureSession,
 )
@@ -42,6 +43,7 @@ __all__ = [
     "FrameToArrayConverter",
     "ArrayToFrameConverter",
     "ArrayProcessWorker",
+    "ArrayProcessor",
     "NDArrayVideoPlayer",
     "NDArrayMediaCaptureSession",
     "NDArrayVideoPlayerWidget",

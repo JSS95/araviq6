@@ -2,25 +2,16 @@
 Array-frame conversion
 ======================
 
-:mod:`araviq6.array2qvideoframe` provides functions to convert the ndarray to
-QVideoFrame and vice versa.
+:mod:`araviq6.array2qvideoframe` provides functions to convert numpy array to
+``QVideoFrame``.
+
+To convert ``QVideoFrame`` to numpy array, convert the frame to ``QImage`` by
+``QVideoFrame.toImage()`` and use :mod:`qimage2ndarray` package.
 
 .. note::
    This module imitates https://github.com/hmeine/qimage2ndarray.
 
-Array -> Frame
---------------
-
 .. autofunction:: array2qvideoframe
-
-Frame -> Array
---------------
-
-.. autofunction:: byte_view
-
-.. autofunction:: rgb_view
-
-.. autofunction:: alpha_view
 
 """
 
@@ -33,9 +24,6 @@ from typing import Optional, Union, Tuple
 
 
 __all__ = [
-    "byte_view",
-    "rgb_view",
-    "alpha_view",
     "array2qvideoframe",
 ]
 
@@ -70,21 +58,6 @@ def qvideoframeview(frame: QtMultimedia.QVideoFrame) -> np.ndarray:
 def byte_view(
     frame: QtMultimedia.QVideoFrame, byteorder: Optional[str] = "little"
 ) -> npt.NDArray[np.uint8]:
-    """
-    Returns a raw 3D view of the given QVideoFrame's memory as numpy array.
-
-    *frame* must be mapped using ``QVideoFrame.map()`` with proper map mode
-    before being viewed.
-
-    The dimensions are ``(width, height, channels)``, and the channels are 4 for
-    32-bit frame and 1 for 8-bit frame.
-
-    For 32-bit frame, the channels are in the ``[B, G, R, A]`` order in little
-    endian, and ``[A, R, G, B]`` in big endian. You may set the argument
-    *byteorder* to ``"little"`` (default), ``"big"``, or ``None`` which means
-    :obj:`sys.byteorder`.
-
-    """
     raw = qvideoframeview(frame)
     result = raw.view(np.uint8).reshape(raw.shape + (-1,))
     if byteorder is not None and byteorder != sys.byteorder:
@@ -95,20 +68,6 @@ def byte_view(
 def rgb_view(
     frame: QtMultimedia.QVideoFrame, byteorder: Optional[str] = "big"
 ) -> npt.NDArray[np.uint8]:
-    """
-    Returns RGB view of the given 32-bit QVideoFrame's memory as numpy array.
-
-    *frame* must be mapped using ``QVideoFrame.map()`` with proper map mode
-    before being viewed.
-
-    The dimensions are ``(width, height, 3)``. Even if the frame had alpha
-    channel, it is dropped in this view.
-
-    The channels are in ``[B, G, R]`` order in little endian, and ``[R, G, B]``
-    in big endian. You may set the argument *byteorder* to ``"bit"`` (default),
-    ``"little"``, or ``None`` which means :obj:`sys.byteorder`.
-
-    """
     if byteorder is None:
         byteorder = sys.byteorder
     bytes = byte_view(frame, byteorder)
@@ -121,16 +80,6 @@ def rgb_view(
 
 
 def alpha_view(frame: QtMultimedia.QVideoFrame) -> npt.NDArray[np.uint8]:
-    """
-    Returns alpha view of a given 32-bit QVideoFrame's memory as numpy array.
-
-    *frame* must be mapped using ``QVideoFrame.map()`` with proper map mode
-    before being viewed.
-
-    Showing only the alpha channel, the dimension of the resulting array is
-    ``(width, height, 1)``.
-
-    """
     bytes = byte_view(frame, byteorder=None)
     if sys.byteorder == "little":
         ret = bytes[..., 3]

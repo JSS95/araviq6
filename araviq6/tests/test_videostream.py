@@ -132,13 +132,14 @@ def test_ArrayToFrameConverter(qtbot):
     sourceFrame = playerSink.videoFrame()
     with qtbot.waitSignal(
         A2FConverter.frameConverted,
-        check_params_cb=lambda frame: not frame.isValid()
+        check_params_cb=lambda frame, _: not frame.isValid()
         and frame.surfaceFormat().pixelFormat()
         == sourceFrame.surfaceFormat().pixelFormat(),
     ):
         A2FConverter.convertArray(np.empty((0, 0, 0), dtype=np.uint8), sourceFrame)
 
     with qtbot.waitSignal(
-        A2FConverter.frameConverted, check_params_cb=lambda frame: not frame.isValid()
+        A2FConverter.frameConverted,
+        check_params_cb=lambda frame, _: not frame.isValid(),
     ):
         A2FConverter.convertArray(np.empty((0, 0, 0), dtype=np.uint8))

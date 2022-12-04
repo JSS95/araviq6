@@ -31,6 +31,10 @@ Pipeline classes
    :members:
    :exclude-members: arrayConverted
 
+.. autoclass:: ArrayToFrameConverter
+   :members:
+   :exclude-members: frameConverted
+
 Convenience classes
 -------------------
 
@@ -257,9 +261,16 @@ class ArrayToFrameConverter(QtCore.QObject):
     """
     Video pipeline component which converts numpy array to ``QVideoFrame``.
 
+    When array (and optionally, its original video frame) is passed to
+    :meth:`convertArray`, :class:`ArrayToFrameConverter` converts the array to
+    the video frame using :meth:`arrayToFrame`. Resulting video frame is emitted
+    to :attr:`frameConverted` with original frame.
+
+    Empty array is converted to invalid video frame.
+
     """
 
-    frameConverted = QtCore.Signal(QtMultimedia.QVideoFrame)
+    frameConverted = QtCore.Signal(QtMultimedia.QVideoFrame, QtMultimedia.QVideoFrame)
 
     @QtCore.Slot(np.ndarray, QtMultimedia.QVideoFrame)
     def convertArray(
@@ -267,26 +278,46 @@ class ArrayToFrameConverter(QtCore.QObject):
         array: npt.NDArray[np.uint8],
         frame: Optional[QtMultimedia.QVideoFrame] = None,
     ):
-        if array.size != 0:
-            newFrame = self.arrayToFrame(array)
-            if frame is not None:
-                newFrame.map(frame.mapMode())
-                newFrame.setStartTime(frame.startTime())
-                newFrame.setEndTime(frame.endTime())
-        else:
-            if frame is not None:
+        """
+        Convert *array* to ``QvideoFrame`` and emit to :attr:`frameConverted`.
+
+        Additional *frame* argument can be passed to set the properties (e.g.,
+        starting time and ending time) of the converted frame. This is useful
+        when *frame* is the original frame from the source and *array* is its
+        image processing result.
+
+        Array is converted using :meth:`arrayToFrame`. Result frame and original
+        *frame* are emitted to :attr:`frameConverted`.
+        """
+        if frame is not None:
+            if array.size != 0:
+                newFrame = self.arrayToFrame(array)
+            else:
                 newFrameFormat = QtMultimedia.QVideoFrameFormat(
                     QtCore.QSize(-1, -1), frame.surfaceFormat().pixelFormat()
                 )
+                newFrame = QtMultimedia.QVideoFrame(newFrameFormat)
+            newFrame.map(frame.mapMode())
+            newFrame.setStartTime(frame.startTime())
+            newFrame.setEndTime(frame.endTime())
+        else:
+            if array.size != 0:
+                newFrame = self.arrayToFrame(array)
             else:
                 newFrameFormat = QtMultimedia.QVideoFrameFormat(
                     QtCore.QSize(-1, -1),
                     QtMultimedia.QVideoFrameFormat.PixelFormat.Format_Invalid,
                 )
-            newFrame = QtMultimedia.QVideoFrame(newFrameFormat)
-        self.frameConverted.emit(newFrame)
+                newFrame = QtMultimedia.QVideoFrame(newFrameFormat)
+        self.frameConverted.emit(newFrame, frame)
 
     def arrayToFrame(self, array: npt.NDArray[np.uint8]) -> QtMultimedia.QVideoFrame:
+        """
+        Converts *array* to ``QVideoFrame``.
+
+        By default this method uses :func:`array2qvideoframe` for conversion.
+        Subclass can redefine this method.
+        """
         return array2qvideoframe(array)
 
 

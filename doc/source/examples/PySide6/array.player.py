@@ -9,7 +9,7 @@ processed array.
 
 import cv2  # type: ignore[import]
 import numpy as np
-from PySide6.QtCore import Signal, Qt, QUrl
+from PySide6.QtCore import Qt, QUrl
 from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout
 from PySide6.QtMultimedia import QMediaPlayer
 from araviq6 import (
@@ -38,9 +38,6 @@ class CannyWorker(ArrayProcessWorker):
 
 
 class CannyVideoPlayerWidget(QWidget):
-
-    _processRequested = Signal(np.ndarray)
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self._lastVideoArray = np.empty((0, 0, 0), dtype=np.uint8)

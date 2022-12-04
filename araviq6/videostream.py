@@ -27,7 +27,7 @@ Pipeline classes
 
 .. autoclass:: VideoFrameProcessor
    :members:
-   :exclude-members: videoFrameProcessed
+   :exclude-members: arrayProcessed, videoFrameProcessed
 
 .. autoclass:: VideoProcessWorker
    :members:
@@ -192,12 +192,13 @@ class VideoFrameProcessor(QtCore.QObject):
 
     :class:`VideoFrameProcessor` runs :class:`VideoProcessWorker` in internal
     thread to process the incoming video frame. Pass the input ``QVideoFrame``
-    to :meth:`processVideoFrame` slot and listen to :attr:`videoFrameProcessed`
-    signal.
+    to :meth:`processVideoFrame` slot and listen to :attr:`arrayProcessed` and
+    :attr:`videoFrameProcessed` signal.
 
     """
 
     _processRequested = QtCore.Signal(QtMultimedia.QVideoFrame)
+    arrayProcessed = QtCore.Signal(np.ndarray)
     videoFrameProcessed = QtCore.Signal(QtMultimedia.QVideoFrame)
 
     def __init__(self, parent=None):
@@ -224,17 +225,21 @@ class VideoFrameProcessor(QtCore.QObject):
         oldWorker = self.worker()
         if oldWorker is not None:
             self._processRequested.disconnect(oldWorker.processVideoFrame)
+            oldWorker.arrayProcessed.disconnect(self.arrayProcessed)
             oldWorker.videoFrameProcessed.disconnect(self.videoFrameProcessed)
         self._worker = worker
         if worker is not None:
             self._processRequested.connect(worker.processVideoFrame)
+            worker.arrayProcessed.connect(self.arrayProcessed)
             worker.videoFrameProcessed.connect(self.videoFrameProcessed)
             worker.moveToThread(self._processorThread)
 
     @QtCore.Slot(QtMultimedia.QVideoFrame)
     def processVideoFrame(self, frame: QtMultimedia.QVideoFrame):
         """
-        Process *frame* and emit the result to :attr:`videoFrameProcessed`.
+        Request :meth:`worker` to process *frame*.
+        The result is emitted to :attr:`arrayProcessed` and
+        :attr:`videoFrameProcessed`.
 
         """
         worker = self.worker()
@@ -455,7 +460,8 @@ class ArrayProcessor(QtCore.QObject):
     @QtCore.Slot(np.ndarray)
     def processArray(self, array: npt.NDArray[np.uint8]):
         """
-        Process *array* and emit the result to :attr:`arrayProcessed`.
+        Request :meth:`worker` to process *array*.
+        The result is emitted to :attr:`arrayProcessed`.
 
         """
         worker = self.worker()

@@ -151,7 +151,7 @@ def array2qvideoframe(
     Note that the scalar data will be converted into gray RGB triples.
 
     The parameter *normalize* can be used to normalize an frame's value range
-    to 0-255. 
+    to 0-255.
 
     If *normalize* = ``(nmin, nmax)``:
         Scale & clip frame values from ``nmin..nmax`` to ``0..255``

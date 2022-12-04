@@ -3,9 +3,9 @@ from araviq6.qt_compat import QtCore, QtMultimedia
 
 
 def test_FrameToArrayConverter(qtbot):
-
     class ArraySink(QtCore.QObject):
         arrayChanged = QtCore.Signal()
+
         def setArray(self, array):
             self.array = array
             self.arrayChanged.emit()

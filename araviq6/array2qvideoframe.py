@@ -33,6 +33,9 @@ from typing import Optional, Union, Tuple
 
 
 __all__ = [
+    "byte_view",
+    "rgb_view",
+    "alpha_view",
     "array2qvideoframe",
 ]
 

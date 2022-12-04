@@ -93,8 +93,8 @@ class VideoProcessWorker(QtCore.QObject):
     """
     Worker to process ``QVideoFrame`` using :class:`numpy.ndarray` operation.
 
-    To perform processing, pass the input frame to :meth:`processVideoFrame` and
-    listen to :attr:`arrayProcessed` or :attr:`videoFrameProcessed` signals.
+    To perform processing, pass the input frame to :meth:`runProcess` and listen
+    to :attr:`arrayProcessed` or :attr:`videoFrameProcessed` signals.
 
     :meth:`ready` is set to ``False`` when the processing is being run. This
     property can be utilized in multithreading.
@@ -114,7 +114,7 @@ class VideoProcessWorker(QtCore.QObject):
         """
         return self._ready
 
-    def processVideoFrame(self, frame: QtMultimedia.QVideoFrame):
+    def runProcess(self, frame: QtMultimedia.QVideoFrame):
         """
         Process *frame* and emit the result to :attr:`arrayProcessed` and
         :attr:`videoFrameProcessed`.
@@ -224,12 +224,12 @@ class VideoFrameProcessor(QtCore.QObject):
         """
         oldWorker = self.worker()
         if oldWorker is not None:
-            self._processRequested.disconnect(oldWorker.processVideoFrame)
+            self._processRequested.disconnect(oldWorker.runProcess)
             oldWorker.arrayProcessed.disconnect(self.arrayProcessed)
             oldWorker.videoFrameProcessed.disconnect(self.videoFrameProcessed)
         self._worker = worker
         if worker is not None:
-            self._processRequested.connect(worker.processVideoFrame)
+            self._processRequested.connect(worker.runProcess)
             worker.arrayProcessed.connect(self.arrayProcessed)
             worker.videoFrameProcessed.connect(self.videoFrameProcessed)
             worker.moveToThread(self._processorThread)

@@ -61,6 +61,7 @@ __all__ = [
     "VideoFrameProcessor",
     "FrameToArrayConverter",
     "ArrayToFrameConverter",
+    "ArrayProcessWorker",
     "NDArrayVideoPlayer",
     "NDArrayMediaCaptureSession",
 ]
@@ -339,6 +340,59 @@ class ArrayToFrameConverter(QtCore.QObject):
         Subclass can redefine this method.
         """
         return array2qvideoframe(array)
+
+
+class ArrayProcessWorker(QtCore.QObject):
+    """
+    Worker to process image in numpy array.
+
+    To perform processing, pass the input array to :meth:`runProcess` and
+    listen to :attr:`arrayProcessed` signal.
+
+    :meth:`ready` is set to ``False`` when the processing is being run. This
+    property can be utilized in multithreading.
+    """
+
+    arrayProcessed = QtCore.Signal(np.ndarray)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._ready = True
+
+    def ready(self) -> bool:
+        """
+        Returns true if the worker finished processing and can process the next
+        array without being blocked.
+        """
+        return self._ready
+
+    def runProcess(self, array: npt.NDArray[np.uint8]):
+        """
+        Process *array* and emit the result to :attr:`arrayProcessed`.
+
+        Array processing is done by :meth:`processArray`.
+
+        During the processing :meth:`ready` is set to False.
+
+        Note
+        ====
+
+        This method must *not* be Qt Slot to be multithreaded.
+        """
+        self._ready = False
+        self.arrayProcessed.emit(self.processArray(array))
+        self._ready = True
+
+    def processArray(self, array: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8]:
+        """
+        Perform image processing on *array* and return the result.
+
+        By default this method does not perform any processing. Subclass can
+        redefine this method.
+
+        See also :meth:`runProcess`.
+        """
+        return array
 
 
 class NDArrayVideoPlayer(QtMultimedia.QMediaPlayer):

@@ -89,6 +89,17 @@ def byte_view(
 def rgb_view(
     frame: QtMultimedia.QVideoFrame, byteorder: Optional[str] = "big"
 ) -> npt.NDArray[np.uint8]:
+    """
+    Returns RGB view of the given 32-bit QVideoFrame's memory as numpy array.
+
+    The dimensions are ``(width, height, 3)``. Even if the frame had alpha
+    channel, it is dropped in this view.
+
+    The channels are in ``[B, G, R]`` order in little endian, and ``[R, G, B]``
+    in big endian. You may set the argument *byteorder* to ``"bit"`` (default),
+    ``"little"``, or ``None`` which means :obj:`sys.byteorder`.
+
+    """
     if byteorder is None:
         byteorder = sys.byteorder
     bytes = byte_view(frame, byteorder)
@@ -101,6 +112,13 @@ def rgb_view(
 
 
 def alpha_view(frame: QtMultimedia.QVideoFrame) -> npt.NDArray[np.uint8]:
+    """
+    Returns alpha view of a given 32-bit QVideoFrame's memory as numpy array.
+
+    Showing only the alpha channel, the dimension of the resulting array is
+    ``(width, height, 1)``.
+
+    """
     bytes = byte_view(frame, byteorder=None)
     if sys.byteorder == "little":
         ret = bytes[..., 3]

@@ -6,7 +6,7 @@
 [![Documentation Status](https://readthedocs.org/projects/araviq6/badge/?version=latest)](https://araviq6.readthedocs.io/en/latest/?badge=latest)
 [![License](https://img.shields.io/github/license/JSS95/araviq6)](https://github.com/JSS95/araviq6/blob/master/LICENSE)
 
-AraViQ6 is a Python package which provides NDArray-based video pipeline with Qt6.
+AraViQ6 is a Python package which integrates NDArray-based image processing with video pipeline of Qt6.
 
 It provides:
 - QVideoFrame processor based on array processing

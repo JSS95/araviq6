@@ -13,11 +13,9 @@ pipelines.
 
 """
 
-import numpy as np
-from araviq6.qt_compat import QtCore, QtWidgets, QtMultimedia
-from .labels import NDArrayLabel
-from .videostream import NDArrayVideoPlayer, NDArrayMediaCaptureSession
+from .videostream import VideoFrameWorker, VideoFrameProcessor
 from .util import MediaController
+from araviq6.qt_compat import QtCore, QtWidgets, QtMultimedia, QtMultimediaWidgets
 
 
 __all__ = [
@@ -28,123 +26,141 @@ __all__ = [
 
 class NDArrayVideoPlayerWidget(QtWidgets.QWidget):
     """
-    Convenience widget to process and display numpy arrays from local video file.
+    Widget to play video file with array processing.
+
+    By default this widget does not perform any array processing. User may define
+    own :class:`VideoFrameWorker` instance and set by :meth:`setWorker`.
 
     Examples
     ========
 
-    >>> from PySide6.QtCore import QUrl
-    >>> from PySide6.QtWidgets import QApplication
-    >>> import sys
-    >>> from araviq6 import get_samples_path, NDArrayVideoPlayerWidget
-    >>> vidpath = get_samples_path('hello.mp4')
-    >>> def runGUI():
-    ...     app = QApplication(sys.argv)
-    ...     w = NDArrayVideoPlayerWidget()
-    ...     w.setSource(QUrl.fromLocalFile(vidpath))
-    ...     w.show()
-    ...     app.exec()
-    ...     app.quit()
-    >>> runGUI() # doctest: +SKIP
+    .. tabs::
 
-    Notes
-    =====
+        .. code-tab:: python
+            :caption: PySide6
 
-    This widget processes the frames with single thread, therefore long
-    processing blocks the GUI. Refer to the package examples for building
-    multithread pipeline.
+            from PySide6.QtCore import QUrl
+            from PySide6.QtWidgets import QApplication
+            import sys
+            from araviq6 import NDArrayVideoPlayerWidget, VideoFrameWorker
+            from araviq6.util import get_samples_path
+            class FlipWorker(VideoFrameWorker):
+                def processArray(self, array):
+                    return array[::-1]
+            def runGUI():
+                app = QApplication(sys.argv)
+                w = NDArrayVideoPlayerWidget()
+                w.setWorker(FlipWorker())
+                w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
+                w.show()
+                app.exec()
+                app.quit()
+            runGUI() # doctest: +SKIP
 
     """
 
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        self._videoPlayer = NDArrayVideoPlayer(self)
-        self._videoLabel = NDArrayLabel()
+        self._videoPlayer = QtMultimedia.QMediaPlayer()
+        self._playerVideoSink = QtMultimedia.QVideoSink()
+        self._frameProcessor = VideoFrameProcessor()
+        self._videoWidget = QtMultimediaWidgets.QVideoWidget()
         self._mediaController = MediaController()
 
-        self._videoPlayer.arrayChanged.connect(self.setArray)
-        self._videoLabel.setAlignment(QtCore.Qt.AlignCenter)
+        # set up the pipeline
+        self._videoPlayer.setVideoSink(self._playerVideoSink)
+        self._playerVideoSink.videoFrameChanged.connect(
+            self._frameProcessor.processVideoFrame
+        )
+        self._frameProcessor.videoFrameProcessed.connect(self.displayVideoFrame)
+
         self._mediaController.setPlayer(self._videoPlayer)
 
         layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(self._videoLabel)
+        layout.addWidget(self._videoWidget)
         layout.addWidget(self._mediaController)
         self.setLayout(layout)
 
-    @QtCore.Slot(QtCore.QUrl)
-    def setSource(self, source: QtCore.QUrl):
-        self._videoPlayer.setSource(source)
+    def setSource(self, url: QtCore.QUrl):
+        self._videoPlayer.setSource(url)
 
-    @QtCore.Slot(np.ndarray)
-    def setArray(self, array: np.ndarray):
-        """
-        Process the array with :meth:`processArray` and set to :meth:`videoLabel`.
-        """
-        ret = self.processArray(array)
-        self._videoLabel.setArray(ret)
+    def setWorker(self, worker: VideoFrameWorker):
+        self._frameProcessor.setWorker(worker)
 
-    def processArray(self, array: np.ndarray) -> np.ndarray:
-        """Perform array processing. Redefine this method if needed."""
-        return array
+    @QtCore.Slot(QtMultimedia.QVideoFrame)
+    def displayVideoFrame(self, frame: QtMultimedia.QVideoFrame):
+        self._videoWidget.videoSink().setVideoFrame(frame)
+
+    def closeEvent(self, event):
+        self._frameProcessor.stop()
+        super().closeEvent(event)
 
 
 class NDArrayCameraWidget(QtWidgets.QWidget):
     """
-    Convenience widget to process and display numpy arrays from camera.
+    Widget to stream camera with array processing.
+
+    By default this widget does not perform any array processing. User may define
+    own :class:`VideoFrameWorker` instance and set by :meth:`setWorker`.
 
     Examples
     ========
 
-    >>> from PySide6.QtWidgets import QApplication
-    >>> from PySide6.QtMultimedia import QCamera
-    >>> import sys
-    >>> from araviq6 import NDArrayCameraWidget
-    >>> def runGUI():
-    ...     app = QApplication(sys.argv)
-    ...     widget = NDArrayCameraWidget()
-    ...     camera = QCamera()
-    ...     widget.setCamera(camera)
-    ...     camera.start()
-    ...     widget.show()
-    ...     app.exec()
-    ...     app.quit()
-    >>> runGUI() # doctest: +SKIP
+    .. tabs::
 
-    Notes
-    =====
+        .. code-tab:: python
+            :caption: PySide6
 
-    This widget processes the frames with single thread, therefore long
-    processing blocks the GUI. Refer to the package examples for building
-    multithread pipeline.
+            from PySide6.QtWidgets import QApplication
+            from PySide6.QtMultimedia import QCamera
+            import sys
+            from araviq6 import VideoFrameWorker, NDArrayCameraWidget
+            class FlipWorker(VideoFrameWorker):
+                def processArray(self, array):
+                    return array[::-1]
+            def runGUI():
+                app = QApplication(sys.argv)
+                widget = NDArrayCameraWidget()
+                widget.setWorker(FlipWorker())
+                camera = QCamera()
+                widget.setCamera(camera)
+                camera.start()
+                widget.show()
+                app.exec()
+                app.quit()
+            runGUI() # doctest: +SKIP
 
     """
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self._captureSession = QtMultimedia.QMediaCaptureSession()
+        self._cameraVideoSink = QtMultimedia.QVideoSink()
+        self._frameProcessor = VideoFrameProcessor()
+        self._videoWidget = QtMultimediaWidgets.QVideoWidget()
 
-        self._mediaCaptureSession = NDArrayMediaCaptureSession()
-        self._videoLabel = NDArrayLabel()
-
-        self._mediaCaptureSession.arrayChanged.connect(self.setArray)
-        self._videoLabel.setAlignment(QtCore.Qt.AlignCenter)
+        # set up the pipeline
+        self._captureSession.setVideoSink(self._cameraVideoSink)
+        self._cameraVideoSink.videoFrameChanged.connect(
+            self._frameProcessor.processVideoFrame
+        )
+        self._frameProcessor.videoFrameProcessed.connect(self.displayVideoFrame)
 
         layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(self._videoLabel)
+        layout.addWidget(self._videoWidget)
         self.setLayout(layout)
 
     @QtCore.Slot(QtMultimedia.QCamera)
     def setCamera(self, camera: QtMultimedia.QCamera):
-        self._mediaCaptureSession.setCamera(camera)
+        self._captureSession.setCamera(camera)
 
-    @QtCore.Slot(np.ndarray)
-    def setArray(self, array: np.ndarray):
-        """
-        Process the array with :meth:`processArray` and set to :meth:`videoLabel`.
-        """
-        ret = self.processArray(array)
-        self._videoLabel.setArray(ret)
+    def setWorker(self, worker: VideoFrameWorker):
+        self._frameProcessor.setWorker(worker)
 
-    def processArray(self, array: np.ndarray) -> np.ndarray:
-        """Perform array processing. Redefine this method if needed."""
-        return array
+    @QtCore.Slot(QtMultimedia.QVideoFrame)
+    def displayVideoFrame(self, frame: QtMultimedia.QVideoFrame):
+        self._videoWidget.videoSink().setVideoFrame(frame)
+
+    def closeEvent(self, event):
+        self._frameProcessor.stop()
+        super().closeEvent(event)

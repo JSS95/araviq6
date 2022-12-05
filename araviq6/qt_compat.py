@@ -138,3 +138,4 @@ QtCore = qt_api.QtCore
 QtWidgets = qt_api.QtWidgets
 QtGui = qt_api.QtGui
 QtMultimedia = qt_api.QtMultimedia
+QtMultimediaWidgets = qt_api.QtMultimediaWidgets

@@ -9,42 +9,71 @@
 AraViQ6 is a Python package which provides NDArray-based video pipeline with Qt6.
 
 It provides:
-- Converter to get NDArray from QVideoFrame
-- QLabel to display image from NDArray
-- Convenience classes and widgets with pre-built video pipelines
+- QVideoFrame processor based on array processing
+- Converter to get NDArray from QVideoFrame and vice versa
+- Convenience classes and widgets for array displaying
 
 The following Qt bindings are supported:
 - [PySide6](https://pypi.org/project/PySide6/)
 
 # How to use
 
-There are two ways to use AraViQ6; build the video pipeline yourself, or use the convenience classes with pre-built pipelines.
+There are two ways to use AraViQ6; using QVideoFrame-based pipeline, or using NDArray-based pipeline.
 
-## Building the pipeline
+## Frame-based pipeline
 
-Qt's `QVideoSink` class emits `QVideoFrame` from the video file or the camera.
-Connect the signals to build a pipeline which consists of:
-1. `FrameToArrayConverter`, which converts `QVideoFrame` to `ndarray`.
-2. Any array processing, if required.
-3. `NDArrayLabel` which displays `ndarray` on the screen.
+Frame-based pipeline is a high-level approach that works well with Qt Multimedia scheme.
 
 <div align="center">
-  <img src="https://github.com/JSS95/araviq6/raw/master/doc/source/_images/pipeline.png"/><br>
-    Video display pipeline with AraViQ6
+  <img src="doc/source/_images/frame-pipeline.jpg"/><br>
+    QVideoFrame pipeline with AraViQ6
 </div>
 
-Note that you may want to run the processing in separate thread to avoid blocking the GUI thread.
-See Examples to learn how to construct a multithreaded pipeline.
+Frame-based pipeline consists of:
+1. `VideoFrameWorker`
+2. `VideoFrameProcessor`
+
+QVideoFrame comes from and goes to Qt6's `QVideoSink`.
+`VideoFrameWorker` converts QVideoFrame to numpy array, performs processing, and sends the result to downstream. User may subclass the worker to define own processing.
+
+`VideoFrameProcessor` wraps the worker and provides API around it.
+Worker is mulithreaded in the processor.
+
+Processor provides the result in both QVideoFrame and NDArray.
+
+## Array-based pipeline
+
+Array-based pipeline is a low-level approach.
+It can be useful when third-party package provides video frame in numpy array format.
+
+<div align="center">
+  <img src="doc/source/_images/array-pipeline.jpg"/><br>
+    NDArray pipeline with AraViQ6
+</div>
+
+Array-based pipeline consists of:
+
+1. `FrameToArrayConverter`
+2. `ArrayWorker`
+3. `ArrayProcessor`
+4. `ArrayToFrameConverter`
+
+`FrameToArrayConverter` and `ArrayToFrameConverter` performs conversion between frame pipeline and array pipeline.
+To retain the metadata (e.g., timestamp) of QVideoFrame, these classes includes the original frame for the array.
+
+`ArrayWorker` performs processing on incoming array. User may subclass the worker to define own processing.
+
+`ArrayProcessor` wraps the worker and provides API around it.
+Worker is mulithreaded in the processor.
 
 ## Convenicence classes
 
-The following classes have internal video sink and converter to emit `ndarray` from the video.
+AraViQ6 also provides various convenience classes to make building the pipeline easier.
+
+The following classes help setting array pipeline with the video source and the display.
 - `NDArrayVideoPlayer`
 - `NDArrayMediaCaptureSession`
-
-The following widgets implements full video streaming from source to display, albeit the array cannot be processed.
-- `NDArrayVideoPlayerWidget`
-- `NDArrayCameraWidget`
+- `NDArrayLabel`
 
 # Examples
 

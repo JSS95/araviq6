@@ -25,7 +25,7 @@ There are two ways to use AraViQ6; using QVideoFrame-based pipeline, or using ND
 Frame-based pipeline is a high-level approach that works well with Qt Multimedia scheme.
 
 <div align="center">
-  <img src="doc/source/_images/frame-pipeline.jpg"/><br>
+  <img src="https://github.com/JSS95/araviq6/raw/master/doc/source/_images/frame-pipeline.jpg"/><br>
     QVideoFrame pipeline with AraViQ6
 </div>
 
@@ -47,7 +47,7 @@ Array-based pipeline is a low-level approach.
 It can be useful when third-party package provides video frame in numpy array format.
 
 <div align="center">
-  <img src="doc/source/_images/array-pipeline.jpg"/><br>
+  <img src="https://github.com/JSS95/araviq6/raw/master/doc/source/_images/array-pipeline.jpg"/><br>
     NDArray pipeline with AraViQ6
 </div>
 

@@ -12,10 +12,10 @@ from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QMainWindow
 from PySide6.QtMultimedia import QCamera, QMediaCaptureSession, QVideoFrame, QVideoSink
 from PySide6.QtMultimediaWidgets import QVideoWidget
-from araviq6 import VideoProcessWorker, VideoFrameProcessor
+from araviq6 import VideoFrameWorker, VideoFrameProcessor
 
 
-class BlurWorker(VideoProcessWorker):
+class BlurWorker(VideoFrameWorker):
     def processArray(self, array: np.ndarray) -> np.ndarray:
         return cv2.GaussianBlur(array, (0, 0), 25)
 

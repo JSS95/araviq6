@@ -13,13 +13,13 @@ from PySide6.QtMultimedia import QMediaCaptureSession, QVideoSink
 from PySide6.QtWidgets import QMainWindow
 from araviq6 import (
     FrameToArrayConverter,
-    ArrayProcessWorker,
+    ArrayWorker,
     ArrayProcessor,
     NDArrayLabel,
 )
 
 
-class BlurWorker(ArrayProcessWorker):
+class BlurWorker(ArrayWorker):
     def processArray(self, array: np.ndarray) -> np.ndarray:
         return cv2.GaussianBlur(array, (0, 0), 25)
 

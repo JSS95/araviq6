@@ -14,11 +14,11 @@ from .array2qvideoframe import (
 )
 from .labels import ScalableQLabel, NDArrayLabel
 from .videostream import (
-    VideoProcessWorker,
+    VideoFrameWorker,
     VideoFrameProcessor,
     FrameToArrayConverter,
     ArrayToFrameConverter,
-    ArrayProcessWorker,
+    ArrayWorker,
     ArrayProcessor,
     NDArrayVideoPlayer,
     NDArrayMediaCaptureSession,
@@ -38,11 +38,11 @@ __all__ = [
     "array2qvideoframe",
     "ScalableQLabel",
     "NDArrayLabel",
-    "VideoProcessWorker",
+    "VideoFrameWorker",
     "VideoFrameProcessor",
     "FrameToArrayConverter",
     "ArrayToFrameConverter",
-    "ArrayProcessWorker",
+    "ArrayWorker",
     "ArrayProcessor",
     "NDArrayVideoPlayer",
     "NDArrayMediaCaptureSession",

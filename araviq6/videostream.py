@@ -29,7 +29,7 @@ Pipeline classes
    :members:
    :exclude-members: arrayProcessed, videoFrameProcessed
 
-.. autoclass:: VideoProcessWorker
+.. autoclass:: VideoFrameWorker
    :members:
    :exclude-members: arrayProcessed, videoFrameProcessed
 
@@ -45,7 +45,7 @@ Pipeline classes
    :members:
    :exclude-members: arrayProcessed
 
-.. autoclass:: ArrayProcessWorker
+.. autoclass:: ArrayWorker
    :members:
    :exclude-members: arrayProcessed
 
@@ -71,11 +71,11 @@ from typing import Optional
 
 
 __all__ = [
-    "VideoProcessWorker",
+    "VideoFrameWorker",
     "VideoFrameProcessor",
     "FrameToArrayConverter",
     "ArrayToFrameConverter",
-    "ArrayProcessWorker",
+    "ArrayWorker",
     "ArrayProcessor",
     "NDArrayVideoPlayer",
     "NDArrayMediaCaptureSession",
@@ -89,7 +89,7 @@ for name, qimage_format in qimage2ndarray.qimageview_python.FORMATS.items():
         qimage_format.code = getattr(QtGui.QImage, name)
 
 
-class VideoProcessWorker(QtCore.QObject):
+class VideoFrameWorker(QtCore.QObject):
     """
     Worker to process ``QVideoFrame`` using :class:`numpy.ndarray` operation.
 
@@ -190,7 +190,7 @@ class VideoFrameProcessor(QtCore.QObject):
     """
     Video pipeline component to process ``QVideoFrame``
 
-    :class:`VideoFrameProcessor` runs :class:`VideoProcessWorker` in internal
+    :class:`VideoFrameProcessor` runs :class:`VideoFrameWorker` in internal
     thread to process the incoming video frame. Pass the input ``QVideoFrame``
     to :meth:`processVideoFrame` slot and listen to :attr:`arrayProcessed` and
     :attr:`videoFrameProcessed` signal.
@@ -209,7 +209,7 @@ class VideoFrameProcessor(QtCore.QObject):
         self._processorThread = QtCore.QThread()
         self._processorThread.start()
 
-    def worker(self) -> Optional[VideoProcessWorker]:
+    def worker(self) -> Optional[VideoFrameWorker]:
         """
         Worker to process the video frame.
 
@@ -217,7 +217,7 @@ class VideoFrameProcessor(QtCore.QObject):
         """
         return self._worker
 
-    def setWorker(self, worker: Optional[VideoProcessWorker]):
+    def setWorker(self, worker: Optional[VideoFrameWorker]):
         """
         Set *worker* as video frame processor.
 
@@ -380,7 +380,7 @@ class ArrayToFrameConverter(QtCore.QObject):
         return array2qvideoframe(array)
 
 
-class ArrayProcessWorker(QtCore.QObject):
+class ArrayWorker(QtCore.QObject):
     """
     Worker to process image in numpy array.
 
@@ -437,7 +437,7 @@ class ArrayProcessor(QtCore.QObject):
     """
     Video pipeline component to process numpy array.
 
-    :class:`ArrayProcessor` runs :class:`ArrayProcessWorker` in internal thread
+    :class:`ArrayProcessor` runs :class:`ArrayWorker` in internal thread
     to process the incoming array. Pass the input array to :meth:`processArray`
     slot and listen to :attr:`arrayProcessed` signal.
 
@@ -454,7 +454,7 @@ class ArrayProcessor(QtCore.QObject):
         self._processorThread = QtCore.QThread()
         self._processorThread.start()
 
-    def worker(self) -> Optional[ArrayProcessWorker]:
+    def worker(self) -> Optional[ArrayWorker]:
         """
         Worker to process the array.
 
@@ -462,7 +462,7 @@ class ArrayProcessor(QtCore.QObject):
         """
         return self._worker
 
-    def setWorker(self, worker: Optional[ArrayProcessWorker]):
+    def setWorker(self, worker: Optional[ArrayWorker]):
         """
         Set *worker* as array processor.
 

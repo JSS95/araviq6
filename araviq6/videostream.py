@@ -267,6 +267,8 @@ class VideoFrameProcessor(QtCore.QObject):
         if worker is not None:
             if worker.ready() or self.queueToWorker():
                 self._processRequested.emit(frame)
+        else:
+            self.videoFrameProcessed.emit(frame)
 
     def stop(self):
         """Stop the worker thread."""
@@ -509,9 +511,8 @@ class ArrayProcessor(QtCore.QObject):
         if worker is not None:
             if worker.ready() or self.queueToWorker():
                 self._processRequested.emit(array)
-
         else:
-            return
+            self.arrayProcessed.emit(array)
 
     def stop(self):
         """Stop the worker thread."""

@@ -42,10 +42,15 @@ class NDArrayVideoPlayerWidget(QtWidgets.QWidget):
             from PySide6.QtCore import QUrl
             from PySide6.QtWidgets import QApplication
             import sys
-            from araviq6 import get_samples_path, NDArrayVideoPlayerWidget
+            from araviq6 import NDArrayVideoPlayerWidget, VideoFrameWorker
+            from araviq6.util import get_samples_path
+            class FlipWorker(VideoFrameWorker):
+                def processArray(self, array):
+                    return array[::-1]
             def runGUI():
                 app = QApplication(sys.argv)
                 w = NDArrayVideoPlayerWidget()
+                w.setWorker(FlipWorker())
                 w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
                 w.show()
                 app.exec()
@@ -109,10 +114,14 @@ class NDArrayCameraWidget(QtWidgets.QWidget):
             from PySide6.QtWidgets import QApplication
             from PySide6.QtMultimedia import QCamera
             import sys
-            from araviq6 import NDArrayCameraWidget
+            from araviq6 import VideoFrameWorker, NDArrayCameraWidget
+            class FlipWorker(VideoFrameWorker):
+                def processArray(self, array):
+                    return array[::-1]
             def runGUI():
                 app = QApplication(sys.argv)
                 widget = NDArrayCameraWidget()
+                widget.setWorker(FlipWorker())
                 camera = QCamera()
                 widget.setCamera(camera)
                 camera.start()

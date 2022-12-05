@@ -13,11 +13,11 @@ from .array2qvideoframe import (
     array2qvideoframe,
 )
 from .videostream import (
-    VideoProcessWorker,
+    VideoFrameWorker,
     VideoFrameProcessor,
     FrameToArrayConverter,
     ArrayToFrameConverter,
-    ArrayProcessWorker,
+    ArrayWorker,
     ArrayProcessor,
     NDArrayVideoPlayer,
     NDArrayMediaCaptureSession,
@@ -36,11 +36,11 @@ from .util import (
 
 __all__ = [
     "array2qvideoframe",
-    "VideoProcessWorker",
+    "VideoFrameWorker",
     "VideoFrameProcessor",
     "FrameToArrayConverter",
     "ArrayToFrameConverter",
-    "ArrayProcessWorker",
+    "ArrayWorker",
     "ArrayProcessor",
     "NDArrayVideoPlayer",
     "NDArrayMediaCaptureSession",

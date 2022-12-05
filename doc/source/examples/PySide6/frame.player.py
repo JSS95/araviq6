@@ -12,10 +12,10 @@ from PySide6.QtCore import Slot, QUrl
 from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout
 from PySide6.QtMultimedia import QMediaPlayer, QVideoSink, QVideoFrame
 from PySide6.QtMultimediaWidgets import QVideoWidget
-from araviq6 import VideoProcessWorker, VideoFrameProcessor, MediaController
+from araviq6 import VideoFrameWorker, VideoFrameProcessor, MediaController
 
 
-class CannyWorker(VideoProcessWorker):
+class CannyWorker(VideoFrameWorker):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._cannyMode = False

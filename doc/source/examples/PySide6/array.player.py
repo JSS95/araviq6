@@ -13,7 +13,7 @@ from PySide6.QtCore import Qt, QUrl
 from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout
 from PySide6.QtMultimedia import QMediaPlayer
 from araviq6 import (
-    ArrayProcessWorker,
+    ArrayWorker,
     ArrayProcessor,
     NDArrayVideoPlayer,
     MediaController,
@@ -21,7 +21,7 @@ from araviq6 import (
 )
 
 
-class CannyWorker(ArrayProcessWorker):
+class CannyWorker(ArrayWorker):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._cannyMode = False

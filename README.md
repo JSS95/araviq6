@@ -10,7 +10,7 @@ AraViQ6 is a Python package which provides NDArray-based video pipeline with Qt6
 
 It provides:
 - QVideoFrame processor based on array processing
-- Converter to get NDArray from QVideoFrame and vice versa
+- Converters between NDArray and QVideoFrame
 - Convenience classes and widgets for array displaying
 
 The following Qt bindings are supported:
@@ -33,13 +33,11 @@ Frame-based pipeline consists of:
 1. `VideoFrameWorker`
 2. `VideoFrameProcessor`
 
-QVideoFrame comes from and goes to Qt6's `QVideoSink`.
-`VideoFrameWorker` converts QVideoFrame to numpy array, performs processing, and sends the result to downstream. User may subclass the worker to define own processing.
+QVideoFrame comes from and goes to Qt6's `QVideoSink`. AraViQ6's
+`VideoFrameWorker` converts QVideoFrame to numpy array, performs processing, and sends the results to downstream in both QVideoFrame and NDArray. User may subclass the worker to define own processing.
 
 `VideoFrameProcessor` wraps the worker and provides API around it.
 Worker is mulithreaded in the processor.
-
-Processor provides the result in both QVideoFrame and NDArray.
 
 ## Array-based pipeline
 
@@ -61,7 +59,7 @@ Array-based pipeline consists of:
 `FrameToArrayConverter` and `ArrayToFrameConverter` performs conversion between frame pipeline and array pipeline.
 To retain the metadata (e.g., timestamp) of QVideoFrame, these classes includes the original frame for the array.
 
-`ArrayWorker` performs processing on incoming array. User may subclass the worker to define own processing.
+`ArrayWorker` performs processing on incoming array and sends the result to downstream in NDArray. User may subclass the worker to define own processing.
 
 `ArrayProcessor` wraps the worker and provides API around it.
 Worker is mulithreaded in the processor.
@@ -74,6 +72,10 @@ The following classes help setting array pipeline with the video source and the 
 - `NDArrayVideoPlayer`
 - `NDArrayMediaCaptureSession`
 - `NDArrayLabel`
+
+The following classes are plug-and-play widgets where user can process the video with minimal boilerplate.
+- `NDArrayVideoPlayerWidget`
+- `NDArrayCameraWidget`
 
 # Examples
 

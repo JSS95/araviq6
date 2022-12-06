@@ -324,12 +324,15 @@ class ArrayToFrameConverter(QtCore.QObject):
     """
     Video pipeline component which converts numpy array to ``QVideoFrame``.
 
-    When array (and optionally, its original video frame) is passed to
-    :meth:`convertArray`, :class:`ArrayToFrameConverter` converts the array to
-    the video frame using :meth:`arrayToFrame`. Resulting video frame is emitted
-    to :attr:`frameConverted` with original frame.
+    Conversion is done by passing an array (and optionally, its original frame)
+    to :meth:`convertArray` slot and listening to :attr:`frameConverted` signal.
+    If an original frame is passed, it is used to set the properties of converted
+    frame.
 
-    Empty array is converted to invalid video frame.
+    The :attr:`frameConverted` signal emits two QVideoFrame objects; the first
+    one is the video frame converted from the array, and the second is the
+    original video frame. If original video frame was not passed to
+    :meth:`convertArray`, invalid frame is emitted instead.
 
     """
 
@@ -350,7 +353,8 @@ class ArrayToFrameConverter(QtCore.QObject):
         image processing result.
 
         Array is converted using :meth:`arrayToFrame`. Result frame and original
-        *frame* are emitted to :attr:`frameConverted`.
+        *frame* are emitted to :attr:`frameConverted`. If *frame* is None,
+        invalid video frame is emitted with converted frame.
         """
         if frame is not None:
             if array.size != 0:
@@ -372,6 +376,7 @@ class ArrayToFrameConverter(QtCore.QObject):
                     QtMultimedia.QVideoFrameFormat.PixelFormat.Format_Invalid,
                 )
                 newFrame = QtMultimedia.QVideoFrame(newFrameFormat)
+                frame = QtMultimedia.QVideoFrame(newFrameFormat)
         self.frameConverted.emit(newFrame, frame)
 
     def arrayToFrame(self, array: npt.NDArray[np.uint8]) -> QtMultimedia.QVideoFrame:

@@ -93,16 +93,15 @@ class VideoFrameWorker(QtCore.QObject):
     """
     Worker to process ``QVideoFrame`` using :class:`numpy.ndarray` operation.
 
-    To perform processing, pass the input frame to :meth:`runProcess`. Process
-    result is emitted to two signals; :attr:`arrayProcessed` as NDArray and
-    :attr:`videoFrameProcessed` as QVideoFrame.
+    To perform processing, pass the input frame to :meth:`runProcess` and listen
+    to :attr:`videoFrameProcessed` signal which emits two objects; processed
+    QVideoFrame and processed NDArray.
 
     :meth:`ready` is set to ``False`` when the processing is running. This
     property can be utilized in multithreading.
     """
 
-    arrayProcessed = QtCore.Signal(np.ndarray)
-    videoFrameProcessed = QtCore.Signal(QtMultimedia.QVideoFrame)
+    videoFrameProcessed = QtCore.Signal(QtMultimedia.QVideoFrame, np.ndarray)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -117,13 +116,15 @@ class VideoFrameWorker(QtCore.QObject):
 
     def runProcess(self, frame: QtMultimedia.QVideoFrame):
         """
-        Process *frame* and emit the result to both :attr:`arrayProcessed` and
-        :attr:`videoFrameProcessed`.
+        Process *frame* and emit the results to :attr:`videoFrameProcessed`.
 
         When a video frame is passed, it is first converted to ``QImage`` by
         ``QVideoFrame.toImage()`` and then to array by :meth:`imageToArray`.
         Array processing is done by :meth:`processArray`, and the result is
         converted back to ``QVideoFrame`` by :meth:`arrayToVideoFrame`.
+
+        Processed QVideoFrame and processed array are emitted by
+        :attr:`videoFrameProcessed`.
 
         During the processing :meth:`ready` is set to False.
 
@@ -139,8 +140,7 @@ class VideoFrameWorker(QtCore.QObject):
         processedArray = self.processArray(array)
         processedFrame = self.arrayToVideoFrame(processedArray, frame)
 
-        self.arrayProcessed.emit(processedArray)
-        self.videoFrameProcessed.emit(processedFrame)
+        self.videoFrameProcessed.emit(processedFrame, processedArray)
         self._ready = True
 
     def imageToArray(self, image: QtGui.QImage) -> npt.NDArray[np.uint8]:
@@ -350,12 +350,15 @@ class ArrayToFrameConverter(QtCore.QObject):
 
        ArrayToFrameConverter structure
 
-    When array (and optionally, its original video frame) is passed to
-    :meth:`convertArray`, :class:`ArrayToFrameConverter` converts the array to
-    the video frame using :meth:`arrayToFrame`. Resulting video frame is emitted
-    to :attr:`frameConverted`, with original frame if provided.
+    Conversion is done by passing an array (and optionally, its original frame)
+    to :meth:`convertArray` slot and listening to :attr:`frameConverted` signal.
+    If an original frame is passed, it is used to set the properties of converted
+    frame.
 
-    Empty array is converted to invalid video frame.
+    The :attr:`frameConverted` signal emits two QVideoFrame objects; the first
+    one is the video frame converted from the array, and the second is the
+    original video frame. If original video frame was not passed to
+    :meth:`convertArray`, invalid frame is emitted instead.
 
     """
 
@@ -375,29 +378,31 @@ class ArrayToFrameConverter(QtCore.QObject):
         when *frame* is the original frame from the source and *array* is its
         image processing result.
 
-        Array is converted using :meth:`arrayToFrame`. Result frame and original
-        *frame* are emitted to :attr:`frameConverted`.
+        Valid array is converted using :meth:`arrayToFrame`. Result frame and
+        original *frame* are emitted to :attr:`frameConverted`.
+
+        If *frame* is None, is interpreted as an invalid frame with invalid
+        format. If *array* is empty, it is converted to invalid video frame, its
+        format following that of *frame*.
         """
-        if frame is not None:
-            if array.size != 0:
-                newFrame = self.arrayToFrame(array)
-            else:
-                newFrameFormat = QtMultimedia.QVideoFrameFormat(
-                    QtCore.QSize(-1, -1), frame.surfaceFormat().pixelFormat()
-                )
-                newFrame = QtMultimedia.QVideoFrame(newFrameFormat)
-            newFrame.map(frame.mapMode())
-            newFrame.setStartTime(frame.startTime())
-            newFrame.setEndTime(frame.endTime())
+        if frame is None:
+            invalidFormat = QtMultimedia.QVideoFrameFormat(
+                QtCore.QSize(-1, -1),
+                QtMultimedia.QVideoFrameFormat.PixelFormat.Format_Invalid,
+            )
+            frame = QtMultimedia.QVideoFrame(invalidFormat)
+
+        if array.size != 0:
+            newFrame = self.arrayToFrame(array)
         else:
-            if array.size != 0:
-                newFrame = self.arrayToFrame(array)
-            else:
-                newFrameFormat = QtMultimedia.QVideoFrameFormat(
-                    QtCore.QSize(-1, -1),
-                    QtMultimedia.QVideoFrameFormat.PixelFormat.Format_Invalid,
-                )
-                newFrame = QtMultimedia.QVideoFrame(newFrameFormat)
+            frameFormat = QtMultimedia.QVideoFrameFormat(
+                QtCore.QSize(-1, -1), frame.surfaceFormat().pixelFormat()
+            )
+            newFrame = QtMultimedia.QVideoFrame(frameFormat)
+
+        newFrame.map(frame.mapMode())
+        newFrame.setStartTime(frame.startTime())
+        newFrame.setEndTime(frame.endTime())
         self.frameConverted.emit(newFrame, frame)
 
     def arrayToFrame(self, array: npt.NDArray[np.uint8]) -> QtMultimedia.QVideoFrame:

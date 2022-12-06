@@ -126,8 +126,8 @@ class VideoFrameWorker(QtCore.QObject):
 
         During the processing :meth:`ready` is set to False.
 
-        Note
-        ====
+        Notes
+        =====
 
         This method must *not* be Qt Slot to be multithreaded.
         """
@@ -414,8 +414,8 @@ class ArrayWorker(QtCore.QObject):
 
         During the processing :meth:`ready` is set to False.
 
-        Note
-        ====
+        Notes
+        =====
 
         This method must *not* be Qt Slot to be multithreaded.
         """

@@ -5,5 +5,8 @@ This example shows how to run the camera with ``QVideoFrame``-based processing p
 
 .. image:: ./camera.png
 
+PySide6
+-------
+
 .. include:: ./PySide6/frame.camera.py
    :code: python

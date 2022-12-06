@@ -1,4 +1,4 @@
 numpydoc
 sphinx
-sphinx_code_tabs
+sphinx-tabs
 sphinx_rtd_theme

@@ -94,14 +94,14 @@ class VideoFrameWorker(QtCore.QObject):
     Worker to process ``QVideoFrame`` using :class:`numpy.ndarray` operation.
 
     To perform processing, pass the input frame to :meth:`runProcess` and listen
-    to :attr:`arrayProcessed` or :attr:`videoFrameProcessed` signals.
+    to :attr:`videoFrameProcessed` signal which emits two objects; processed
+    QVideoFrame and processed NDArray.
 
     :meth:`ready` is set to ``False`` when the processing is being run. This
     property can be utilized in multithreading.
     """
 
-    arrayProcessed = QtCore.Signal(np.ndarray)
-    videoFrameProcessed = QtCore.Signal(QtMultimedia.QVideoFrame)
+    videoFrameProcessed = QtCore.Signal(QtMultimedia.QVideoFrame, np.ndarray)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -116,13 +116,15 @@ class VideoFrameWorker(QtCore.QObject):
 
     def runProcess(self, frame: QtMultimedia.QVideoFrame):
         """
-        Process *frame* and emit the result to :attr:`arrayProcessed` and
-        :attr:`videoFrameProcessed`.
+        Process *frame* and emit the results to :attr:`videoFrameProcessed`.
 
         When a video frame is passed, it is first converted to ``QImage`` by
         ``QVideoFrame.toImage()`` and then to array by :meth:`imageToArray`.
         Array processing is done by :meth:`processArray`, and the result is
         converted back to ``QVideoFrame`` by :meth:`arrayToVideoFrame`.
+
+        Processed QVideoFrame and processed array are emitted by
+        :attr:`videoFrameProcessed`.
 
         During the processing :meth:`ready` is set to False.
 
@@ -138,8 +140,7 @@ class VideoFrameWorker(QtCore.QObject):
         processedArray = self.processArray(array)
         processedFrame = self.arrayToVideoFrame(processedArray, frame)
 
-        self.arrayProcessed.emit(processedArray)
-        self.videoFrameProcessed.emit(processedFrame)
+        self.videoFrameProcessed.emit(processedFrame, processedArray)
         self._ready = True
 
     def imageToArray(self, image: QtGui.QImage) -> npt.NDArray[np.uint8]:

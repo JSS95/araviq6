@@ -204,7 +204,7 @@ class VideoFrameProcessor(QtCore.QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._worker = None
-        self._queueToWorker = False
+        self._skipIfRunning = True
 
         self._processorThread = QtCore.QThread()
         self._processorThread.start()
@@ -235,37 +235,39 @@ class VideoFrameProcessor(QtCore.QObject):
             worker.videoFrameProcessed.connect(self.videoFrameProcessed)
             worker.moveToThread(self._processorThread)
 
-    def queueToWorker(self) -> bool:
+    def skipIfRunning(self) -> bool:
         """
-        If False, incoming frames to :meth:`processVideoFrame` are aborted if
-        :meth:`worker` is not ready.
+        If True, incoming frames to :meth:`processVideoFrame` are skipped if
+        :meth:`worker` is running.
 
-        If True, incoming frames are queued if worker is not ready. This may
-        consume a significant amount of memory and should be used with
-        discretion.
+        If False, every incoming frame is queued if worker is not ready. This may
+        consume a significant amount of memory and cause laggy displaying, thus
+        should be used with discretion.
 
-        See also :meth:`setQueueToWorker`.
+        See also :meth:`setSkipIfRunning`.
         """
-        return self._queueToWorker
+        return self._skipIfRunning
 
-    def setQueueToWorker(self, flag: bool):
-        """Set :meth:`queueToWorker` to *flag*."""
-        self._queueToWorker = flag
+    def setSkipIfRunning(self, flag: bool):
+        """Set :meth:`skipIfRunning` to *flag*."""
+        self._skipIfRunning = flag
 
     @QtCore.Slot(QtMultimedia.QVideoFrame)
     def processVideoFrame(self, frame: QtMultimedia.QVideoFrame):
         """
         Request :meth:`worker` to process *frame*.
+
         The result is emitted to :attr:`arrayProcessed` and
         :attr:`videoFrameProcessed`.
 
-        If worker is not ready but :meth:`queueToWorker` is True, *frame* is
-        put into the process queue.
+        If worker is running and :meth:`skipIfRunning` is True, *frame* is
+        skipped without being emitted. If :meth:`skipIfRunning` is False,
+        incoming frames are queued when worker is running.
 
         """
         worker = self.worker()
         if worker is not None:
-            if worker.ready() or self.queueToWorker():
+            if worker.ready() or not self.skipIfRunning():
                 self._processRequested.emit(frame)
         else:
             self.videoFrameProcessed.emit(frame)
@@ -451,7 +453,7 @@ class ArrayProcessor(QtCore.QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._worker = None
-        self._queueToWorker = False
+        self._skipIfRunning = True
 
         self._processorThread = QtCore.QThread()
         self._processorThread.start()
@@ -480,22 +482,22 @@ class ArrayProcessor(QtCore.QObject):
             worker.arrayProcessed.connect(self.arrayProcessed)
             worker.moveToThread(self._processorThread)
 
-    def queueToWorker(self) -> bool:
+    def skipIfRunning(self) -> bool:
         """
-        If False, incoming arrays to :meth:`processArray` are aborted if
+        If True, incoming arrays to :meth:`processArray` are skipped if
         :meth:`worker` is not ready.
 
-        If True, incoming arrays are queued if worker is not ready. This may
-        consume a significant amount of memory and should be used with
-        discretion.
+        If False, incoming arrays are queued if worker is not ready. This may
+        consume a significant amount of memory and cause laggy displaying, thus
+        should be used with discretion.
 
-        See also :meth:`setQueueToWorker`.
+        See also :meth:`setSkipIfRunning`.
         """
-        return self._queueToWorker
+        return self._skipIfRunning
 
-    def setQueueToWorker(self, flag: bool):
-        """Set :meth:`queueToWorker` to *flag*."""
-        self._queueToWorker = flag
+    def setSkipIfRunning(self, flag: bool):
+        """Set :meth:`skipIfRunning` to *flag*."""
+        self._skipIfRunning = flag
 
     @QtCore.Slot(np.ndarray)
     def processArray(self, array: npt.NDArray[np.uint8]):
@@ -503,13 +505,14 @@ class ArrayProcessor(QtCore.QObject):
         Request :meth:`worker` to process *array*.
         The result is emitted to :attr:`arrayProcessed`.
 
-        If worker is not ready but :meth:`queueToWorker` is True, *array* is
-        put into the process queue.
+        If worker is running and :meth:`skipIfRunning` is True, *array* is
+        skipped without being emitted. If :meth:`skipIfRunning` is False,
+        incoming arrays are queued when worker is running.
 
         """
         worker = self.worker()
         if worker is not None:
-            if worker.ready() or self.queueToWorker():
+            if worker.ready() or not self.skipIfRunning():
                 self._processRequested.emit(array)
         else:
             self.arrayProcessed.emit(array)

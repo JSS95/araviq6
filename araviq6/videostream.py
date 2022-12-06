@@ -352,31 +352,31 @@ class ArrayToFrameConverter(QtCore.QObject):
         when *frame* is the original frame from the source and *array* is its
         image processing result.
 
-        Array is converted using :meth:`arrayToFrame`. Result frame and original
-        *frame* are emitted to :attr:`frameConverted`. If *frame* is None,
-        invalid video frame is emitted with converted frame.
+        Valid array is converted using :meth:`arrayToFrame`. Result frame and 
+        original *frame* are emitted to :attr:`frameConverted`.
+
+        If *frame* is None, is interpreted as an invalid frame with invalid
+        format. If *array* is empty, it is converted to invalid video frame, its
+        format following that of *frame*.
         """
-        if frame is not None:
-            if array.size != 0:
-                newFrame = self.arrayToFrame(array)
-            else:
-                newFrameFormat = QtMultimedia.QVideoFrameFormat(
-                    QtCore.QSize(-1, -1), frame.surfaceFormat().pixelFormat()
-                )
-                newFrame = QtMultimedia.QVideoFrame(newFrameFormat)
-            newFrame.map(frame.mapMode())
-            newFrame.setStartTime(frame.startTime())
-            newFrame.setEndTime(frame.endTime())
+        if frame is None:
+            invalidFormat = QtMultimedia.QVideoFrameFormat(
+                QtCore.QSize(-1, -1),
+                QtMultimedia.QVideoFrameFormat.PixelFormat.Format_Invalid,
+            )
+            frame = QtMultimedia.QVideoFrame(invalidFormat)
+
+        if array.size != 0:
+            newFrame = self.arrayToFrame(array)
         else:
-            if array.size != 0:
-                newFrame = self.arrayToFrame(array)
-            else:
-                newFrameFormat = QtMultimedia.QVideoFrameFormat(
-                    QtCore.QSize(-1, -1),
-                    QtMultimedia.QVideoFrameFormat.PixelFormat.Format_Invalid,
-                )
-                newFrame = QtMultimedia.QVideoFrame(newFrameFormat)
-                frame = QtMultimedia.QVideoFrame(newFrameFormat)
+            frameFormat = QtMultimedia.QVideoFrameFormat(
+                QtCore.QSize(-1, -1), frame.surfaceFormat().pixelFormat()
+            )
+            newFrame = QtMultimedia.QVideoFrame(frameFormat)
+
+        newFrame.map(frame.mapMode())
+        newFrame.setStartTime(frame.startTime())
+        newFrame.setEndTime(frame.endTime())
         self.frameConverted.emit(newFrame, frame)
 
     def arrayToFrame(self, array: npt.NDArray[np.uint8]) -> QtMultimedia.QVideoFrame:

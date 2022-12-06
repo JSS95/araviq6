@@ -80,6 +80,12 @@ class NDArrayVideoPlayerWidget(QtWidgets.QWidget):
         layout.addWidget(self._mediaController)
         self.setLayout(layout)
 
+    def videoPlayer(self) -> QtMultimedia.QMediaPlayer:
+        return self._videoPlayer
+
+    def frameProcessor(self) -> VideoFrameProcessor:
+        return self._frameProcessor
+
     def setSource(self, url: QtCore.QUrl):
         self._videoPlayer.setSource(url)
 
@@ -147,6 +153,12 @@ class NDArrayCameraWidget(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self._videoWidget)
         self.setLayout(layout)
+
+    def captureSession(self) -> QtMultimedia.QMediaCaptureSession:
+        return self._captureSession
+
+    def frameProcessor(self) -> VideoFrameProcessor:
+        return self._frameProcessor
 
     @QtCore.Slot(QtMultimedia.QCamera)
     def setCamera(self, camera: QtMultimedia.QCamera):

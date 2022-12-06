@@ -241,8 +241,8 @@ class VideoFrameProcessor(QtCore.QObject):
         :meth:`worker` is running.
 
         If False, every incoming frame is queued if worker is not ready. This may
-        consume a significant amount of memory and should be used with
-        discretion.
+        consume a significant amount of memory and cause laggy displaying, thus
+        should be used with discretion.
 
         See also :meth:`setSkipIfRunning`.
         """
@@ -488,8 +488,8 @@ class ArrayProcessor(QtCore.QObject):
         :meth:`worker` is not ready.
 
         If False, incoming arrays are queued if worker is not ready. This may
-        consume a significant amount of memory and should be used with
-        discretion.
+        consume a significant amount of memory and cause laggy displaying, thus
+        should be used with discretion.
 
         See also :meth:`setSkipIfRunning`.
         """

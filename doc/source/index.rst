@@ -14,8 +14,8 @@ This is the central page for all documents.
 
    intro
    install
-   user-guide/index
    examples/index
+   user-guide/index
    API reference <reference/index>
 
 Indices and tables

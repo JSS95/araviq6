@@ -93,10 +93,11 @@ class VideoFrameWorker(QtCore.QObject):
     """
     Worker to process ``QVideoFrame`` using :class:`numpy.ndarray` operation.
 
-    To perform processing, pass the input frame to :meth:`runProcess` and listen
-    to :attr:`arrayProcessed` or :attr:`videoFrameProcessed` signals.
+    To perform processing, pass the input frame to :meth:`runProcess`. Process
+    result is emitted to two signals; :attr:`arrayProcessed` as NDArray and
+    :attr:`videoFrameProcessed` as QVideoFrame.
 
-    :meth:`ready` is set to ``False`` when the processing is being run. This
+    :meth:`ready` is set to ``False`` when the processing is running. This
     property can be utilized in multithreading.
     """
 
@@ -116,7 +117,7 @@ class VideoFrameWorker(QtCore.QObject):
 
     def runProcess(self, frame: QtMultimedia.QVideoFrame):
         """
-        Process *frame* and emit the result to :attr:`arrayProcessed` and
+        Process *frame* and emit the result to both :attr:`arrayProcessed` and
         :attr:`videoFrameProcessed`.
 
         When a video frame is passed, it is first converted to ``QImage`` by
@@ -162,6 +163,8 @@ class VideoFrameWorker(QtCore.QObject):
 
         By default this method does not perform any processing. Subclass can
         redefine this method.
+
+        See also :meth:`runProcess`.
         """
         return array
 
@@ -188,12 +191,21 @@ class VideoFrameWorker(QtCore.QObject):
 
 class VideoFrameProcessor(QtCore.QObject):
     """
-    Video pipeline component to process ``QVideoFrame``
+    Video pipeline component to process ``QVideoFrame``.
 
-    :class:`VideoFrameProcessor` runs :class:`VideoFrameWorker` in internal
-    thread to process the incoming video frame. Pass the input ``QVideoFrame``
-    to :meth:`processVideoFrame` slot and listen to :attr:`arrayProcessed` and
-    :attr:`videoFrameProcessed` signal.
+    .. figure:: ../_images/frame-processor.jpg
+       :align: center
+
+       QVideoFrame processing structure
+
+    :class:`VideoFrameProcessor` runs :class:`VideoFrameWorker` in an internal
+    thread to process the incoming video frame. To perform processing, pass the
+    input frame to :meth:`processVideoFrame` slot. The result is emitted to two
+    signals; :attr:`arrayProcessed` as NDArray and :attr:`videoFrameProcessed` as
+    QVideoFrame.
+
+    :meth:`skipIfRunning` defines whether the incoming video frames should be
+    skipped when the worker is running.
 
     """
 
@@ -249,7 +261,11 @@ class VideoFrameProcessor(QtCore.QObject):
         return self._skipIfRunning
 
     def setSkipIfRunning(self, flag: bool):
-        """Set :meth:`skipIfRunning` to *flag*."""
+        """
+        Set :meth:`skipIfRunning` to *flag*.
+
+        See also :meth:`skipIfRunning`.
+        """
         self._skipIfRunning = flag
 
     @QtCore.Slot(QtMultimedia.QVideoFrame)
@@ -257,7 +273,7 @@ class VideoFrameProcessor(QtCore.QObject):
         """
         Request :meth:`worker` to process *frame*.
 
-        The result is emitted to :attr:`arrayProcessed` and
+        The result is emitted to both :attr:`arrayProcessed` and
         :attr:`videoFrameProcessed`.
 
         If worker is running and :meth:`skipIfRunning` is True, *frame* is
@@ -386,7 +402,7 @@ class ArrayToFrameConverter(QtCore.QObject):
 
 class ArrayWorker(QtCore.QObject):
     """
-    Worker to process image in numpy array.
+    Worker to process numpy array.
 
     To perform processing, pass the input array to :meth:`runProcess` and
     listen to :attr:`arrayProcessed` signal.
@@ -441,9 +457,17 @@ class ArrayProcessor(QtCore.QObject):
     """
     Video pipeline component to process numpy array.
 
-    :class:`ArrayProcessor` runs :class:`ArrayWorker` in internal thread
-    to process the incoming array. Pass the input array to :meth:`processArray`
-    slot and listen to :attr:`arrayProcessed` signal.
+    .. figure:: ../_images/array-processor.jpg
+       :align: center
+
+       NDArray processing structure
+
+    :class:`ArrayProcessor` runs :class:`ArrayWorker` in internal an thread t
+    process the incoming array. To perform processing, pass the input array to
+    :meth:`processArray` slot and listen to :attr:`arrayProcessed` signal.
+
+    :meth:`skipIfRunning` defines whether the incoming arrays should be skipped
+    when the worker is running.
 
     """
 
@@ -496,13 +520,18 @@ class ArrayProcessor(QtCore.QObject):
         return self._skipIfRunning
 
     def setSkipIfRunning(self, flag: bool):
-        """Set :meth:`skipIfRunning` to *flag*."""
+        """
+        Set :meth:`skipIfRunning` to *flag*.
+
+        See also :meth:`skipIfRunning`.
+        """
         self._skipIfRunning = flag
 
     @QtCore.Slot(np.ndarray)
     def processArray(self, array: npt.NDArray[np.uint8]):
         """
         Request :meth:`worker` to process *array*.
+
         The result is emitted to :attr:`arrayProcessed`.
 
         If worker is running and :meth:`skipIfRunning` is True, *array* is

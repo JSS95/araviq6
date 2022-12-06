@@ -27,11 +27,11 @@ Pipeline classes
 
 .. autoclass:: VideoFrameProcessor
    :members:
-   :exclude-members: arrayProcessed, videoFrameProcessed
+   :exclude-members: videoFrameProcessed
 
 .. autoclass:: VideoFrameWorker
    :members:
-   :exclude-members: arrayProcessed, videoFrameProcessed
+   :exclude-members: videoFrameProcessed
 
 .. autoclass:: FrameToArrayConverter
    :members:
@@ -200,9 +200,9 @@ class VideoFrameProcessor(QtCore.QObject):
 
     :class:`VideoFrameProcessor` runs :class:`VideoFrameWorker` in an internal
     thread to process the incoming video frame. To perform processing, pass the
-    input frame to :meth:`processVideoFrame` slot. The result is emitted to two
-    signals; :attr:`arrayProcessed` as NDArray and :attr:`videoFrameProcessed` as
-    QVideoFrame.
+    input frame to :meth:`processVideoFrame` slot and listen to
+    :attr:`videoFrameProcessed` signal which emits two objects; processed
+    QVideoFrame and processed NDArray.
 
     :meth:`skipIfRunning` defines whether the incoming video frames should be
     skipped when the worker is running.
@@ -210,8 +210,7 @@ class VideoFrameProcessor(QtCore.QObject):
     """
 
     _processRequested = QtCore.Signal(QtMultimedia.QVideoFrame)
-    arrayProcessed = QtCore.Signal(np.ndarray)
-    videoFrameProcessed = QtCore.Signal(QtMultimedia.QVideoFrame)
+    videoFrameProcessed = QtCore.Signal(QtMultimedia.QVideoFrame, np.ndarray)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -238,12 +237,12 @@ class VideoFrameProcessor(QtCore.QObject):
         oldWorker = self.worker()
         if oldWorker is not None:
             self._processRequested.disconnect(oldWorker.runProcess)
-            oldWorker.arrayProcessed.disconnect(self.arrayProcessed)
+            oldWorker.videoFrameProcessed.disconnect(self.videoFrameProcessed)
             oldWorker.videoFrameProcessed.disconnect(self.videoFrameProcessed)
         self._worker = worker
         if worker is not None:
             self._processRequested.connect(worker.runProcess)
-            worker.arrayProcessed.connect(self.arrayProcessed)
+            worker.videoFrameProcessed.connect(self.videoFrameProcessed)
             worker.videoFrameProcessed.connect(self.videoFrameProcessed)
             worker.moveToThread(self._processorThread)
 
@@ -273,7 +272,7 @@ class VideoFrameProcessor(QtCore.QObject):
         """
         Request :meth:`worker` to process *frame*.
 
-        The result is emitted to both :attr:`arrayProcessed` and
+        Processed QVideoFrame and processed array are emitted by
         :attr:`videoFrameProcessed`.
 
         If worker is running and :meth:`skipIfRunning` is True, *frame* is

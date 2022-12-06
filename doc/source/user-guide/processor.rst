@@ -53,7 +53,7 @@ As we set the worker to :class:`.NDArrayVideoPlayerWidget`, the widget automatic
         app.exec()
         app.quit()
 
-.. figure:: ./processor.blur-player.jpg
+.. figure:: ./processor.blur-player.JPG
    :align: center
 
    Blurring processor

@@ -298,6 +298,11 @@ class FrameToArrayConverter(QtCore.QObject):
     """
     Video pipeline component which converts ``QVideoFrame`` to numpy array.
 
+    .. figure:: ../_images/frame-array-converter.jpg
+       :align: center
+
+       FrameToArrayConverter structure
+
     When video frame is passed to :meth:`convertVideoFrame`,
     :class:`FrameToArrayConverter` first converts it to ``QImage`` and then
     to numpy array using :meth:`imageToArray`. Resulting array is emitted to
@@ -340,10 +345,15 @@ class ArrayToFrameConverter(QtCore.QObject):
     """
     Video pipeline component which converts numpy array to ``QVideoFrame``.
 
+    .. figure:: ../_images/array-frame-converter.jpg
+       :align: center
+
+       ArrayToFrameConverter structure
+
     When array (and optionally, its original video frame) is passed to
     :meth:`convertArray`, :class:`ArrayToFrameConverter` converts the array to
     the video frame using :meth:`arrayToFrame`. Resulting video frame is emitted
-    to :attr:`frameConverted` with original frame.
+    to :attr:`frameConverted`, with original frame if provided.
 
     Empty array is converted to invalid video frame.
 

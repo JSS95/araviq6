@@ -5,8 +5,9 @@ This example shows how to run the camera with ``ndarray``-based processing pipel
 
 .. image:: ./camera.png
 
-PySide6
--------
+.. tabs::
 
-.. include:: ./PySide6/array.camera.py
-   :code: python
+   .. tab:: PySide6
+
+      .. include:: ./PySide6/array.camera.py
+         :code: python

@@ -5,8 +5,9 @@ This example shows how to run the video player with :class:`NDArrayVideoPlayer` 
 
 .. image:: ./videoplayer.png
 
-PySide6
--------
+.. tabs::
 
-.. include:: ./PySide6/array.player.py
-   :code: python
+   .. tab:: PySide6
+
+      .. include:: ./PySide6/array.player.py
+         :code: python

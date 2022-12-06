@@ -5,8 +5,9 @@ This example shows how to run the video player with ``QVideoFrame``-based proces
 
 .. image:: ./videoplayer.png
 
-PySide6
--------
+.. tabs::
 
-.. include:: ./PySide6/frame.player.py
-   :code: python
+   .. tab:: PySide6
+
+      .. include:: ./PySide6/frame.player.py
+         :code: python

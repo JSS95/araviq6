@@ -9,9 +9,15 @@ Media controller
 from araviq6.qt_compat import QtCore, QtGui, QtMultimedia, QtWidgets
 from typing import Optional
 
+try:
+    from typing import Protocol
+except ImportError:
+    from typing_extensions import Protocol  # type: ignore[assignment]
+
 
 __all__ = [
     "ClickableSlider",
+    "PlayerProtocol",
     "MediaController",
 ]
 
@@ -53,6 +59,10 @@ class ClickableSlider(QtWidgets.QSlider):
             sliderMax - sliderMin,
             opt.upsideDown,  # type: ignore[attr-defined]
         )
+
+
+class PlayerProtocol(Protocol):
+    ...
 
 
 class MediaController(QtWidgets.QWidget):

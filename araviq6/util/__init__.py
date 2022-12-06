@@ -13,12 +13,13 @@ video pipeline components.
 
 """
 
-from .controller import ClickableSlider, MediaController
+from .controller import ClickableSlider, PlayerProtocol, MediaController
 from .testing import get_samples_path
 
 
 __all__ = [
     "ClickableSlider",
+    "PlayerProtocol",
     "MediaController",
     "get_samples_path",
 ]

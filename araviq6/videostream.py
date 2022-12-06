@@ -352,7 +352,7 @@ class ArrayToFrameConverter(QtCore.QObject):
         when *frame* is the original frame from the source and *array* is its
         image processing result.
 
-        Valid array is converted using :meth:`arrayToFrame`. Result frame and 
+        Valid array is converted using :meth:`arrayToFrame`. Result frame and
         original *frame* are emitted to :attr:`frameConverted`.
 
         If *frame* is None, is interpreted as an invalid frame with invalid

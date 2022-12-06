@@ -17,6 +17,7 @@ except ImportError:
 
 __all__ = [
     "ClickableSlider",
+    "SignalProtocol",
     "PlayerProtocol",
     "MediaController",
 ]
@@ -61,8 +62,38 @@ class ClickableSlider(QtWidgets.QSlider):
         )
 
 
+class SignalProtocol(Protocol):
+    def connect(
+        self,
+        receiver,
+        type: QtCore.Qt.ConnectionType = QtCore.Qt.ConnectionType.AutoConnection,
+    ):
+        ...
+
+    def disconnect(self, receiver):
+        ...
+
+
 class PlayerProtocol(Protocol):
-    ...
+
+    durationChanged: SignalProtocol
+    positionChanged: SignalProtocol
+    playbackStateChanged: SignalProtocol
+
+    def playbackState(self) -> QtMultimedia.QMediaPlayer.PlaybackState:
+        ...
+
+    def play(self):
+        ...
+
+    def pause(self):
+        ...
+
+    def stop(self):
+        ...
+
+    def setPosition(self, position: int):
+        ...
 
 
 class MediaController(QtWidgets.QWidget):
@@ -102,7 +133,7 @@ class MediaController(QtWidgets.QWidget):
         layout.addWidget(self._slider)
         self.setLayout(layout)
 
-    def player(self) -> Optional[QtMultimedia.QMediaPlayer]:
+    def player(self) -> Optional[PlayerProtocol]:
         """Media player which is controlled by *self*."""
         return self._player
 
@@ -154,7 +185,7 @@ class MediaController(QtWidgets.QWidget):
             player.play()
             self._pausedBySliderPress = False
 
-    def setPlayer(self, player: Optional[QtMultimedia.QMediaPlayer]):
+    def setPlayer(self, player: Optional[PlayerProtocol]):
         """Set :meth:`player` and connect the signals."""
         old_player = self.player()
         if old_player is not None:

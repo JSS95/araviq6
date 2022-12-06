@@ -36,8 +36,7 @@ class NDArrayVideoPlayerWidget(QtWidgets.QWidget):
 
     .. tabs::
 
-        .. code-tab:: python
-            :caption: PySide6
+        .. code-tab:: python PySide6
 
             from PySide6.QtCore import QUrl
             from PySide6.QtWidgets import QApplication
@@ -108,8 +107,7 @@ class NDArrayCameraWidget(QtWidgets.QWidget):
 
     .. tabs::
 
-        .. code-tab:: python
-            :caption: PySide6
+        .. code-tab:: python PySide6
 
             from PySide6.QtWidgets import QApplication
             from PySide6.QtMultimedia import QCamera

@@ -111,7 +111,10 @@ class MediaController(QtWidgets.QWidget):
         """Play or pause :meth:`player`."""
         player = self.player()
         if player is not None:
-            if player.playbackState() == player.PlaybackState.PlayingState:
+            if (
+                player.playbackState()
+                == QtMultimedia.QMediaPlayer.PlaybackState.PlayingState
+            ):
                 player.pause()
             else:
                 player.play()
@@ -128,7 +131,10 @@ class MediaController(QtWidgets.QWidget):
         """If the media was playing, pause and move to the pressed position."""
         player = self.player()
         if player is not None:
-            if player.playbackState() == player.PlaybackState.PlayingState:
+            if (
+                player.playbackState()
+                == QtMultimedia.QMediaPlayer.PlaybackState.PlayingState
+            ):
                 self._pausedBySliderPress = True
                 player.pause()
             player.setPosition(self._slider.value())

@@ -98,6 +98,7 @@ def test_FrameToArrayConverter(qtbot):
         player.play()
 
     sourceFrame = playerSink.videoFrame()
+    assert sourceFrame.isValid()
     with qtbot.waitSignal(
         converter.arrayConverted,
         check_params_cb=lambda array, prop: array.size != 0

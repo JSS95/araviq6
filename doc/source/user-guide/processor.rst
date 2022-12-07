@@ -126,17 +126,17 @@ Run the following code and see how the widget behaves.
         app.exec()
         app.quit()
 
-Frame rate is still low, but the video now looks like a slow-motion because every frame is displayed one-by-one.
-Also, the controller is now too fast for the video and your app may have crashed if your machine has low memory.
+Frame rate is still low, but the video now looks like a slow-motion.
+Also the controller is now faster than the displayed video and your app may have crashed if your machine has low memory capacity.
 
-This is because the frames from the player are queued in the worker thread.
-Controller shows current position of the player, where the display shows older frames that were just processed.
-Furthermore, queued frames can take extremely large memory which can be a serious problem.
+This is because the rate of frame production by the player is higher than the rate of frame consumption by the worker.
+Controller shows current position of the player, whereas the display shows older frame that was just processed by the worker.
+Furthermore, queued frames can take extremely large amount of memory which can be a serious problem.
 
-There are two ways to avoid this issue.
+There are two ways to resolve this issue.
 
 1. Reduce the frame rate of the frame source.
 2. Define a new player which buffers procesed frames.
 
 For camera, the first one is the only option.
-The second option is the most fundamental solution, but it exceeds the scope of AraViQ6 so we do not cover it here.
+The second option is the fundamental solution, but it exceeds the scope of AraViQ6 so we do not cover it here.

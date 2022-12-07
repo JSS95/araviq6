@@ -15,6 +15,7 @@ from .array2qvideoframe import (
 from .videostream import (
     VideoFrameWorker,
     VideoFrameProcessor,
+    QVideoFrameProperty,
     FrameToArrayConverter,
     ArrayToFrameConverter,
     ArrayWorker,
@@ -38,6 +39,7 @@ __all__ = [
     "array2qvideoframe",
     "VideoFrameWorker",
     "VideoFrameProcessor",
+    "QVideoFrameProperty",
     "FrameToArrayConverter",
     "ArrayToFrameConverter",
     "ArrayWorker",

@@ -60,7 +60,7 @@ Here is the code that constructs and runs the widget with sample video.
         app.exec()
         app.quit()
 
-.. figure:: ./processor.blur-player.JPG
+.. figure:: ./blur-player-frame.jpg
    :align: center
 
    Blurring processor

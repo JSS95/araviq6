@@ -60,10 +60,10 @@ Here is the code that constructs and runs the widget with sample video.
         app.exec()
         app.quit()
 
-.. figure:: ./blur-player-frame.jpg
+.. figure:: ./blurplayer.frame.jpg
    :align: center
 
-   Blurring processor
+   Blurring player based on QVideoFrame
 
 :class:`BlurWorker` is set to pre-built :class:`.VideoFrameProcesor` of :class:`.PlayerProcessWidget` and run in an internal thread.
 QVideoFrame from the player is converted to NDArray, processed by :meth:`processArray`, and converted back to QVideoFrame to be set to the video widget.

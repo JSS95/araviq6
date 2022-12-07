@@ -52,7 +52,7 @@ Here is the complete code:
        class BlurWorker(ArrayWorker):
            def processArray(self, array):
                if array.size != 0:
-                   return cv2.GaussianBlur(array, (0, 0), 5)
+                   return cv2.GaussianBlur(array, (0, 0), 9)
                return array
 
        class BlurWidget(QWidget):
@@ -85,3 +85,8 @@ Here is the complete code:
        w.show()
        app.exec()
        app.quit()
+
+.. figure:: ./blurplayer.array.jpg
+   :align: center
+
+   Blurring player based on NDArray

@@ -10,3 +10,4 @@ This page explains how to use AraViQ6 and its design.
    :maxdepth: 2
 
    processor
+   array-pipeline

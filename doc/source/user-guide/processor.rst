@@ -1,3 +1,5 @@
+.. _guide-processor:
+
 =================================
 How to implement video processing
 =================================
@@ -21,6 +23,9 @@ The results are provided in both QVideoFrame and NDArray, allowing the users to 
 Defining and setting the worker is very easy.
 Here, we will construct a video player widget with blurring process using :class:`.PlayerProcessWidget`.
 This class provides internal media player, video widget and controller - all you have to do is define and set the worker.
+
+This document focuses on QVideoFrame-based pipeline.
+For NDArray-based pipeline, see :ref:`guide-arraypipeline` page.
 
 Building the worker
 -------------------

@@ -24,7 +24,7 @@ from .videostream import (
 )
 from .labels import ScalableQLabel, NDArrayLabel
 from .videowidgets import (
-    NDArrayVideoPlayerWidget,
+    PlayerProcessWidget,
     CameraProcessWidget,
 )
 from .util import (
@@ -46,7 +46,7 @@ __all__ = [
     "NDArrayMediaCaptureSession",
     "ScalableQLabel",
     "NDArrayLabel",
-    "NDArrayVideoPlayerWidget",
+    "PlayerProcessWidget",
     "CameraProcessWidget",
     "ClickableSlider",
     "MediaController",

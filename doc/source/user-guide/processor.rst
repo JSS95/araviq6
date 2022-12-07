@@ -19,14 +19,14 @@ In QVideoFrame pipeline, for example, processing is done by :class:`.VideoFrameW
 The results are provided in both QVideoFrame and NDArray, allowing the users to choose whatever they need.
 
 Defining and setting the worker is very easy.
-Here, we will construct a video player widget with blurring process using :class:`.NDArrayVideoPlayerWidget`.
+Here, we will construct a video player widget with blurring process using :class:`.PlayerProcessWidget`.
 This class provides internal media player, video widget and controller - all you have to do is define and set the worker.
 
 Building the worker
 -------------------
 
 We subclass :class:`.VideoFrameWorker` to define :class:`BlurWorker` with OpenCV-Python's :func:`GaussianBlur`.
-As we set the worker to :class:`.NDArrayVideoPlayerWidget`, the widget automatically connects the pipeline from the player to the display via the processor.
+As we set the worker to :class:`.PlayerProcessWidget`, the widget automatically connects the pipeline from the player to the display via the processor.
 
 .. tabs::
 
@@ -36,7 +36,7 @@ As we set the worker to :class:`.NDArrayVideoPlayerWidget`, the widget automatic
         from PySide6.QtCore import QUrl
         from PySide6.QtWidgets import QApplication
         import sys
-        from araviq6 import NDArrayVideoPlayerWidget, VideoFrameWorker
+        from araviq6 import PlayerProcessWidget, VideoFrameWorker
         from araviq6.util import get_samples_path
 
         class BlurWorker(VideoFrameWorker):
@@ -46,7 +46,7 @@ As we set the worker to :class:`.NDArrayVideoPlayerWidget`, the widget automatic
                 return array
 
         app = QApplication(sys.argv)
-        w = NDArrayVideoPlayerWidget()
+        w = PlayerProcessWidget()
         w.setWorker(BlurWorker())
         w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
         w.show()
@@ -58,7 +58,7 @@ As we set the worker to :class:`.NDArrayVideoPlayerWidget`, the widget automatic
 
    Blurring processor
 
-:class:`BlurWorker` is set to pre-built :class:`.VideoFrameProcesor` of :class:`.NDArrayVideoPlayerWidget` and run in internal thread.
+:class:`BlurWorker` is set to pre-built :class:`.VideoFrameProcesor` of :class:`.PlayerProcessWidget` and run in internal thread.
 QVideoFrame from the player is converted to NDArray, processed by :meth:`processArray`, and converted back to QVideoFrame to be set to the video widget.
 
 Controlling frame skip
@@ -78,7 +78,7 @@ The resulting video has lower frame rate, but the controller position agrees wit
         from PySide6.QtCore import QUrl
         from PySide6.QtWidgets import QApplication
         import sys
-        from araviq6 import NDArrayVideoPlayerWidget, VideoFrameWorker
+        from araviq6 import PlayerProcessWidget, VideoFrameWorker
         from araviq6.util import get_samples_path
 
         class BlurWorker(VideoFrameWorker):
@@ -88,7 +88,7 @@ The resulting video has lower frame rate, but the controller position agrees wit
                 return array
 
         app = QApplication(sys.argv)
-        w = NDArrayVideoPlayerWidget()
+        w = PlayerProcessWidget()
         w.setWorker(BlurWorker())
         w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
         w.show()
@@ -108,7 +108,7 @@ Run the following code and see how the widget behaves.
         from PySide6.QtCore import QUrl
         from PySide6.QtWidgets import QApplication
         import sys
-        from araviq6 import NDArrayVideoPlayerWidget, VideoFrameWorker
+        from araviq6 import PlayerProcessWidget, VideoFrameWorker
         from araviq6.util import get_samples_path
 
         class BlurWorker(VideoFrameWorker):
@@ -118,7 +118,7 @@ Run the following code and see how the widget behaves.
                 return array
 
         app = QApplication(sys.argv)
-        w = NDArrayVideoPlayerWidget()
+        w = PlayerProcessWidget()
         w.frameProcessor().setSkipIfRunning(False)
         w.setWorker(BlurWorker())
         w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))

@@ -4,7 +4,7 @@ How to implement video processing
 
 .. currentmodule:: araviq6
 
-This guide explains how to define a video processing with AraViQ6 and how the processor works.
+This guide explains how to implement video processing using AraViQ6 and how the processor works.
 
 .. figure:: ../_images/frame-processor.jpg
    :align: center
@@ -25,8 +25,10 @@ This class provides internal media player, video widget and controller - all you
 Building the worker
 -------------------
 
-We subclass :class:`.VideoFrameWorker` to define :class:`BlurWorker` with OpenCV-Python's :func:`GaussianBlur`.
-As we set the worker to :class:`.PlayerProcessWidget`, the widget automatically connects the pipeline from the player to the display via the processor.
+We subclass :class:`.VideoFrameWorker` to define :class:`BlurWorker` with OpenCV-Python's :func:`GaussianBlur` function to blur the video.
+As we set the worker to :class:`.PlayerProcessWidget`, the widget automatically connects a pipeline from the player to the processor, then to the widget.
+
+Here is the code that constructs and runs the widget with sample video.
 
 .. tabs::
 
@@ -58,17 +60,17 @@ As we set the worker to :class:`.PlayerProcessWidget`, the widget automatically 
 
    Blurring processor
 
-:class:`BlurWorker` is set to pre-built :class:`.VideoFrameProcesor` of :class:`.PlayerProcessWidget` and run in internal thread.
+:class:`BlurWorker` is set to pre-built :class:`.VideoFrameProcesor` of :class:`.PlayerProcessWidget` and run in an internal thread.
 QVideoFrame from the player is converted to NDArray, processed by :meth:`processArray`, and converted back to QVideoFrame to be set to the video widget.
 
 Controlling frame skip
 ----------------------
 
-QMediaPlayer emits the frames in constant rate, and video processing can be considerably slower than that.
+QMediaPlayer emits the frames in a constant rate, and video processing can be considerably slower than that.
 To avoid having too many frames queued, :class:`.VideoFrameProcesor` ignores incoming frames when the worker is running.
 
 The following code performs Gaussian blurring with much higher sigma value, causing each frame to take longer to be processed.
-The resulting video has lower frame rate, but the controller position agrees with the displayed frame because frames are skipped.
+The resulting video has lower frame rate, but the controller position agrees with the displayed frame because excessive frames are skipped.
 
 .. tabs::
 
@@ -95,7 +97,7 @@ The resulting video has lower frame rate, but the controller position agrees wit
         app.exec()
         app.quit()
 
-Now this can be desirable when we are just displaying the video, but we need different approach when every frame must be grabbed (e.g., when saving the video).
+This design can be fine when we are just displaying the video, but we need different approach when every frame must be grabbed (e.g., when saving the video).
 
 Setting :meth:`.VideoFrameProcesor.skipIfRunning` to False forces every frame from the player to be queued to the worker.
 Run the following code and see how the widget behaves.
@@ -139,4 +141,4 @@ There are two ways to resolve this issue.
 2. Define a new player which buffers procesed frames.
 
 For camera, the first one is the only option.
-The second option is the fundamental solution, but it exceeds the scope of AraViQ6 so we do not cover it here.
+The second option is the fundamental solution, but at this point it exceeds the scope of AraViQ6 so we do not cover it here.

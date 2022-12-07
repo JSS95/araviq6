@@ -5,7 +5,7 @@ Video widgets
 :mod:`araviq6.videowidgets` provides convenience widgets with pre-built video
 pipelines.
 
-.. autoclass:: NDArrayVideoPlayerWidget
+.. autoclass:: PlayerProcessWidget
    :members:
 
 .. autoclass:: NDArrayCameraWidget
@@ -19,12 +19,12 @@ from araviq6.qt_compat import QtCore, QtWidgets, QtMultimedia, QtMultimediaWidge
 
 
 __all__ = [
-    "NDArrayVideoPlayerWidget",
+    "PlayerProcessWidget",
     "NDArrayCameraWidget",
 ]
 
 
-class NDArrayVideoPlayerWidget(QtWidgets.QWidget):
+class PlayerProcessWidget(QtWidgets.QWidget):
     """
     Widget to play video file with array processing.
 
@@ -41,14 +41,14 @@ class NDArrayVideoPlayerWidget(QtWidgets.QWidget):
             from PySide6.QtCore import QUrl
             from PySide6.QtWidgets import QApplication
             import sys
-            from araviq6 import NDArrayVideoPlayerWidget, VideoFrameWorker
+            from araviq6 import PlayerProcessWidget, VideoFrameWorker
             from araviq6.util import get_samples_path
             class FlipWorker(VideoFrameWorker):
                 def processArray(self, array):
                     return array[::-1]
             def runGUI():
                 app = QApplication(sys.argv)
-                w = NDArrayVideoPlayerWidget()
+                w = PlayerProcessWidget()
                 w.setWorker(FlipWorker())
                 w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
                 w.show()

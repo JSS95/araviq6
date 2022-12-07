@@ -74,7 +74,7 @@ The following classes help setting array pipeline with the video source and the 
 - `NDArrayLabel`
 
 The following classes are plug-and-play widgets where user can process the video with minimal boilerplate.
-- `NDArrayVideoPlayerWidget`
+- `PlayerProcessWidget`
 - `NDArrayCameraWidget`
 
 # Examples

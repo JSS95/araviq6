@@ -8,7 +8,7 @@ pipelines.
 .. autoclass:: NDArrayVideoPlayerWidget
    :members:
 
-.. autoclass:: NDArrayCameraWidget
+.. autoclass:: CameraProcessWidget
    :members:
 
 """
@@ -20,7 +20,7 @@ from araviq6.qt_compat import QtCore, QtWidgets, QtMultimedia, QtMultimediaWidge
 
 __all__ = [
     "NDArrayVideoPlayerWidget",
-    "NDArrayCameraWidget",
+    "CameraProcessWidget",
 ]
 
 
@@ -101,7 +101,7 @@ class NDArrayVideoPlayerWidget(QtWidgets.QWidget):
         super().closeEvent(event)
 
 
-class NDArrayCameraWidget(QtWidgets.QWidget):
+class CameraProcessWidget(QtWidgets.QWidget):
     """
     Widget to stream camera with array processing.
 
@@ -118,13 +118,13 @@ class NDArrayCameraWidget(QtWidgets.QWidget):
             from PySide6.QtWidgets import QApplication
             from PySide6.QtMultimedia import QCamera
             import sys
-            from araviq6 import VideoFrameWorker, NDArrayCameraWidget
+            from araviq6 import VideoFrameWorker, CameraProcessWidget
             class FlipWorker(VideoFrameWorker):
                 def processArray(self, array):
                     return array[::-1]
             def runGUI():
                 app = QApplication(sys.argv)
-                widget = NDArrayCameraWidget()
+                widget = CameraProcessWidget()
                 widget.setWorker(FlipWorker())
                 camera = QCamera()
                 widget.setCamera(camera)

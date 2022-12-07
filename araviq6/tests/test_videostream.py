@@ -11,9 +11,8 @@ from araviq6 import (
     QVideoFrameProperty,
     FrameToArrayConverter,
     ArrayToFrameConverter,
-    get_samples_path,
 )
-from araviq6.qt_compat import QtCore, QtMultimedia
+from araviq6.qt_compat import QtMultimedia
 
 
 def test_array2qvideoframe(qtbot):
@@ -75,24 +74,7 @@ def test_array2qvideoframe(qtbot):
 
 
 def test_FrameToArrayConverter(qtbot):
-    class ValidFrameSink(QtMultimedia.QVideoSink):
-        def setVideoFrame(self, frame):
-            if frame.isValid():
-                super().setVideoFrame(frame)
-
-    player = QtMultimedia.QMediaPlayer()
-    playerSink = QtMultimedia.QVideoSink()
-    validSink = ValidFrameSink()
-
-    player.setVideoSink(playerSink)
-    playerSink.videoFrameChanged.connect(validSink.setVideoFrame)
-    validSink.videoFrameChanged.connect(player.stop)
-
-    with qtbot.waitSignal(validSink.videoFrameChanged, timeout=10000):
-        player.setSource(QtCore.QUrl.fromLocalFile(get_samples_path("hello.mp4")))
-        player.play()
-
-    frame = validSink.videoFrame()
+    frame = array2qvideoframe(np.array([[[1, 2, 3]]], dtype=np.uint8))
     converter = FrameToArrayConverter()
 
     with qtbot.waitSignal(

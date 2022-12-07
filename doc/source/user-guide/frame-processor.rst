@@ -37,28 +37,28 @@ Here is the code that constructs and runs the widget with sample video.
 
 .. tabs::
 
-    .. code-tab:: python PySide6
+   .. code-tab:: python PySide6
 
-        import cv2  # type: ignore
-        from PySide6.QtCore import QUrl
-        from PySide6.QtWidgets import QApplication
-        import sys
-        from araviq6 import PlayerProcessWidget, VideoFrameWorker
-        from araviq6.util import get_samples_path
+       import cv2  # type: ignore
+       from PySide6.QtCore import QUrl
+       from PySide6.QtWidgets import QApplication
+       import sys
+       from araviq6 import PlayerProcessWidget, VideoFrameWorker
+       from araviq6.util import get_samples_path
 
-        class BlurWorker(VideoFrameWorker):
-            def processArray(self, array):
-                if array.size != 0:  # video player emits empty frame at the end of the video
-                    return cv2.GaussianBlur(array, (0, 0), 9)
-                return array
+       class BlurWorker(VideoFrameWorker):
+           def processArray(self, array):
+               if array.size != 0:  # video player emits empty frame at the end of the video
+                   return cv2.GaussianBlur(array, (0, 0), 9)
+               return array
 
-        app = QApplication(sys.argv)
-        w = PlayerProcessWidget()
-        w.setWorker(BlurWorker())
-        w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
-        w.show()
-        app.exec()
-        app.quit()
+       app = QApplication(sys.argv)
+       w = PlayerProcessWidget()
+       w.setWorker(BlurWorker())
+       w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
+       w.show()
+       app.exec()
+       app.quit()
 
 .. figure:: ./blurplayer.frame.jpg
    :align: center

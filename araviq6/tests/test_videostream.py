@@ -8,6 +8,7 @@ import numpy as np
 import qimage2ndarray  # type: ignore[import]
 from araviq6 import (
     array2qvideoframe,
+    QVideoFrameProperty,
     FrameToArrayConverter,
     ArrayToFrameConverter,
     get_samples_path,
@@ -74,27 +75,33 @@ def test_array2qvideoframe(qtbot):
 
 
 def test_FrameToArrayConverter(qtbot):
-    class ArraySink(QtCore.QObject):
-        arrayChanged = QtCore.Signal()
-
-        def setArray(self, array):
-            if array.size != 0:
-                self.array = array
-                self.arrayChanged.emit()
+    class ValidFrameSink(QtMultimedia.QVideoSink):
+        def setVideoFrame(self, frame):
+            if frame.isValid():
+                super().setVideoFrame(frame)
 
     player = QtMultimedia.QMediaPlayer()
     playerSink = QtMultimedia.QVideoSink()
-    converter = FrameToArrayConverter()
-    arraySink = ArraySink()
+    validSink = ValidFrameSink()
 
     player.setVideoSink(playerSink)
-    playerSink.videoFrameChanged.connect(converter.convertVideoFrame)
-    converter.arrayConverted.connect(arraySink.setArray)
-    arraySink.arrayChanged.connect(player.stop)
+    playerSink.videoFrameChanged.connect(validSink.setVideoFrame)
+    validSink.videoFrameChanged.connect(player.stop)
 
-    with qtbot.waitSignal(arraySink.arrayChanged, timeout=10000):
+    with qtbot.waitSignal(validSink.videoFrameChanged, timeout=10000):
         player.setSource(QtCore.QUrl.fromLocalFile(get_samples_path("hello.mp4")))
         player.play()
+
+    frame = validSink.videoFrame()
+    converter = FrameToArrayConverter()
+
+    with qtbot.waitSignal(
+        converter.arrayConverted,
+        check_params_cb=lambda array, prop: array.size != 0
+        and prop.startTime == frame.startTime()
+        and prop.endTime == frame.endTime(),
+    ):
+        converter.convertVideoFrame(frame)
 
     with qtbot.waitSignal(
         converter.arrayConverted, check_params_cb=lambda array, _: array.size == 0
@@ -103,41 +110,27 @@ def test_FrameToArrayConverter(qtbot):
 
 
 def test_ArrayToFrameConverter(qtbot):
-    class FrameSink(QtCore.QObject):
-        frameChanged = QtCore.Signal()
+    converter = ArrayToFrameConverter()
 
-        def setFrame(self, frame):
-            if frame.isValid():
-                self.frame = frame
-                self.frameChanged.emit()
-
-    player = QtMultimedia.QMediaPlayer()
-    playerSink = QtMultimedia.QVideoSink()
-    F2AConverter = FrameToArrayConverter()
-    A2FConverter = ArrayToFrameConverter()
-    frameSink = FrameSink()
-
-    player.setVideoSink(playerSink)
-    playerSink.videoFrameChanged.connect(F2AConverter.convertVideoFrame)
-    F2AConverter.arrayConverted.connect(A2FConverter.convertArray)
-    A2FConverter.frameConverted.connect(frameSink.setFrame)
-    frameSink.frameChanged.connect(player.stop)
-
-    with qtbot.waitSignal(frameSink.frameChanged, timeout=10000):
-        player.setSource(QtCore.QUrl.fromLocalFile(get_samples_path("hello.mp4")))
-        player.play()
-
-    sourceFrame = playerSink.videoFrame()
+    prop = QVideoFrameProperty(startTime=10, endTime=20)
     with qtbot.waitSignal(
-        A2FConverter.frameConverted,
-        check_params_cb=lambda frame, _: not frame.isValid()
-        and frame.surfaceFormat().pixelFormat()
-        == sourceFrame.surfaceFormat().pixelFormat(),
+        converter.frameConverted,
+        check_params_cb=lambda frame: frame.isValid()
+        and frame.startTime() == prop.startTime
+        and frame.endTime() == prop.endTime,
     ):
-        A2FConverter.convertArray(np.empty((0, 0, 0), dtype=np.uint8), sourceFrame)
+        converter.convertArray(np.array([[[1, 2, 3]]], dtype=np.uint8), prop)
+
+    nullProp = QVideoFrameProperty()
+    with qtbot.waitSignal(
+        converter.frameConverted,
+        check_params_cb=lambda frame: frame.isValid()
+        and frame.startTime() == nullProp.startTime
+        and frame.endTime() == nullProp.endTime,
+    ):
+        converter.convertArray(np.array([[[1, 2, 3]]], dtype=np.uint8))
 
     with qtbot.waitSignal(
-        A2FConverter.frameConverted,
-        check_params_cb=lambda frame, _: not frame.isValid(),
+        converter.frameConverted, check_params_cb=lambda frame: not frame.isValid()
     ):
-        A2FConverter.convertArray(np.empty((0, 0, 0), dtype=np.uint8))
+        converter.convertArray(np.empty((0, 0, 0), dtype=np.uint8))

@@ -4,7 +4,7 @@
 Examples
 ========
 
-This page gives examples to perform video processing with AraViQ6.
+This page provides examples for video processing using AraViQ6.
 
 .. toctree::
    :maxdepth: 2

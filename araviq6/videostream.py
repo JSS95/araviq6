@@ -309,6 +309,7 @@ class VideoFrameProcessor(QtCore.QObject):
 
 
 class QVideoFrameProperty:
+    """Wrapper for the properties of QVideoFrame."""
     __slots__ = (
         "mapMode",
         "startTime",
@@ -336,9 +337,11 @@ class QVideoFrameProperty:
 
     @classmethod
     def fromVideoFrame(cls, frame: QVideoFrame):
+        """Construct :class:`QVideoFrameProperty` instance from *frame*."""
         return cls(*[getattr(frame, attr)() for attr in cls.__slots__])
 
     def setToVideoFrame(self, frame: QVideoFrame):
+        """Set the properties of *frame* to the values in *self*."""
         frame.map(self.mapMode)
         frame.setStartTime(self.startTime)
         frame.setEndTime(self.endTime)

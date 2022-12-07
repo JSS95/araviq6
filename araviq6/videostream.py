@@ -310,6 +310,7 @@ class VideoFrameProcessor(QtCore.QObject):
 
 class QVideoFrameProperty:
     """Wrapper for the properties of QVideoFrame."""
+
     __slots__ = (
         "mapMode",
         "startTime",

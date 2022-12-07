@@ -75,37 +75,33 @@ def test_array2qvideoframe(qtbot):
 
 
 def test_FrameToArrayConverter(qtbot):
-    class ArraySink(QtCore.QObject):
-        arrayChanged = QtCore.Signal()
-
-        def setArray(self, array):
-            if array.size != 0:
-                self.array = array
-                self.arrayChanged.emit()
+    class ValidFrameSink(QtMultimedia.QVideoSink):
+        def setVideoFrame(self, frame):
+            if frame.isValid():
+                super().setVideoFrame(frame)
 
     player = QtMultimedia.QMediaPlayer()
     playerSink = QtMultimedia.QVideoSink()
-    converter = FrameToArrayConverter()
-    arraySink = ArraySink()
+    validSink = ValidFrameSink()
 
     player.setVideoSink(playerSink)
-    playerSink.videoFrameChanged.connect(converter.convertVideoFrame)
-    converter.arrayConverted.connect(arraySink.setArray)
-    arraySink.arrayChanged.connect(player.stop)
+    playerSink.videoFrameChanged.connect(validSink.setVideoFrame)
+    validSink.videoFrameChanged.connect(player.stop)
 
-    with qtbot.waitSignal(arraySink.arrayChanged, timeout=10000):
+    with qtbot.waitSignal(validSink.videoFrameChanged, timeout=10000):
         player.setSource(QtCore.QUrl.fromLocalFile(get_samples_path("hello.mp4")))
         player.play()
 
-    sourceFrame = playerSink.videoFrame()
-    assert sourceFrame.isValid()
+    frame = validSink.videoFrame()
+    converter = FrameToArrayConverter()
+
     with qtbot.waitSignal(
         converter.arrayConverted,
         check_params_cb=lambda array, prop: array.size != 0
-        and prop.startTime == sourceFrame.startTime()
-        and prop.endTime == sourceFrame.endTime(),
+        and prop.startTime == frame.startTime()
+        and prop.endTime == frame.endTime(),
     ):
-        converter.convertVideoFrame(sourceFrame)
+        converter.convertVideoFrame(frame)
 
     with qtbot.waitSignal(
         converter.arrayConverted, check_params_cb=lambda array, _: array.size == 0

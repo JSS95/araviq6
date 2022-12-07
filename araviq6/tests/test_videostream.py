@@ -92,7 +92,7 @@ def test_FrameToArrayConverter(qtbot):
     converter.arrayConverted.connect(arraySink.setArray)
     arraySink.arrayChanged.connect(player.stop)
 
-    with qtbot.waitSignal(arraySink.arrayChanged):
+    with qtbot.waitSignal(arraySink.arrayChanged, timeout=10000):
         player.setSource(QtCore.QUrl.fromLocalFile(get_samples_path("hello.mp4")))
         player.play()
 
@@ -123,7 +123,7 @@ def test_ArrayToFrameConverter(qtbot):
     A2FConverter.frameConverted.connect(frameSink.setFrame)
     frameSink.frameChanged.connect(player.stop)
 
-    with qtbot.waitSignal(frameSink.frameChanged):
+    with qtbot.waitSignal(frameSink.frameChanged, timeout=10000):
         player.setSource(QtCore.QUrl.fromLocalFile(get_samples_path("hello.mp4")))
         player.play()
 

@@ -8,6 +8,7 @@ import numpy as np
 import qimage2ndarray  # type: ignore[import]
 from araviq6 import (
     array2qvideoframe,
+    QVideoFrameProperty,
     FrameToArrayConverter,
     ArrayToFrameConverter,
     get_samples_path,
@@ -130,14 +131,19 @@ def test_ArrayToFrameConverter(qtbot):
     sourceFrame = playerSink.videoFrame()
     with qtbot.waitSignal(
         A2FConverter.frameConverted,
-        check_params_cb=lambda frame, _: not frame.isValid()
-        and frame.surfaceFormat().pixelFormat()
-        == sourceFrame.surfaceFormat().pixelFormat(),
+        check_params_cb=lambda frame: not frame.isValid()
+        and frame.startTime() != -1
+        and frame.endTime() != -1,
     ):
-        A2FConverter.convertArray(np.empty((0, 0, 0), dtype=np.uint8), sourceFrame)
+        A2FConverter.convertArray(
+            np.empty((0, 0, 0), dtype=np.uint8),
+            QVideoFrameProperty.fromVideoFrame(sourceFrame),
+        )
 
     with qtbot.waitSignal(
         A2FConverter.frameConverted,
-        check_params_cb=lambda frame, _: not frame.isValid(),
+        check_params_cb=lambda frame: not frame.isValid()
+        and frame.startTime() == -1
+        and frame.endTime() == -1,
     ):
         A2FConverter.convertArray(np.empty((0, 0, 0), dtype=np.uint8))

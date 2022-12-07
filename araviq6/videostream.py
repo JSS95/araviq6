@@ -72,6 +72,11 @@ from araviq6.array2qvideoframe import array2qvideoframe
 from araviq6.qt_compat import QtCore, QtGui, QtMultimedia
 from typing import Optional
 
+try:
+    from typing import TypeAlias
+except ImportError:
+    from typing_extensions import TypeAlias
+
 
 __all__ = [
     "VideoFrameWorker",
@@ -93,7 +98,10 @@ for name, qimage_format in qimage2ndarray.qimageview_python.FORMATS.items():
         qimage_format.code = getattr(QtGui.QImage, name)
 
 
-QVideoFrame = QtMultimedia.QVideoFrame
+QVideoFrame: TypeAlias = QtMultimedia.QVideoFrame
+MapMode: TypeAlias = QtMultimedia.QVideoFrame.MapMode
+RotationAngle: TypeAlias = QtMultimedia.QVideoFrame.RotationAngle
+QVideoFrameFormat: TypeAlias = QtMultimedia.QVideoFrameFormat
 
 
 class VideoFrameWorker(QtCore.QObject):
@@ -312,11 +320,11 @@ class QVideoFrameProperty:
 
     def __init__(
         self,
-        mapMode: QVideoFrame.MapMode = QVideoFrame.MapMode.NotMapped,
+        mapMode: MapMode = MapMode.NotMapped,
         startTime: int = -1,
         endTime: int = -1,
         mirrored: bool = False,
-        rotationAngle: QVideoFrame.RotationAngle = QVideoFrame.RotationAngle.Rotation0,
+        rotationAngle: RotationAngle = RotationAngle.Rotation0,
         subtitleText: str = "",
     ):
         self.mapMode = mapMode
@@ -330,7 +338,7 @@ class QVideoFrameProperty:
     def fromVideoFrame(cls, frame: QVideoFrame):
         return cls(*[getattr(frame, attr)() for attr in cls.__slots__])
 
-    def applyToVideoFrame(self, frame: QVideoFrame):
+    def setToVideoFrame(self, frame: QVideoFrame):
         frame.map(self.mapMode)
         frame.setStartTime(self.startTime)
         frame.setEndTime(self.endTime)
@@ -350,22 +358,23 @@ class FrameToArrayConverter(QtCore.QObject):
 
     When video frame is passed to :meth:`convertVideoFrame`,
     :class:`FrameToArrayConverter` first converts it to ``QImage`` and then
-    to numpy array using :meth:`imageToArray`. Resulting array is emitted to
-    :attr:`arrayConverted` with original frame.
+    to numpy array using :meth:`imageToArray`. :attr:`arrayConverted` emits
+    resulting array and :class:`QVideoFrameProperty`.
 
     Invalid video frame is converted to 3D empty array.
 
     """
 
-    arrayConverted = QtCore.Signal(np.ndarray, QVideoFrame)
+    arrayConverted = QtCore.Signal(np.ndarray, QVideoFrameProperty)
 
     @QtCore.Slot(QVideoFrame)
     def convertVideoFrame(self, frame: QVideoFrame):
         """
         Convert *frame* to numpy array and emit to :attr:`arrayConverted`.
 
-        Video frame is converted using using :meth:`imageToArray`. Result array
-        and *frame* are emitted to :meth:`arrayConverted`.
+        Video frame is converted using using :meth:`imageToArray`, and its
+        properties are wrapped by :class:`QVideoFrameProperty`. Converted array
+        frame property are emitted to :meth:`arrayConverted`.
 
         """
         qimg = frame.toImage()
@@ -373,7 +382,7 @@ class FrameToArrayConverter(QtCore.QObject):
             array = self.imageToArray(qimg).copy()  # copy to detach reference
         else:
             array = np.empty((0, 0, 0), dtype=np.uint8)
-        self.arrayConverted.emit(array, frame)
+        self.arrayConverted.emit(array, QVideoFrameProperty.fromVideoFrame(frame))
 
     def imageToArray(self, image: QtGui.QImage) -> npt.NDArray[np.uint8]:
         """
@@ -395,60 +404,37 @@ class ArrayToFrameConverter(QtCore.QObject):
 
        ArrayToFrameConverter structure
 
-    Conversion is done by passing an array (and optionally, its original frame)
-    to :meth:`convertArray` slot and listening to :attr:`frameConverted` signal.
-    If an original frame is passed, it is used to set the properties of converted
-    frame.
-
-    The :attr:`frameConverted` signal emits two QVideoFrame objects; the first
-    one is the video frame converted from the array, and the second is the
-    original video frame. If original video frame was not passed to
-    :meth:`convertArray`, invalid frame is emitted instead.
+    Conversion is done by passing an array to :meth:`convertArray` slot and
+    listening to :attr:`frameConverted` signal. Frame properties can be set by
+    passing optional :class:`QVideoFrameProperty` with the array.
 
     """
 
-    frameConverted = QtCore.Signal(QVideoFrame, QVideoFrame)
+    frameConverted = QtCore.Signal(QVideoFrame)
 
     @QtCore.Slot(np.ndarray, QVideoFrame)
     def convertArray(
         self,
         array: npt.NDArray[np.uint8],
-        frame: Optional[QVideoFrame] = None,
+        frameProperty: QVideoFrameProperty = QVideoFrameProperty(),
     ):
         """
         Convert *array* to ``QvideoFrame`` and emit to :attr:`frameConverted`.
 
-        Additional *frame* argument can be passed to set the properties (e.g.,
-        starting time and ending time) of the converted frame. This is useful
-        when *frame* is the original frame from the source and *array* is its
-        image processing result.
+        Valid array is converted using :meth:`arrayToFrame` with properties
+        defined by *frameProperty*. Empty array is converted to invalid video
+        frame.
 
-        Valid array is converted using :meth:`arrayToFrame`. Result frame and
-        original *frame* are emitted to :attr:`frameConverted`.
-
-        If *frame* is None, is interpreted as an invalid frame with invalid
-        format. If *array* is empty, it is converted to invalid video frame, its
-        format following that of *frame*.
         """
-        if frame is None:
-            invalidFormat = QVideoFrameFormat(
-                QtCore.QSize(-1, -1),
-                QVideoFrameFormat.PixelFormat.Format_Invalid,
-            )
-            frame = QVideoFrame(invalidFormat)
-
         if array.size != 0:
-            newFrame = self.arrayToFrame(array)
+            frame = self.arrayToFrame(array)
         else:
             frameFormat = QVideoFrameFormat(
-                QtCore.QSize(-1, -1), frame.surfaceFormat().pixelFormat()
+                QtCore.QSize(-1, -1), QVideoFrameFormat.PixelFormat.Format_Invalid
             )
-            newFrame = QVideoFrame(frameFormat)
-
-        newFrame.map(frame.mapMode())
-        newFrame.setStartTime(frame.startTime())
-        newFrame.setEndTime(frame.endTime())
-        self.frameConverted.emit(newFrame, frame)
+            frame = QVideoFrame(frameFormat)
+        frameProperty.setToVideoFrame(frame)
+        self.frameConverted.emit(frame)
 
     def arrayToFrame(self, array: npt.NDArray[np.uint8]) -> QVideoFrame:
         """
@@ -616,12 +602,14 @@ class NDArrayVideoPlayer(QtMultimedia.QMediaPlayer):
     """
     Video player which emits numpy array.
 
-    :class:`NDArrayVideoPlayer` emits the the numpy array and its original frame
-    to :attr:`arrayChanged` signal. User may use this class for convenience, or
-    define own pipeline.
+    When playing, :class:`NDArrayVideoPlayer` converts the frame to numpy array
+    and :class:`QVideoFrameProperty`, and emits them to :attr:`arrayChanged`
+    signal.
+
+    User may use this class for convenience, or define own pipeline.
     """
 
-    arrayChanged = QtCore.Signal(np.ndarray, QVideoFrame)
+    arrayChanged = QtCore.Signal(np.ndarray, QVideoFrameProperty)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -639,12 +627,14 @@ class NDArrayMediaCaptureSession(QtMultimedia.QMediaCaptureSession):
     """
     Capture session which emits numpy array.
 
-    :class:`NDArrayMediaCaptureSession` emits the the numpy array and its
-    original frame to :attr:`arrayChanged` signal. User may use this class for
-    convenience, or define own pipeline.
+    When capturing, :class:`NDArrayMediaCaptureSession` converts the frame to
+    numpy array and :class:`QVideoFrameProperty`, and emits them to
+    :attr:`arrayChanged` signal.
+
+    User may use this class for convenience, or define own pipeline.
     """
 
-    arrayChanged = QtCore.Signal(np.ndarray, QVideoFrame)
+    arrayChanged = QtCore.Signal(np.ndarray, QVideoFrameProperty)
 
     def __init__(self, parent=None):
         super().__init__(parent)

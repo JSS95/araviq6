@@ -1,4 +1,4 @@
-# AraViQ6 - NDArray from QVideoFrame with Qt6
+# AraViQ6 - NDArray-based Video processing with Qt6
 
 [![PyPI version](https://badge.fury.io/py/AraViQ6.svg)](https://badge.fury.io/py/AraViQ6)
 [![Python Version](https://img.shields.io/pypi/pyversions/araviq6)](https://pypi.org/project/araviq6/)

@@ -57,8 +57,10 @@ class ClickableSlider(QtWidgets.QSlider):
             sliderLength = sr.height()
             sliderMin = gr.y()
             sliderMax = gr.bottom() - sliderLength + 1
-        pr = pos - QtCore.QPointF(sr.center()) + QtCore.QPointF(sr.topLeft())
-        p = pr.x() if self.orientation() == QtCore.Qt.Orientation.Horizontal else pr.y()
+        if self.orientation() == QtCore.Qt.Orientation.Horizontal:
+            p = pos.x() - sr.center().x() + sr.topLeft().x()
+        else:
+            p = pos.y() - sr.center().y() + sr.topLeft().y()
         return QtWidgets.QStyle.sliderValueFromPosition(
             self.minimum(),
             self.maximum(),

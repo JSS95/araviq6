@@ -19,7 +19,7 @@ import numpy as np
 import numpy.typing as npt
 import sys
 from qimage2ndarray import _normalize255  # type: ignore[import]
-from araviq6.qt_compat import QtCore, QtMultimedia
+from araviq6.qt_compat import QtCore, QtMultimedia, get_frame_data
 from typing import Optional, Union, Tuple
 
 
@@ -37,7 +37,7 @@ class ArrayInterfaceAroundQVideoFrame(object):
         self.__array_interface__ = dict(
             shape=(frame.height(), frame.width()),
             typestr="|u%d" % bytes_per_pixel,
-            data=frame.bits(0),
+            data=get_frame_data(frame),
             strides=(frame.bytesPerLine(0), bytes_per_pixel),
             version=3,
         )

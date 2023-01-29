@@ -143,12 +143,12 @@ QtMultimediaWidgets = qt_api.QtMultimediaWidgets
 binding = qt_api.qt_binding
 if binding in ("PySide6",):
 
-    def get_frame_data(frame: QtMultimedia.QVideoFrame):
+    def get_frame_data(frame: QtMultimedia.QVideoFrame):  # type: ignore[name-defined]
         return frame.bits(0)
 
 elif binding in ("PyQt6",):
 
-    def get_frame_data(frame: QtMultimedia.QVideoFrame):
+    def get_frame_data(frame: QtMultimedia.QVideoFrame):  # type: ignore[name-defined]
         return int(frame.bits(0))
 
 else:

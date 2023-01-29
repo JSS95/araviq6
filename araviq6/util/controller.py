@@ -39,13 +39,13 @@ class ClickableSlider(QtWidgets.QSlider):
         gr = self.style().subControlRect(
             QtWidgets.QStyle.ComplexControl.CC_Slider,
             opt,
-            QtWidgets.QStyle.SC_SliderGroove,
+            QtWidgets.QStyle.SubControl.SC_SliderGroove,
             self,
         )
         sr = self.style().subControlRect(
             QtWidgets.QStyle.ComplexControl.CC_Slider,
             opt,
-            QtWidgets.QStyle.SC_SliderHandle,
+            QtWidgets.QStyle.SubControl.SC_SliderHandle,
             self,
         )
 

@@ -49,7 +49,7 @@ class ClickableSlider(QtWidgets.QSlider):
             self,
         )
 
-        if self.orientation() == QtCore.Qt.Horizontal:
+        if self.orientation() == QtCore.Qt.Orientation.Horizontal:
             sliderLength = sr.width()
             sliderMin = gr.x()
             sliderMax = gr.right() - sliderLength + 1
@@ -58,7 +58,7 @@ class ClickableSlider(QtWidgets.QSlider):
             sliderMin = gr.y()
             sliderMax = gr.bottom() - sliderLength + 1
         pr = pos - sr.center() + sr.topLeft()
-        p = pr.x() if self.orientation() == QtCore.Qt.Horizontal else pr.y()
+        p = pr.x() if self.orientation() == QtCore.Qt.Orientation.Horizontal else pr.y()
         return QtWidgets.QStyle.sliderValueFromPosition(
             self.minimum(),
             self.maximum(),
@@ -135,7 +135,7 @@ class MediaController(QtWidgets.QWidget):
         stop_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaStop)
         self._stopButton.setIcon(stop_icon)
         layout.addWidget(self._stopButton)
-        self._slider.setOrientation(QtCore.Qt.Horizontal)
+        self._slider.setOrientation(QtCore.Qt.Orientation.Horizontal)
         layout.addWidget(self._slider)
         self.setLayout(layout)
 

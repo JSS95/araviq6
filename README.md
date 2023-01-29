@@ -15,6 +15,7 @@ It provides:
 
 The following Qt bindings are supported:
 - [PySide6](https://pypi.org/project/PySide6/)
+- [PyQt6](https://pypi.org/project/PyQt6/)
 
 # How to use
 

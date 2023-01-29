@@ -28,7 +28,7 @@ class ClickableSlider(QtWidgets.QSlider):
 
     # https://stackoverflow.com/questions/52689047
     def mousePressEvent(self, event: QtGui.QMouseEvent):
-        if event.button() == QtCore.Qt.LeftButton:
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
             val = self.pixelPosToRangeValue(event.position())
             self.setValue(val)
         super().mousePressEvent(event)

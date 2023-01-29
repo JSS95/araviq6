@@ -80,7 +80,8 @@ class ScalableQLabel(QtWidgets.QLabel):
         self._pixmapScaleMode = self.PM_DownScaleOnly
         # make label shrinkable
         self.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Expanding,
         )
         self.setMinimumSize(1, 1)  # (0, 0) prevents resizing
 

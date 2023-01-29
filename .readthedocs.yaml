@@ -8,6 +8,8 @@ build:
 python:
   install:
     - method: pip
+      path: typing_extensions
+    - method: pip
       path: .
       extra_requirements:
         - doc

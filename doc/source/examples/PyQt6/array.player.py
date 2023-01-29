@@ -9,9 +9,9 @@ processed array.
 
 import cv2  # type: ignore[import]
 import numpy as np
-from PySide6.QtCore import Qt, QUrl
-from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout
-from PySide6.QtMultimedia import QMediaPlayer
+from PyQt6.QtCore import Qt, QUrl
+from PyQt6.QtWidgets import QWidget, QPushButton, QVBoxLayout
+from PyQt6.QtMultimedia import QMediaPlayer
 from araviq6 import (
     ArrayWorker,
     ArrayProcessor,
@@ -86,7 +86,7 @@ class CannyVideoPlayerWidget(QWidget):
 
 if __name__ == "__main__":
     from araviq6 import get_samples_path
-    from PySide6.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
     import sys
 
     app = QApplication(sys.argv)

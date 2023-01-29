@@ -131,10 +131,14 @@ class MediaController(QtWidgets.QWidget):
         self._slider.sliderReleased.connect(self._onSliderRelease)
 
         layout = QtWidgets.QHBoxLayout()
-        play_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay)
+        play_icon = self.style().standardIcon(
+            QtWidgets.QStyle.StandardPixmap.SP_MediaPlay
+        )
         self._playButton.setIcon(play_icon)
         layout.addWidget(self._playButton)
-        stop_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaStop)
+        stop_icon = self.style().standardIcon(
+            QtWidgets.QStyle.StandardPixmap.SP_MediaStop
+        )
         self._stopButton.setIcon(stop_icon)
         layout.addWidget(self._stopButton)
         self._slider.setOrientation(QtCore.Qt.Orientation.Horizontal)
@@ -218,12 +222,12 @@ class MediaController(QtWidgets.QWidget):
                 self._onPlaybackStateChange
             )
 
-    @QtCore.Slot(int)
+    @QtCore.Slot("qint64")
     def _onMediaDurationChange(self, duration: int):
         """Set the slider range to media duration."""
         self._slider.setRange(0, duration)
 
-    @QtCore.Slot(int)
+    @QtCore.Slot("qint64")
     def _onMediaPositionChange(self, position: int):
         """Update the slider position to video position."""
         self._slider.setValue(position)
@@ -232,8 +236,12 @@ class MediaController(QtWidgets.QWidget):
     def _onPlaybackStateChange(self, state: QtMultimedia.QMediaPlayer.PlaybackState):
         """Switch the play icon and pause icon by *state*."""
         if state == QtMultimedia.QMediaPlayer.PlaybackState.PlayingState:
-            pause_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaPause)
+            pause_icon = self.style().standardIcon(
+                QtWidgets.QStyle.StandardPixmap.SP_MediaPause
+            )
             self._playButton.setIcon(pause_icon)
         else:
-            play_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay)
+            play_icon = self.style().standardIcon(
+                QtWidgets.QStyle.StandardPixmap.SP_MediaPlay
+            )
             self._playButton.setIcon(play_icon)

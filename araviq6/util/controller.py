@@ -28,7 +28,7 @@ class ClickableSlider(QtWidgets.QSlider):
 
     # https://stackoverflow.com/questions/52689047
     def mousePressEvent(self, event: QtGui.QMouseEvent):
-        if event.button() == QtCore.Qt.LeftButton:
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
             val = self.pixelPosToRangeValue(event.position())
             self.setValue(val)
         super().mousePressEvent(event)
@@ -37,13 +37,19 @@ class ClickableSlider(QtWidgets.QSlider):
         opt = QtWidgets.QStyleOptionSlider()
         self.initStyleOption(opt)
         gr = self.style().subControlRect(
-            QtWidgets.QStyle.CC_Slider, opt, QtWidgets.QStyle.SC_SliderGroove, self
+            QtWidgets.QStyle.ComplexControl.CC_Slider,
+            opt,
+            QtWidgets.QStyle.SubControl.SC_SliderGroove,
+            self,
         )
         sr = self.style().subControlRect(
-            QtWidgets.QStyle.CC_Slider, opt, QtWidgets.QStyle.SC_SliderHandle, self
+            QtWidgets.QStyle.ComplexControl.CC_Slider,
+            opt,
+            QtWidgets.QStyle.SubControl.SC_SliderHandle,
+            self,
         )
 
-        if self.orientation() == QtCore.Qt.Horizontal:
+        if self.orientation() == QtCore.Qt.Orientation.Horizontal:
             sliderLength = sr.width()
             sliderMin = gr.x()
             sliderMax = gr.right() - sliderLength + 1
@@ -51,8 +57,10 @@ class ClickableSlider(QtWidgets.QSlider):
             sliderLength = sr.height()
             sliderMin = gr.y()
             sliderMax = gr.bottom() - sliderLength + 1
-        pr = pos - sr.center() + sr.topLeft()
-        p = pr.x() if self.orientation() == QtCore.Qt.Horizontal else pr.y()
+        if self.orientation() == QtCore.Qt.Orientation.Horizontal:
+            p = pos.x() - sr.center().x() + sr.topLeft().x()
+        else:
+            p = pos.y() - sr.center().y() + sr.topLeft().y()
         return QtWidgets.QStyle.sliderValueFromPosition(
             self.minimum(),
             self.maximum(),
@@ -129,7 +137,7 @@ class MediaController(QtWidgets.QWidget):
         stop_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaStop)
         self._stopButton.setIcon(stop_icon)
         layout.addWidget(self._stopButton)
-        self._slider.setOrientation(QtCore.Qt.Horizontal)
+        self._slider.setOrientation(QtCore.Qt.Orientation.Horizontal)
         layout.addWidget(self._slider)
         self.setLayout(layout)
 

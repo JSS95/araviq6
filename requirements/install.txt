@@ -1,2 +1,2 @@
 numpy
-qimage2ndarray >= 1.9
+qimage2ndarray >= 1.10

@@ -11,3 +11,8 @@ This example shows how to run the camera with ``ndarray``-based processing pipel
 
       .. include:: ./PySide6/array.camera.py
          :code: python
+
+   .. tab:: PyQt6
+
+      .. include:: ./PyQt6/array.camera.py
+         :code: python

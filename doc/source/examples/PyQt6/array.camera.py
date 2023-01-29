@@ -8,9 +8,9 @@ and emits numpy array. The processor then receives it and emits processed array.
 
 import cv2  # type: ignore
 import numpy as np
-from PySide6.QtCore import Qt
-from PySide6.QtMultimedia import QMediaCaptureSession, QVideoSink
-from PySide6.QtWidgets import QMainWindow
+from PyQt6.QtCore import Qt
+from PyQt6.QtMultimedia import QMediaCaptureSession, QVideoSink
+from PyQt6.QtWidgets import QMainWindow
 from araviq6 import (
     FrameToArrayConverter,
     ArrayWorker,
@@ -57,8 +57,8 @@ class Window(QMainWindow):
 
 
 if __name__ == "__main__":
-    from PySide6.QtWidgets import QApplication
-    from PySide6.QtMultimedia import QCamera
+    from PyQt6.QtWidgets import QApplication
+    from PyQt6.QtMultimedia import QCamera
     import sys
 
     app = QApplication(sys.argv)

@@ -149,7 +149,7 @@ if binding in ("PySide6",):
 elif binding in ("PyQt6",):
 
     def get_frame_data(frame: QtMultimedia.QVideoFrame):  # type: ignore[name-defined]
-        return int(frame.bits(0))
+        return (int(frame.bits(0)), False)
 
 else:
     raise QtAPIError(f"Specified Qt binding: '{binding}'")

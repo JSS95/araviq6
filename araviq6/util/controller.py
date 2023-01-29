@@ -37,10 +37,16 @@ class ClickableSlider(QtWidgets.QSlider):
         opt = QtWidgets.QStyleOptionSlider()
         self.initStyleOption(opt)
         gr = self.style().subControlRect(
-            QtWidgets.QStyle.CC_Slider, opt, QtWidgets.QStyle.SC_SliderGroove, self
+            QtWidgets.QStyle.ComplexControl.CC_Slider,
+            opt,
+            QtWidgets.QStyle.SC_SliderGroove,
+            self,
         )
         sr = self.style().subControlRect(
-            QtWidgets.QStyle.CC_Slider, opt, QtWidgets.QStyle.SC_SliderHandle, self
+            QtWidgets.QStyle.ComplexControl.CC_Slider,
+            opt,
+            QtWidgets.QStyle.SC_SliderHandle,
+            self,
         )
 
         if self.orientation() == QtCore.Qt.Horizontal:

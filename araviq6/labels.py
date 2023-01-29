@@ -122,7 +122,9 @@ class ScalableQLabel(QtWidgets.QLabel):
                 raise TypeError(msg)
 
         if flag:
-            pixmap = pixmap.scaled(new_w, new_h, QtCore.Qt.KeepAspectRatio)
+            pixmap = pixmap.scaled(
+                new_w, new_h, QtCore.Qt.AspectRatioMode.KeepAspectRatio
+            )
 
         super().setPixmap(pixmap)
 

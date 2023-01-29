@@ -79,7 +79,7 @@ The following classes are plug-and-play widgets where user can process the video
 
 # Examples
 
-Use cases are provided in [examples](https://github.com/JSS95/araviq6/tree/master/araviq6/examples) directory.
+Use cases are provided in [examples](https://github.com/JSS95/araviq6/tree/master/doc/source/examples) directory.
 They can be found in documentation as well.
 
 # Installation

@@ -3,7 +3,10 @@ Processing arrays from video player
 
 This example shows how to run the video player with :class:`NDArrayVideoPlayer` and ``ndarray``-based processing pipeline.
 
-.. image:: ./videoplayer.png
+.. figure:: ./array.player.png
+   :align: center
+
+   Array-based video player widget with Canny edge detection process
 
 .. tabs::
 

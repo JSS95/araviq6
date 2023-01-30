@@ -28,7 +28,7 @@ AraViQ supports array-based pipeline and convenience classes to handle NDArray a
 Here is a sample which performs `Canny edge detection <https://en.wikipedia.org/wiki/Canny_edge_detector>`_ on the video frame.
 The code can be found in :ref:`examples`.
 
-.. figure:: examples/videoplayer.png
+.. figure:: examples/array.player.png
    :align: center
 
    Video player with canny edge detection.

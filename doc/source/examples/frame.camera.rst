@@ -1,9 +1,12 @@
 Processing frames from camera
 =============================
 
-This example shows how to run the camera with ``QVideoFrame``-based processing pipeline.
+This example shows how to run a camera widget using ``QVideoFrame``-based processing pipeline.
 
-.. image:: ./camera.png
+.. figure:: ./frame.camera.jpg
+   :align: center
+
+   Frame-based camera widget with Gaussian blurring process
 
 .. tabs::
 

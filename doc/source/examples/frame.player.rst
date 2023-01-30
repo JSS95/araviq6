@@ -1,9 +1,12 @@
 Processing frames from video player
 ===================================
 
-This example shows how to run the video player with ``QVideoFrame``-based processing pipeline.
+This example shows how to run a video player widget using ``QVideoFrame``-based processing pipeline.
 
-.. image:: ./videoplayer.png
+.. figure:: ./frame.player.jpg
+   :align: center
+
+   Frame-based video player widget with Canny edge detection process
 
 .. tabs::
 

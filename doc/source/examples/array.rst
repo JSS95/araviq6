@@ -1,7 +1,7 @@
 Array pipeline
 ==============
 
-These are the examples with ``ndarray`` pipeline with :class:`.NDArrayLabel`.
+These are the examples with ``ndarray``-based processing pipeline.
 
 .. toctree::
    :maxdepth: 2

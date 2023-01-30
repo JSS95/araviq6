@@ -1,7 +1,7 @@
 Video frame pipeline
 ====================
 
-These are the examples with ``QVideoFrame`` pipeline with ``QVideoWidget``.
+These are the examples with ``QVideoFrame``-based processing pipeline.
 
 .. toctree::
    :maxdepth: 2

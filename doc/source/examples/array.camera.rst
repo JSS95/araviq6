@@ -1,7 +1,7 @@
 Processing arrays from camera
 =============================
 
-This example shows how to run the camera with ``ndarray``-based processing pipeline.
+This example shows how to run a camera widget using ``ndarray``-based processing pipeline with ``QMediaCaptureSession`` and :class:`.NDArrayLabel`.
 
 .. figure:: ./array.camera.png
    :align: center

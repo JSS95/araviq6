@@ -26,7 +26,7 @@ class CannyWorker(VideoFrameWorker):
     def processArray(self, array: np.ndarray) -> np.ndarray:
         if self._cannyMode and array.size > 0:
             gray = cv2.cvtColor(array, cv2.COLOR_RGB2GRAY)
-            canny = cv2.Canny(gray, 50, 200)
+            canny = ~cv2.Canny(gray, 50, 200)
             array = cv2.cvtColor(canny, cv2.COLOR_GRAY2RGB)
         return array
 

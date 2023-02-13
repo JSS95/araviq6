@@ -83,7 +83,6 @@ class SignalProtocol(Protocol):
 
 
 class PlayerProtocol(Protocol):
-
     durationChanged: SignalProtocol
     positionChanged: SignalProtocol
     playbackStateChanged: SignalProtocol

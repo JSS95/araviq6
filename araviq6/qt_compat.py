@@ -23,8 +23,7 @@ Notes
 
 This module is not part of public API, therefore users must not rely on it.
 
-Based on https://github.com/hmeine/qimage2ndarray and
-https://github.com/pytest-dev/pytest-qt.
+Based on from https://github.com/pytest-dev/pytest-qt.
 
 """
 
@@ -114,18 +113,19 @@ class QtAPI:
             msg = "Supported Qt not installed.\n" + errors
             raise QtAPIError(msg)
 
+        def _import_module(module_name):
+            m = __import__(self.qt_binding, globals(), locals(), [module_name], 0)
+            return getattr(m, module_name)
+
+        self.QtCore = _import_module("QtCore")
+        self.QtWidgets = _import_module("QtWidgets")
+        self.QtGui = _import_module("QtGui")
+        self.QtMultimedia = _import_module("QtMultimedia")
+        self.QtMultimediaWidgets = _import_module("QtMultimediaWidgets")
+
         if self.qt_binding in ("PyQt6",):
             self.QtCore.Signal = self.QtCore.pyqtSignal
             self.QtCore.Slot = self.QtCore.pyqtSlot
-
-    def _import_module(self, module_name):
-        m = __import__(self.qt_binding, globals(), locals(), [module_name], 0)
-        return getattr(m, module_name)
-
-    def __getattr__(self, name):
-        if name.startswith("Qt"):
-            return self._import_module(name)
-        return self.__getattribute__(name)
 
 
 class QtAPIError(Exception):

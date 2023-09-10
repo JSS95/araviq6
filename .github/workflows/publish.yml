@@ -1,4 +1,4 @@
-name: publish araviq6 to PyPI
+name: publish
 
 on: push
 

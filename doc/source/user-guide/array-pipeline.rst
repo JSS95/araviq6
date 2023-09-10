@@ -86,6 +86,59 @@ Here is the complete code:
       app.exec()
       app.quit()
 
+   .. code-tab:: python PyQt6
+
+      import cv2  # type: ignore[import]
+      import sys
+      from PyQt6.QtCore import Qt, QUrl
+      from PyQt6.QtWidgets import QWidget, QVBoxLayout, QApplication
+      from PyQt6.QtMultimedia import QMediaPlayer
+      from araviq6 import (
+          ArrayWorker,
+          ArrayProcessor,
+          NDArrayVideoPlayer,
+          NDArrayLabel,
+          MediaController,
+          get_samples_path,
+      )
+
+      class BlurWorker(ArrayWorker):
+          def processArray(self, array):
+              if array.size != 0:
+                  return cv2.GaussianBlur(array, (0, 0), 9)
+              return array
+
+      class BlurWidget(QWidget):
+          def __init__(self, parent=None):
+              super().__init__(parent)
+              self.videoPlayer = NDArrayVideoPlayer(self)
+              self.arrayProcessor = ArrayProcessor()
+              self.arrayLabel = NDArrayLabel()
+              self.mediaController = MediaController()
+
+              self.videoPlayer.arrayChanged.connect(self.arrayProcessor.processArray)
+              self.arrayProcessor.arrayProcessed.connect(self.arrayLabel.setArray)
+
+              self.arrayProcessor.setWorker(BlurWorker())
+              self.mediaController.setPlayer(self.videoPlayer)
+              self.arrayLabel.setAlignment(Qt.AlignCenter)
+
+              layout = QVBoxLayout()
+              layout.addWidget(self.arrayLabel)
+              layout.addWidget(self.mediaController)
+              self.setLayout(layout)
+
+          def closeEvent(self, event):
+              self.arrayProcessor.stop()
+              super().closeEvent(event)
+
+      app = QApplication(sys.argv)
+      w = BlurWidget()
+      w.videoPlayer.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
+      w.show()
+      app.exec()
+      app.quit()
+
 .. figure:: ./blurplayer.array.jpg
    :align: center
 
@@ -105,36 +158,35 @@ Just as QVideoFrame processor (which we explored in :ref:`guide-processor`), NDA
 
 We defined :class:`BlurWorker` all the same with that in the previous page, except that we now subclass :class:`.ArrayWorker` instead of :class:`.VideoFrameWorker`.
 
-.. tabs::
+.. code-block:: python
 
-    .. code-tab:: python PySide6
-
-       class BlurWorker(ArrayWorker):
-           def processArray(self, array):
-               if array.size != 0:
-                   return cv2.GaussianBlur(array, (0, 0), 9)
-               return array
+    class BlurWorker(ArrayWorker):
+        def processArray(self, array):
+            if array.size != 0:
+                return cv2.GaussianBlur(array, (0, 0), 9)
+            return array
 
 Inside :class:`BlurWidget` we constructed the worker and the processor, and set the former to the latter.
 
-.. tabs::
+.. code-block:: python
 
-    .. code-tab:: python PySide6
-
-          self.arrayProcessor = ArrayProcessor()
-          self.arrayLabel = NDArrayLabel()
-          ...
-          self.arrayProcessor.setWorker(BlurWorker())
+    class BlurWidget(QWidget):
+        def __init__(self, parent=None):
+            ...
+            self.arrayProcessor = ArrayProcessor()
+            self.arrayLabel = NDArrayLabel()
+            ...
+            self.arrayProcessor.setWorker(BlurWorker())
 
 When the main window is closed, array processor must be stopped to kill the internal thread.
 
-.. tabs::
+.. code-block:: python
 
-    .. code-tab:: python PySide6
-
-          def closeEvent(self, event):
-              self.arrayProcessor.stop()
-              super().closeEvent(event)
+    class BlurWidget(QWidget):
+        ...
+        def closeEvent(self, event):
+            self.arrayProcessor.stop()
+            super().closeEvent(event)
 
 NDArray video player
 --------------------
@@ -145,23 +197,24 @@ Qt's :class:`QMediaPlayer` emits the frames as QVideoFrame via its video sink.
 Inside :class:`BlurWidget` we constructed the NDArray video player and connected its signal directly to the processor.
 If we didn't use :class:`.NDArrayVideoPlayer`, we'd have to set QVideoSink to QMediaPlayer, connect QVideoSink to :class:`.FrameToArrayConverter` and then connect the converter to the processor.
 
-.. tabs::
+.. code-block:: python
 
-    .. code-tab:: python PySide6
-
-          self.videoPlayer = NDArrayVideoPlayer(self)
-          ...
-          self.videoPlayer.arrayChanged.connect(self.arrayProcessor.processArray)
+    class BlurWidget(QWidget):
+        def __init__(self, parent=None):
+            self.videoPlayer = NDArrayVideoPlayer(self)
+            ...
+            self.videoPlayer.arrayChanged.connect(self.arrayProcessor.processArray)
 
 Also we set the player to :class:`.MediaController` so that we can control the playback state and the positon of the player.
 
-.. tabs::
+.. code-block:: python
 
-    .. code-tab:: python PySide6
-
-          self.mediaController = MediaController()
-          ...
-          self.mediaController.setPlayer(self.videoPlayer)
+    class BlurWidget(QWidget):
+        def __init__(self, parent=None):
+            ...
+            self.mediaController = MediaController()
+            ...
+            self.mediaController.setPlayer(self.videoPlayer)
 
 NDArray label
 -------------
@@ -176,14 +229,15 @@ NDArrayLable can, in addition, display the input array to the screen.
 We constructed NDArray label instance, added it to the layout of :class:`BlurWidget` and connected the processor's array signal to the label.
 If we didn't use :class:`.NDArrayLabel`, we'd have to connect the processor to :class:`.ArrayToFrameConverter`, then connect the converter to QVideoWidget's QVideoSink.
 
-.. tabs::
+.. code-block:: python
 
-    .. code-tab:: python PySide6
-
-          self.arrayLabel = NDArrayLabel()
-          ...
-          self.arrayProcessor.arrayProcessed.connect(self.arrayLabel.setArray)
-          ...
-          self.arrayLabel.setAlignment(Qt.AlignCenter)
+    class BlurWidget(QWidget):
+        def __init__(self, parent=None):
+            ...
+            self.arrayLabel = NDArrayLabel()
+            ...
+            self.arrayProcessor.arrayProcessed.connect(self.arrayLabel.setArray)
+            ...
+            self.arrayLabel.setAlignment(Qt.AlignCenter)
 
 Note that as ordinary, QLabel, the alignment of the label can be set.

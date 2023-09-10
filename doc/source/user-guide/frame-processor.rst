@@ -60,6 +60,29 @@ Here is the code that constructs and runs the widget with sample video.
        app.exec()
        app.quit()
 
+   .. code-tab:: python PyQt6
+
+       import cv2  # type: ignore
+       from PyQt6.QtCore import QUrl
+       from PyQt6.QtWidgets import QApplication
+       import sys
+       from araviq6 import PlayerProcessWidget, VideoFrameWorker
+       from araviq6.util import get_samples_path
+
+       class BlurWorker(VideoFrameWorker):
+           def processArray(self, array):
+               if array.size != 0:  # video player emits empty frame at the end of the video
+                   return cv2.GaussianBlur(array, (0, 0), 9)
+               return array
+
+       app = QApplication(sys.argv)
+       w = PlayerProcessWidget()
+       w.setWorker(BlurWorker())
+       w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
+       w.show()
+       app.exec()
+       app.quit()
+
 .. figure:: ./blurplayer.frame.jpg
    :align: center
 
@@ -102,6 +125,29 @@ The resulting video has lower frame rate, but the controller position agrees wit
         app.exec()
         app.quit()
 
+    .. code-tab:: python PyQt6
+
+        import cv2  # type: ignore
+        from PyQt6.QtCore import QUrl
+        from PyQt6.QtWidgets import QApplication
+        import sys
+        from araviq6 import PlayerProcessWidget, VideoFrameWorker
+        from araviq6.util import get_samples_path
+
+        class BlurWorker(VideoFrameWorker):
+            def processArray(self, array):
+                if array.size != 0:
+                    return cv2.GaussianBlur(array, (0, 0), 45)
+                return array
+
+        app = QApplication(sys.argv)
+        w = PlayerProcessWidget()
+        w.setWorker(BlurWorker())
+        w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
+        w.show()
+        app.exec()
+        app.quit()
+
 This design can be fine when we are just displaying the video, but we need different approach when every frame must be grabbed (e.g., when saving the video).
 
 Setting :meth:`.VideoFrameProcesor.skipIfRunning` to False forces every frame from the player to be queued to the worker.
@@ -114,6 +160,30 @@ Run the following code and see how the widget behaves.
         import cv2  # type: ignore
         from PySide6.QtCore import QUrl
         from PySide6.QtWidgets import QApplication
+        import sys
+        from araviq6 import PlayerProcessWidget, VideoFrameWorker
+        from araviq6.util import get_samples_path
+
+        class BlurWorker(VideoFrameWorker):
+            def processArray(self, array):
+                if array.size != 0:
+                    return cv2.GaussianBlur(array, (0, 0), 45)
+                return array
+
+        app = QApplication(sys.argv)
+        w = PlayerProcessWidget()
+        w.frameProcessor().setSkipIfRunning(False)
+        w.setWorker(BlurWorker())
+        w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
+        w.show()
+        app.exec()
+        app.quit()
+
+    .. code-tab:: python PyQt6
+
+        import cv2  # type: ignore
+        from PyQt6.QtCore import QUrl
+        from PyQt6.QtWidgets import QApplication
         import sys
         from araviq6 import PlayerProcessWidget, VideoFrameWorker
         from araviq6.util import get_samples_path

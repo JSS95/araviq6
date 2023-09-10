@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[project]
+name = "araviq6"
+description = "Package for converting QVideoFrame to NDArray with Qt6"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE"}
+keywords = ["GUI", "Video"]
+authors = [
+    {name = "Jisoo Song", email = "jeesoo9595@snu.ac.kr"}
+]
+classifiers = [
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Topic :: Multimedia :: Graphics",
+        "Topic :: Software Development",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Software Development :: User Interfaces",
+        "Topic :: Software Development :: Widget Sets",
+]
+dependencies = [
+    "numpy",
+    "qimage2ndarray >= 1.10",
+]
+dynamic = [
+    "version",
+]
+
+[project.urls]
+repository = "https://github.com/JSS95/araviq6"
+
+[project.optional-dependencies]
+test = [
+    "mypy",
+    "opencv-python-headless",
+    "pytest",
+    "pytest-qt",
+]
+test-ci = [
+    "araviq6[test]",
+    "pytest-xvfb",
+]
+doc = [
+    "numpydoc",
+    "sphinx",
+    "sphinx-tabs",
+    "sphinx_rtd_theme",
+    "typing_extensions",
+]
+full = ["araviq6[test,doc]"]
+
+[tool.setuptools.dynamic]
+version = {attr = "araviq6.version.__version__"}

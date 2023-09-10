@@ -111,10 +111,7 @@ jobs:
         run: |
           pip install .[test-ci]
 
-      - name: run pytest
-        run: |
-          pytest
-        shell: bash   
+      - run: pytest 
 
   doc:
 

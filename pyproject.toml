@@ -46,6 +46,7 @@ test = [
     "opencv-python-headless",
     "pytest",
     "pytest-qt",
+    "typing_extensions",
 ]
 test-ci = [
     "araviq6[test]",

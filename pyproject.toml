@@ -48,7 +48,7 @@ test = [
     "pytest-qt",
     "typing_extensions",
 ]
-test-ci = [
+test-headless = [
     "araviq6[test]",
     "pytest-xvfb",
 ]
@@ -57,6 +57,7 @@ doc = [
     "sphinx",
     "sphinx-tabs",
     "sphinx_rtd_theme",
+    "typing_extensions",
 ]
 full = ["araviq6[test,doc]"]
 

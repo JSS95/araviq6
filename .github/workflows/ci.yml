@@ -54,7 +54,7 @@ jobs:
 
       - name: install package
         run: |
-          pip install .[test]
+          pip install mypy .
 
       - name: run mypy check
         run: |

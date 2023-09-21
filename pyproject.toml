@@ -43,12 +43,12 @@ repository = "https://github.com/JSS95/araviq6"
 
 [project.optional-dependencies]
 test = [
-    "mypy",
     "opencv-python-headless",
     "pytest",
     "pytest-qt",
+    "typing_extensions",
 ]
-test-ci = [
+test-headless = [
     "araviq6[test]",
     "pytest-xvfb",
 ]

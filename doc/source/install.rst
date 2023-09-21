@@ -61,7 +61,7 @@ You may add them in brackets right after the package argument.
 Available specifications for AraViQ6 are:
 
 * ``test``: installs modules to run tests
-* ``test-ci``: installs modules to run tests in headless environment.
+* ``test-headless``: installs modules to run tests in headless environment.
 * ``doc``: installs modules to build documentations
 * ``full``: installs every additional dependency
 

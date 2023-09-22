@@ -46,7 +46,7 @@ Here is the complete code:
           NDArrayVideoPlayer,
           NDArrayLabel,
           MediaController,
-          get_samples_path,
+          get_data_path,
       )
 
       class BlurWorker(ArrayWorker):
@@ -81,7 +81,7 @@ Here is the complete code:
 
       app = QApplication(sys.argv)
       w = BlurWidget()
-      w.videoPlayer.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
+      w.videoPlayer.setSource(QUrl.fromLocalFile(get_data_path('hello.mp4')))
       w.show()
       app.exec()
       app.quit()
@@ -99,7 +99,7 @@ Here is the complete code:
           NDArrayVideoPlayer,
           NDArrayLabel,
           MediaController,
-          get_samples_path,
+          get_data_path,
       )
 
       class BlurWorker(ArrayWorker):
@@ -134,7 +134,7 @@ Here is the complete code:
 
       app = QApplication(sys.argv)
       w = BlurWidget()
-      w.videoPlayer.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
+      w.videoPlayer.setSource(QUrl.fromLocalFile(get_data_path('hello.mp4')))
       w.show()
       app.exec()
       app.quit()

@@ -44,7 +44,7 @@ Here is the code that constructs and runs the widget with sample video.
        from PySide6.QtWidgets import QApplication
        import sys
        from araviq6 import PlayerProcessWidget, VideoFrameWorker
-       from araviq6.util import get_samples_path
+       from araviq6.util import get_data_path
 
        class BlurWorker(VideoFrameWorker):
            def processArray(self, array):
@@ -55,7 +55,7 @@ Here is the code that constructs and runs the widget with sample video.
        app = QApplication(sys.argv)
        w = PlayerProcessWidget()
        w.setWorker(BlurWorker())
-       w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
+       w.setSource(QUrl.fromLocalFile(get_data_path('hello.mp4')))
        w.show()
        app.exec()
        app.quit()
@@ -67,7 +67,7 @@ Here is the code that constructs and runs the widget with sample video.
        from PyQt6.QtWidgets import QApplication
        import sys
        from araviq6 import PlayerProcessWidget, VideoFrameWorker
-       from araviq6.util import get_samples_path
+       from araviq6.util import get_data_path
 
        class BlurWorker(VideoFrameWorker):
            def processArray(self, array):
@@ -78,7 +78,7 @@ Here is the code that constructs and runs the widget with sample video.
        app = QApplication(sys.argv)
        w = PlayerProcessWidget()
        w.setWorker(BlurWorker())
-       w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
+       w.setSource(QUrl.fromLocalFile(get_data_path('hello.mp4')))
        w.show()
        app.exec()
        app.quit()
@@ -109,7 +109,7 @@ The resulting video has lower frame rate, but the controller position agrees wit
         from PySide6.QtWidgets import QApplication
         import sys
         from araviq6 import PlayerProcessWidget, VideoFrameWorker
-        from araviq6.util import get_samples_path
+        from araviq6.util import get_data_path
 
         class BlurWorker(VideoFrameWorker):
             def processArray(self, array):
@@ -120,7 +120,7 @@ The resulting video has lower frame rate, but the controller position agrees wit
         app = QApplication(sys.argv)
         w = PlayerProcessWidget()
         w.setWorker(BlurWorker())
-        w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
+        w.setSource(QUrl.fromLocalFile(get_data_path('hello.mp4')))
         w.show()
         app.exec()
         app.quit()
@@ -132,7 +132,7 @@ The resulting video has lower frame rate, but the controller position agrees wit
         from PyQt6.QtWidgets import QApplication
         import sys
         from araviq6 import PlayerProcessWidget, VideoFrameWorker
-        from araviq6.util import get_samples_path
+        from araviq6.util import get_data_path
 
         class BlurWorker(VideoFrameWorker):
             def processArray(self, array):
@@ -143,7 +143,7 @@ The resulting video has lower frame rate, but the controller position agrees wit
         app = QApplication(sys.argv)
         w = PlayerProcessWidget()
         w.setWorker(BlurWorker())
-        w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
+        w.setSource(QUrl.fromLocalFile(get_data_path('hello.mp4')))
         w.show()
         app.exec()
         app.quit()
@@ -162,7 +162,7 @@ Run the following code and see how the widget behaves.
         from PySide6.QtWidgets import QApplication
         import sys
         from araviq6 import PlayerProcessWidget, VideoFrameWorker
-        from araviq6.util import get_samples_path
+        from araviq6.util import get_data_path
 
         class BlurWorker(VideoFrameWorker):
             def processArray(self, array):
@@ -174,7 +174,7 @@ Run the following code and see how the widget behaves.
         w = PlayerProcessWidget()
         w.frameProcessor().setSkipIfRunning(False)
         w.setWorker(BlurWorker())
-        w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
+        w.setSource(QUrl.fromLocalFile(get_data_path('hello.mp4')))
         w.show()
         app.exec()
         app.quit()
@@ -186,7 +186,7 @@ Run the following code and see how the widget behaves.
         from PyQt6.QtWidgets import QApplication
         import sys
         from araviq6 import PlayerProcessWidget, VideoFrameWorker
-        from araviq6.util import get_samples_path
+        from araviq6.util import get_data_path
 
         class BlurWorker(VideoFrameWorker):
             def processArray(self, array):
@@ -198,7 +198,7 @@ Run the following code and see how the widget behaves.
         w = PlayerProcessWidget()
         w.frameProcessor().setSkipIfRunning(False)
         w.setWorker(BlurWorker())
-        w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
+        w.setSource(QUrl.fromLocalFile(get_data_path('hello.mp4')))
         w.show()
         app.exec()
         app.quit()

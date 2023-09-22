@@ -85,13 +85,13 @@ class CannyVideoPlayerWidget(QWidget):
 
 
 if __name__ == "__main__":
-    from araviq6 import get_samples_path
+    from araviq6 import get_data_path
     from PyQt6.QtWidgets import QApplication
     import sys
 
     app = QApplication(sys.argv)
     widget = CannyVideoPlayerWidget()
-    url = QUrl.fromLocalFile(get_samples_path("hello.mp4"))
+    url = QUrl.fromLocalFile(get_data_path("hello.mp4"))
     widget.setSource(url)
     widget.show()
     app.exec()

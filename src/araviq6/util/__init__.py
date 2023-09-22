@@ -8,13 +8,13 @@ video pipeline components.
 .. automodule:: araviq6.util.controller
    :members:
 
-.. automodule:: araviq6.util.testing
+.. automodule:: araviq6.util.path
    :members:
 
 """
 
 from .controller import ClickableSlider, SignalProtocol, PlayerProtocol, MediaController
-from .testing import get_samples_path
+from .path import get_data_path, get_samples_path
 
 
 __all__ = [
@@ -22,5 +22,6 @@ __all__ = [
     "SignalProtocol",
     "PlayerProtocol",
     "MediaController",
+    "get_data_path",
     "get_samples_path",
 ]

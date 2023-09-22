@@ -42,7 +42,7 @@ class PlayerProcessWidget(QtWidgets.QWidget):
             from PySide6.QtWidgets import QApplication
             import sys
             from araviq6 import PlayerProcessWidget, VideoFrameWorker
-            from araviq6.util import get_samples_path
+            from araviq6.util import get_data_path
             class FlipWorker(VideoFrameWorker):
                 def processArray(self, array):
                     return array[::-1]
@@ -50,7 +50,7 @@ class PlayerProcessWidget(QtWidgets.QWidget):
                 app = QApplication(sys.argv)
                 w = PlayerProcessWidget()
                 w.setWorker(FlipWorker())
-                w.setSource(QUrl.fromLocalFile(get_samples_path('hello.mp4')))
+                w.setSource(QUrl.fromLocalFile(get_data_path('hello.mp4')))
                 w.show()
                 app.exec()
                 app.quit()

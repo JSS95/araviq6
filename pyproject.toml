@@ -51,7 +51,7 @@ doc = [
     "sphinx-tabs",
     "sphinx_rtd_theme",
 ]
-full = [
+dev = [
     "flake8",
     "black",
     "mypy",

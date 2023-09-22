@@ -44,5 +44,6 @@ def get_data_path(*paths: str) -> str:
         return str(data_path._paths[0])
     return str(data_path.joinpath(*paths))
 
+
 # backwards compatibility
 get_samples_path = get_data_path

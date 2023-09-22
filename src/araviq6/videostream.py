@@ -69,13 +69,8 @@ import numpy as np
 import numpy.typing as npt
 import qimage2ndarray  # type: ignore[import]
 from araviq6.array2qvideoframe import array2qvideoframe
-from araviq6.qt_compat import QtCore, QtGui, QtMultimedia
+from araviq6.qt_compat import QtCore, QtGui, QtMultimedia as QM
 from typing import Optional
-
-try:
-    from typing import TypeAlias
-except ImportError:
-    from typing_extensions import TypeAlias
 
 
 __all__ = [
@@ -91,10 +86,7 @@ __all__ = [
 ]
 
 
-QVideoFrame: TypeAlias = QtMultimedia.QVideoFrame
-MapMode: TypeAlias = QtMultimedia.QVideoFrame.MapMode
-RotationAngle: TypeAlias = QtMultimedia.QVideoFrame.RotationAngle
-QVideoFrameFormat: TypeAlias = QtMultimedia.QVideoFrameFormat
+QM.QVF = QM.QVideoFrame
 
 
 class VideoFrameWorker(QtCore.QObject):
@@ -109,7 +101,7 @@ class VideoFrameWorker(QtCore.QObject):
     property can be utilized in multithreading.
     """
 
-    videoFrameProcessed = QtCore.Signal(QVideoFrame, np.ndarray)
+    videoFrameProcessed = QtCore.Signal(QM.QVF, np.ndarray)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -122,7 +114,7 @@ class VideoFrameWorker(QtCore.QObject):
         """
         return self._ready
 
-    def runProcess(self, frame: QVideoFrame):
+    def runProcess(self, frame: QM.QVF):
         """
         Process *frame* and emit the results to :attr:`videoFrameProcessed`.
 
@@ -177,8 +169,8 @@ class VideoFrameWorker(QtCore.QObject):
         return array
 
     def arrayToVideoFrame(
-        self, array: npt.NDArray[np.uint8], hintFrame: QVideoFrame
-    ) -> QVideoFrame:
+        self, array: npt.NDArray[np.uint8], hintFrame: QM.QVF
+    ) -> QM.QVF:
         """
         Convert *array* to ``QVideoFrame``, using *hintFrame* as hint.
 
@@ -217,8 +209,8 @@ class VideoFrameProcessor(QtCore.QObject):
 
     """
 
-    _processRequested = QtCore.Signal(QVideoFrame)
-    videoFrameProcessed = QtCore.Signal(QVideoFrame, np.ndarray)
+    _processRequested = QtCore.Signal(QM.QVF)
+    videoFrameProcessed = QtCore.Signal(QM.QVF, np.ndarray)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -275,8 +267,8 @@ class VideoFrameProcessor(QtCore.QObject):
         """
         self._skipIfRunning = flag
 
-    @QtCore.Slot(QVideoFrame)
-    def processVideoFrame(self, frame: QVideoFrame):
+    @QtCore.Slot(QM.QVF)
+    def processVideoFrame(self, frame: QM.QVF):
         """
         Request :meth:`worker` to process *frame*.
 
@@ -315,11 +307,11 @@ class QVideoFrameProperty:
 
     def __init__(
         self,
-        mapMode: MapMode = MapMode.NotMapped,
+        mapMode: QM.QVF.MapMode = QM.QVF.MapMode.NotMapped,
         startTime: int = -1,
         endTime: int = -1,
         mirrored: bool = False,
-        rotationAngle: RotationAngle = RotationAngle.Rotation0,
+        rotationAngle: QM.QVF.RotationAngle = QM.QVF.RotationAngle.Rotation0,
         subtitleText: str = "",
     ):
         self.mapMode = mapMode
@@ -330,11 +322,11 @@ class QVideoFrameProperty:
         self.subtitleText = subtitleText
 
     @classmethod
-    def fromVideoFrame(cls, frame: QVideoFrame):
+    def fromVideoFrame(cls, frame: QM.QVF):
         """Construct :class:`QVideoFrameProperty` instance from *frame*."""
         return cls(*[getattr(frame, attr)() for attr in cls.__slots__])
 
-    def setToVideoFrame(self, frame: QVideoFrame):
+    def setToVideoFrame(self, frame: QM.QVF):
         """Set the properties of *frame* to the values in *self*."""
         frame.map(self.mapMode)
         frame.setStartTime(self.startTime)
@@ -364,8 +356,8 @@ class FrameToArrayConverter(QtCore.QObject):
 
     arrayConverted = QtCore.Signal(np.ndarray, QVideoFrameProperty)
 
-    @QtCore.Slot(QVideoFrame)
-    def convertVideoFrame(self, frame: QVideoFrame):
+    @QtCore.Slot(QM.QVF)
+    def convertVideoFrame(self, frame: QM.QVF):
         """
         Convert *frame* to numpy array and emit to :attr:`arrayConverted`.
 
@@ -407,9 +399,9 @@ class ArrayToFrameConverter(QtCore.QObject):
 
     """
 
-    frameConverted = QtCore.Signal(QVideoFrame)
+    frameConverted = QtCore.Signal(QM.QVF)
 
-    @QtCore.Slot(np.ndarray, QVideoFrame)
+    @QtCore.Slot(np.ndarray, QM.QVF)
     def convertArray(
         self,
         array: npt.NDArray[np.uint8],
@@ -426,14 +418,14 @@ class ArrayToFrameConverter(QtCore.QObject):
         if array.size != 0:
             frame = self.arrayToFrame(array)
         else:
-            frameFormat = QVideoFrameFormat(
-                QtCore.QSize(-1, -1), QVideoFrameFormat.PixelFormat.Format_Invalid
+            frameFormat = QM.QVideoFrameFormat(
+                QtCore.QSize(-1, -1), QM.QVideoFrameFormat.PixelFormat.Format_Invalid
             )
-            frame = QVideoFrame(frameFormat)
+            frame = QM.QVF(frameFormat)
         frameProperty.setToVideoFrame(frame)
         self.frameConverted.emit(frame)
 
-    def arrayToFrame(self, array: npt.NDArray[np.uint8]) -> QVideoFrame:
+    def arrayToFrame(self, array: npt.NDArray[np.uint8]) -> QM.QVF:
         """
         Converts *array* to ``QVideoFrame``.
 
@@ -595,7 +587,7 @@ class ArrayProcessor(QtCore.QObject):
         self._processorThread.wait()
 
 
-class NDArrayVideoPlayer(QtMultimedia.QMediaPlayer):
+class NDArrayVideoPlayer(QM.QMediaPlayer):
     """
     Video player which emits numpy array.
 
@@ -610,7 +602,7 @@ class NDArrayVideoPlayer(QtMultimedia.QMediaPlayer):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._videoSink = QtMultimedia.QVideoSink()
+        self._videoSink = QM.QVideoSink()
         self._arrayConverter = FrameToArrayConverter(self)
 
         self.setVideoSink(self._videoSink)
@@ -620,7 +612,7 @@ class NDArrayVideoPlayer(QtMultimedia.QMediaPlayer):
         self._arrayConverter.arrayConverted.connect(self.arrayChanged)
 
 
-class NDArrayMediaCaptureSession(QtMultimedia.QMediaCaptureSession):
+class NDArrayMediaCaptureSession(QM.QMediaCaptureSession):
     """
     Capture session which emits numpy array.
 
@@ -635,7 +627,7 @@ class NDArrayMediaCaptureSession(QtMultimedia.QMediaCaptureSession):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._videoSink = QtMultimedia.QVideoSink()
+        self._videoSink = QM.QVideoSink()
         self._arrayConverter = FrameToArrayConverter(self)
 
         self.setVideoSink(self._videoSink)

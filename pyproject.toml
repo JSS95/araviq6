@@ -57,6 +57,9 @@ dev = [
     "mypy",
     "araviq6[test,doc]",
 ]
+full = [
+    "araviq6[dev]",
+]  # for backwards compatibility
 
 [tool.setuptools.dynamic]
 version = {attr = "araviq6.version.__version__"}

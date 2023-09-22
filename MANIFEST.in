@@ -1,2 +1,1 @@
-include araviq6/py.typed
-include araviq6/samples/*
+include src/araviq6/data/*

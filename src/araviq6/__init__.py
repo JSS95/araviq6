@@ -31,6 +31,7 @@ from .videowidgets import (
 from .util import (
     ClickableSlider,
     MediaController,
+    get_data_path,
     get_samples_path,
 )
 
@@ -52,5 +53,6 @@ __all__ = [
     "CameraProcessWidget",
     "ClickableSlider",
     "MediaController",
+    "get_data_path",
     "get_samples_path",
 ]

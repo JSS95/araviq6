@@ -1,5 +1,6 @@
 [build-system]
 requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "araviq6"
@@ -30,12 +31,9 @@ classifiers = [
         "Topic :: Software Development :: User Interfaces",
         "Topic :: Software Development :: Widget Sets",
 ]
-dependencies = [
-    "numpy",
-    "qimage2ndarray >= 1.10",
-]
 dynamic = [
     "version",
+    "dependencies",
 ]
 
 [project.urls]
@@ -46,20 +44,23 @@ test = [
     "opencv-python-headless",
     "pytest",
     "pytest-qt",
-    "typing_extensions",
-]
-test-headless = [
-    "araviq6[test]",
-    "pytest-xvfb",
 ]
 doc = [
     "numpydoc",
     "sphinx",
     "sphinx-tabs",
     "sphinx_rtd_theme",
-    "typing_extensions",
 ]
-full = ["araviq6[test,doc]"]
+full = [
+    "flake8",
+    "black",
+    "mypy",
+    "araviq6[test,doc]",
+]
 
 [tool.setuptools.dynamic]
 version = {attr = "araviq6.version.__version__"}
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+where = ["src"]

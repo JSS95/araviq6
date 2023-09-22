@@ -11,10 +11,10 @@ jobs:
     steps: 
 
       - name: get repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
 
       - name: install dependencies
         run: |
@@ -26,7 +26,7 @@ jobs:
 
       - name: lint with black
         run: |
-          black --check -v .
+          black --check .
 
   type-check:
 
@@ -34,33 +34,24 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-
-      matrix:
-        qt: [PySide6, PyQt6]
-
     steps: 
 
       - name: get repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: set up Python
-        uses: actions/setup-python@v2
-
-      - name: install qt
-        run: |
-          pip install ${{ matrix.qt }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
 
       - name: install package
         run: |
-          pip install mypy .[test]
+          pip install -r requirements.txt
+          pip install mypy
 
       - name: run mypy check
         run: |
-          mypy araviq6
-          mypy doc/source --exclude doc/source/examples
-          mypy doc/source/examples/${{ matrix.qt }}
+          mypy src
 
 
   unit-test:
@@ -75,7 +66,6 @@ jobs:
 
     strategy:
       fail-fast: false
-
       matrix:
         os : [ubuntu-latest, windows-latest, macos-latest]
         python: ["3.7", "3.8", "3.9", "3.10", "3.11"]
@@ -84,10 +74,10 @@ jobs:
     steps:
 
       - name: get repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
 
@@ -109,7 +99,8 @@ jobs:
 
       - name: install package
         run: |
-          pip install .[test-headless]
+          pip install pytest-xvfb
+          pip install .[test]
 
       - run: pytest 
 
@@ -122,10 +113,12 @@ jobs:
     steps: 
 
       - name: get repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
 
       - name: install package
         run: |

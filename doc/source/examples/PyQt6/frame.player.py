@@ -80,13 +80,13 @@ class Window(QWidget):
 
 
 if __name__ == "__main__":
-    from araviq6 import get_samples_path
+    from araviq6 import get_data_path
     from PyQt6.QtWidgets import QApplication
     import sys
 
     app = QApplication(sys.argv)
     window = Window()
-    url = QUrl.fromLocalFile(get_samples_path("hello.mp4"))
+    url = QUrl.fromLocalFile(get_data_path("hello.mp4"))
     window.setSource(url)
     window.show()
     app.exec()

@@ -1,1 +1,2 @@
 include src/araviq6/data/*
+include src/araviq6/py.typed
